@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{base :: page_head()}"></head>
+<body>
+
+    <div th:fragment="reportModal" id="report" class="modal-container hidden">
+        <div class=" modal-content h-150 overflow-y-auto">
+            <!-- Close Button -->
+            <button id="close-modal" class="modal-close-btn">&times;</button>
+
+            <!-- Title Section -->
+            <div class="modal-title mb-4">
+                <h2 class="text-xl font-semibold">Report</h2>
+            </div>
+
+            <div class="section-header">
+                <dl>
+                    <dt class="dt">Profit</dt>
+                    <dd class="dd">$5,405</dd>
+                </dl>
+                <div>
+                    <span class="profit-rate-up">
+                        <svg class="profit-rate-content" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 14">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13V1m0 0L1 5m4-4 4 4"/>
+                        </svg>
+                        Profit rate 23.5%
+                    </span>
+                </div>
+            </div>
+
+            <div class="profit-grid">
+                <dl>
+                    <dt class="dt">Income</dt>
+                    <dd class="dt-profit">$23,635</dd>
+                </dl>
+                <dl>
+                    <dt class="dt">Expense</dt>
+                    <dd class="dt-expense">-$18,230</dd>
+                </dl>
+            </div>
+
+            <div class="chart">
+                <canvas id="bar-chart"></canvas>
+            </div>
+
+            <div class="mt-6 section-header">
+                <h2 class="dt">Sales Share</h2>
+            </div>
+            
+            <div class="chart">
+                <canvas id="pie-chart"></canvas>
+            </div>
+
+            <div class="mt-6 section-header">
+                <h2 class="dt">Sale ShareShare</h2>
+            </div>
+
+            <div class="pt-4">
+                <div th:replace="~{base :: table(rows=${rows}, headers=${headers})}"></div>
+            </div>
+
+            <div class="utils-grid">
+                <div class="utils-content">
+                    <!-- Dropdown Button -->
+                    <div class="product-list-select">
+                        <select class="product-sort-select">
+                            <option>Yesterday</option>
+                            <option>This Month</option>
+                            <option>Previous Month</option>
+                            <option>Current Quarter</option>
+                            <option>Last Quarter</option>
+                            <option>Last Year</option>
+                        </select>
+                    </div>
+  
+                    <!-- Revenue Report Button (Aligned to Right) -->
+                    <button
+                        type="submit"
+                        class="contact-btn ml-auto"
+                    >
+                        <span class="contact-btn-text">Export</span>
+                    </button>
+                </div>
+            </div>
+            <!-- End of Financial Summary Card -->
+        </div>
+    </div>
+
+</body>
+</html>

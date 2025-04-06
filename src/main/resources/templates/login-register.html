@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{base :: page_head(pageTitle='Login/Register')}"></head>
+<body>
+  <header th:replace="~{base :: navbar}"></header>
+  <header th:replace="~{base :: searchbar}"></header>
+  <div th:replace="~{base :: searchOverlay}"></div>
+
+  <div class="body">
+    <div class="wrapper">
+      <span class="bg1"></span>
+  
+      <div class="form-wrapper login">
+        <h2 class="title">Login</h2>
+        <form action="#">
+          <div class="input-box">
+            <input type="email" required>
+            <label for="">Email</label>
+          </div>
+          
+          <div class="input-box">
+            <input type="text" required>
+            <label for="">Password</label>
+          </div>
+  
+          <div class="flex justify-center col-span-2 mt-4">    
+            <button class="contact-btn">
+                <span class="contact-btn-text">Login</span>
+            </button>
+          </div>
+
+          <div class="link">
+            <p>
+              Don't have an account? <a href="#" class="signup-link">SignUp</a>
+            </p>
+          </div>
+
+          <div class="link">
+            <p>
+              Forgot your password? <a href="#" class="signup-link">Reset password</a>
+            </p>
+          </div>
+        </form>
+      </div>
+  
+      <div class="info-wrapper login">
+        <h2>Welcome Back</h2>
+        <p>Login into your account to access our services</p>
+      </div>
+  
+      <span class="bg2"></span>
+      
+      <div class="form-wrapper register">
+        <h2 class="title">Signup</h2>
+        <form action="#">
+          <div class="input-box">
+            <input type="email" required />
+            <label for="">Email</label>
+          </div>
+          <div class="input-box">
+            <input type="password" required />
+            <label for="">Password</label>
+          </div>
+          <div class="input-box">
+            <input type="password" required />
+            <label for="">Confirm Password</label>
+          </div>
+
+          <div class="flex justify-center col-span-2 mt-4">    
+            <button class="contact-btn">
+                <span class="contact-btn-text">Register</span>
+            </button>
+          </div>
+
+          <div class="link">
+            <p>
+              Already have an account? <a href="#" class="login-link">Login</a>
+            </p>
+          </div>
+        </form>
+      </div>
+  
+      <div class="info-wrapper register">
+        <h2>Welcome!</h2>
+        <p>Create your account to access our services</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/switch.js"></script>
+
+  <footer th:replace="~{base :: footer}"></footer>
+  <div th:replace="~{base :: copyright}"></div>
+
+  <script src="/js/searchbar.js"></script>
+  
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{base :: page_head(pageTitle='Profile')}"></head>
+<body class="font-sans antialiased bg-gray-100">
+    
+    <header th:replace="~{base :: navbar}"></header>
+    <header th:replace="~{base :: searchbar}"></header>
+    <div th:replace="~{base :: searchOverlay}"></div>
+
+    <div class="container mx-auto px-4 py-10">
+        <div class="items-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-900">Account</h1>
+            <a href="#" class="text-gray-600 hover:text-gray-800 flex items-center mt-4">
+                <i class="ri-user-line mr-1"></i> Log out
+            </a>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-16">
+            <div class="md:col-span-2">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">Manager Dashboard</h2>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <div th:replace="~{base :: dashboardCard('add-box-line', 'Add Product', '#')}"></div>
+                    <div th:replace="~{base :: dashboardCard('folder-line', 'Storage', '#')}"></div>
+                    <div th:replace="~{base :: dashboardCard('book-open-line', 'Product', '#')}"></div>
+                    <div th:replace="~{base :: dashboardCard('shopping-bag-line', 'Orders', '#')}"></div>
+                    <div th:replace="~{base :: dashboardCard('user-line', 'Customer', '#')}"></div>
+                    <div th:replace="~{base :: dashboardCard('file-chart-line', 'Report', '#')}"></div>
+                </div>
+            </div>
+        
+            <div class="md:col-start-3">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">Account details</h2>
+                <div>
+                    <p class="text-gray-800 font-medium">Duy Hoang</p>
+                    <p class="text-gray-600 mt-2">116/1 17th street, Tan Thuan Tay ward, district 7</p>
+                    <p class="text-gray-600">Ho Chi Minh 72900</p>
+                    <p class="text-gray-600">Vietnam</p>
+                    <a th:href="@{/Address}" class="mt-4 block text-sm text-black hover:text-gray-700 hover:underline transition duration-200 ease-in-out">View addresses (1)</a>
+                </div>
+            </div>
+        </div>        
+    </div>
+
+    <div th:replace="~{admin/addItem :: uploadModal}"></div>
+    <div th:replace="~{admin/customer :: customerModal}"></div>
+    <div th:replace="~{admin/storage :: storageModal}"></div>
+    <div th:replace="~{admin/products :: productModal}"></div>
+    <div th:replace="~{admin/orders :: orderModal}"></div>
+    <div th:replace="~{admin/report :: reportModal}"></div>
+
+    <script src="/js/modal.js"></script>
+
+    <!-- Add Product -->
+    <script src="/js/drag&drop.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/js/charts.js"></script>
+
+
+    <footer th:replace="~{base :: footer}"></footer>
+    <div th:replace="~{base :: copyright}"></div>
+
+    <script src="/js/searchbar.js"></script>
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{base :: page_head(pageTitle='Address')}"></head>
+<body>
+  <header th:replace="~{base :: navbar}"></header>
+  <header th:replace="~{base :: searchbar}"></header>
+  <div th:replace="~{base :: searchOverlay}"></div>
+
+  <div class="mt-12 text-center">
+    <!-- Title -->
+    <h1 class="page-title">Addresses</h1>
+
+    <!-- Return Link -->
+    <a th:href="#" class="return-link">Return to Account details</a>
+
+    <!-- Add New Address Button (Hidden if the user has an address) -->
+    <div class="flex justify-center col-span-2 mt-4 mb-6" th:if="${address == null}">    
+      <button id="toggleFormBtn" class="contact-btn">
+        <span class="contact-btn-text">Add new address</span>
+      </button>
+    </div>
+    
+    <!-- Address Form (Hidden by Default) -->
+    <div id="addressFormContainer" class="hidden max-w-lg mx-auto p-4">
+      <div th:replace="detailsform :: addressForm"></div>
+    </div>
+    
+    <!-- Display Existing Address -->
+    <div class="mt-6" th:if="${address != null}">
+      <h2 class="address-name">Your Address</h2>
+      
+      <p th:text="${address.firstName + ' ' + address.lastName}"></p>
+      <p th:text="${address.company}"></p>
+      <p th:text="${address.address1}"></p>
+      <p th:text="${address.address2}"></p>
+      <p th:text="${address.postalCode}"></p>
+      <p th:text="${address.country}"></p>
+
+      <!-- Address Action Buttons -->
+      <div class="flex justify-center mt-4 space-x-2">  
+        <!-- Delete Address Button -->
+        <form th:action="@{/deleteAddress}" method="post">
+          <button type="submit" class="contact-btn">
+            <span class="contact-btn-text">Delete</span>
+          </button>
+        </form>
+
+        <!-- Modify Address Button -->
+        <button id="editAddressBtn" class="contact-btn">
+          <span class="contact-btn-text">Modify</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/form.js"></script>  
+
+  <footer th:replace="~{base :: footer}"></footer>
+  <div th:replace="~{base :: copyright}"></div>
+
+  <script src="/js/searchbar.js"></script>
+</body>
+</html>

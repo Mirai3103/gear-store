@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:fragment="page_head">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${pageTitle} ?: ''"></title>
+  <link rel="stylesheet" th:href="@{/css/output.css}">
+  <link href="https://cdn.jsdelivr.net/npm/remixicon/fonts/remixicon.css" rel="stylesheet">
+</head>
+
+<body>
+  <header class="navbar" th:fragment="navbar">
+    <div class="navbar-container">
+      <div class="navbar-flex-container">
+        <div class="navbar-logo-container">
+          <a href="/" class="navbar-logo">Store</a>
+          <div class="navbar-logo-container">
+            <a href="#" class="navbar-nav-item">English</a>
+            <span class="text-white">|</span>
+            <a href="#" class="navbar-nav-item">vietnamese</a>
+          </div>
+        </div>
+
+        <nav class="navbar-nav">
+          <a th:href="@{/All_Product}" class="navbar-nav-item">All Products</a>
+          <a href="#" class="navbar-nav-item">Latest</a>
+          <div class="relative group">
+            <a href="#" class="navbar-nav-item">Console</a>
+            <div class="dropdown">
+              <a href="#" class="dropdown-item">Home Console</a>
+              <a href="#" class="dropdown-item">Handheld Console</a>
+              <a href="#" class="dropdown-item">Limited Edition</a>
+              <a href="#" class="dropdown-item">Mod Console</a>
+            </div>
+          </div>
+
+          <div class="relative group">
+            <a href="#" class="navbar-nav-item">Game</a>
+            <div class="dropdown">
+              <a href="#" class="dropdown-item">CD-ROM</a>
+              <a href="#" class="dropdown-item">Cartridge</a>
+              <a href="#" class="dropdown-item">Host</a>
+            </div>
+          </div>
+
+          <div class="relative group">
+            <a href="#" class="navbar-nav-item">Accessory</a>
+            <div class="dropdown">
+              <a href="#" class="dropdown-item">Controller</a>
+              <a href="#" class="dropdown-item">Adapter</a>
+              <a href="#" class="dropdown-item">Amiibo</a>
+              <a href="#" class="dropdown-item">Case</a>
+            </div>
+          </div>
+
+          <a th:href="@{/Sell}" class="navbar-nav-item">Sell</a>
+
+          <a th:href="@{/Contact}" class="navbar-nav-item">Contact</a>
+        </nav>
+
+        <nav class="navbar-nav">
+          <a href="#" id="search-btn" class="navbar-nav-item"><i class="ri-search-line"></i></a>
+          <a th:href="@{/Cart}" class="navbar-nav-item"><i class="ri-shopping-bag-line"></i></a>
+          <a href="#" class="navbar-nav-item"><i class="ri-user-line"></i></a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <div th:fragment="dashboardCard(icon, label, link)"
+    th:data-modal-target="${label.replace(' ', '-').toLowerCase()}" 
+    class="bg-white shadow-md rounded-lg p-6 text-center transition duration-300 ease-in-out hover:bg-black hover:text-white group modal-trigger">
+    <a th:href="${link}" class="block">
+        <i th:class="'ri-' + ${icon} + ' dashboard_icon '"></i>
+        <p class="dashboard_title" th:text="${label}"></p>
+    </a>
+  </div>
+
+  <div class="section" th:fragment="recommendedProducts(hotSaleProducts)">
+    <div class="section-container">
+        <h2 class="section-title">You may also like</h2>
+        <div class="section-grid">
+            <div th:each="product : ${hotSaleProducts}">
+                <a th:href="@{'/product-view/' + ${product.id}}">
+                    <div th:replace="~{product :: productCard(@{'/imgs/' + ${product.image}}, ${product.name}, ${product.price}, ${product.price + 10})}"></div>
+                </a>
+            </div>
+        </div>
+    </div>
+  </div>
+
+  <footer class="footer" th:fragment="footer">
+    <div class="footer-grid">
+      <div class="footer-section">
+        <h2 class="footer-heading">Navigate</h2>
+        <div class="footer-links">
+          <a href="#" class="footer-link">All Products</a>
+          <a href="#" class="footer-link">Latest</a>
+          <a href="#" class="footer-link">Console</a>
+          <a href="#" class="footer-link">Game</a>
+          <a href="#" class="footer-link">Accessory</a>
+          <a href="#" class="footer-link">Contact</a>
+        </div>
+      </div>
+
+      <div class="footer-section">
+        <h2 class="footer-heading">Support</h2>
+        <div class="footer-links">
+          <a href="#" class="footer-link">Privacy policy</a>
+          <a href="#" class="footer-link">Refund policy</a>
+          <a href="#" class="footer-link">Shipping policy</a>
+          <a href="#" class="footer-link">Warranty policy</a>
+        </div>
+      </div>
+
+      <div class="footer-section">
+        <h2 class="footer-heading">Support</h2>
+        <div class="footer-links">
+          <a href="#" class="footer-link">Contact Us</a>
+          <a href="#" class="footer-link">Order Tracking</a>
+        </div>
+      </div>
+
+      <h2 class="footer-logo">Store</h2>
+    </div>
+  </footer>
+
+  <div id="searchOverlay" 
+      class="fixed inset-0 bg-gray-600/50 backdrop-blur-xs z-[9998] 
+            opacity-0 invisible transition-all duration-500 ease-in-out"
+      th:fragment="searchOverlay">
+  </div>
+
+  <!-- Search Bar (Hidden by Default) -->
+  <header class="navbar fixed top-0 left-0 w-full transform -translate-y-full transition-transform duration-500 ease-in-out z-[9999] h-16" 
+        id="searchbar" 
+        th:fragment="searchbar">
+    <div class="navbar-container h-full py-4">
+        <div class="navbar-flex-container h-full items-center">
+          <div class="relative w-full max-w-2xl mx-auto h-full flex items-center">
+            <!-- Search Input -->
+            <input type="text" id="searchInput"
+                   placeholder=""
+                   class="w-[40rem] px-6 py-2.5 pr-12 bg-transparent text-white border border-white focus:ring-0 placeholder-transparent rounded-sm peer">
+        
+            <!-- Floating Label -->
+            <label for="searchInput" 
+                   class="absolute left-6 top-1/2 -translate-y-1/2 text-gray-300 text-base transition-all duration-200 bg-black px-1
+                   peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:text-base
+                   peer-focus:top-0 peer-focus:-translate-y-[75%] peer-focus:text-sm peer-focus:text-white">
+                   Search...
+            </label>
+        
+            <!-- Search Icon inside input field -->
+            <button class="absolute right-0.5 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 transition">
+                <i class="ri-search-line text-xl"></i>
+            </button>
+          </div>
+        </div>
+    </div>
+  </header>
+
+
+  <!-- Table Search Bar -->
+  <div class="flex justify-end mb-4 mt-4" th:fragment="table-search-bar">
+    <input type="text" placeholder="Search..." 
+        class="px-4 py-2 border-b border-gray-300 focus:outline-none focus:ring-0 focus:border-orange-600">
+  </div> 
+
+   <div class="relative overflow-x-auto max-h-96 overflow-y-auto sm:rounded-lg" th:fragment="table(rows, headers)">
+    <table class="shadow-md w-full">
+        <thead class="font-semibold text-gray-700 bg-gray-100">
+            <tr>
+                <th th:each="header : ${headers}" scope="col" class="px-6 py-3 text-center" th:text="${header}"></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="row : ${rows}" class="text-center text-gray-500 even:bg-gray-50 hover:text-orange-500">
+                <td th:each="cell : ${row}" class="px-4 py-2 border-b border-gray-300" th:text="${cell}"></td>
+            </tr>
+        </tbody>
+    </table>
+  </div>
+
+  <div class="copyright" th:fragment="copyright">
+    <div class="copyright-container">
+      <p class="copyright-content">© Store - All Rights Reserved</p>
+    </div>
+  </div>
+
+</body>
+</html>

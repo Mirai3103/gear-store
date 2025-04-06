@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head th:replace="~{base :: page_head(pageTitle='SellOld')}"></head>
+<body>
+    <header th:replace="~{base :: navbar}"></header>
+    <header th:replace="~{base :: searchbar}"></header>
+    <div th:replace="~{base :: searchOverlay}"></div>
+    
+    <div th:fragment="productForm" class="max-w-2xl mx-auto p-6">
+        <h2 class="text-2xl font-semibold mb-4">Sell your old product</h2>
+        <form class="grid grid-cols-1 md:grid-cols-2 gap-4" enctype="multipart/form-data">
+            
+            <!-- Product Name -->
+            <div class="contact-input-container col-span-2">
+                <input type="text" name="productName" placeholder="" class="contact-input peer" required>
+                <span class="contact-input-text">Product Name</span>
+            </div>
+
+            <!-- Brand -->
+            <div class="contact-input-container col-span-1">
+                <input type="text" name="brand" placeholder="" class="contact-input peer" required>
+                <span class="contact-input-text">Brand</span>
+            </div>
+
+            <!-- Model -->
+            <div class="contact-input-container col-span-1">
+                <input type="text" name="model" placeholder="" class="contact-input peer" required>
+                <span class="contact-input-text">Model</span>
+            </div>
+
+            <!-- Condition -->
+            <div class="col-span-2">
+                <label class="block text-sm text-gray-600 text-left">Condition</label>
+                <select name="condition" class="contact-input w-full border p-2 rounded" required>
+                    <option value="new">New</option>
+                    <option value="like_new">Like New</option>
+                    <option value="used_good">Used - Good</option>
+                    <option value="used_fair">Used - Fair</option>
+                    <option value="for_parts">For Parts</option>
+                </select>
+            </div>            
+
+            <!-- Price -->
+            <div class="contact-input-container col-span-2">
+                <input type="number" name="price" placeholder="" class="contact-input peer" step="0.01" required>
+                <span class="contact-input-text">Price ($)</span>
+            </div>
+
+            <!-- Payment ID -->
+            <div class="contact-input-container col-span-2">
+                <input type="text" name="paymentId" placeholder="" class="contact-input peer" required>
+                <span class="contact-input-text">Payment ID</span>
+            </div>
+
+            <!-- Additional Notes -->
+            <div class="contact-input-container col-span-2">
+                <textarea name="description" placeholder="Additional Notes" class="contact-input h-32"></textarea>
+            </div>
+
+            <!-- Upload Image -->
+            <div class="col-span-2">
+                <label class="upload-header">Upload Product Image</label>
+                <input type="file" name="productImage" multiple
+                    class="upload-input"
+                    accept="image/*" required>
+                    <p class="mt-1 text-sm text-gray-600" id="file_input_help">Upload photos of your product</p>
+            </div>
+
+            <div class="btn-alignment">    
+                <button class="contact-btn">
+                    <span class="contact-btn-text">Submit</span>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    
+    <footer th:replace="~{base :: footer}"></footer>
+    <div th:replace="~{base :: copyright}"></div>
+
+    <script src="/js/searchbar.js"></script>
+
+</body>
+</html>

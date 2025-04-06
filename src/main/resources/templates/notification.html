@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{base :: page_head()}"></head>
+<body>
+
+    <div id="cart-notification" class="cart-notification">
+        <div class="cart-notification-header">
+            <div class="cart-notification-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 mr-2">
+                    <path fill-rule="evenodd" d="M19.916 4.626a.75.75 0 011.06 1.06l-12.75 12.75a.75.75 0 01-1.06 0l-5.25-5.25a.75.75 0 011.06-1.06L6.75 15.69l12.166-12.164a.75.75 0 011.06-.002z" clip-rule="evenodd" />
+                </svg>
+                <span class="text-sm font-semibold">Item added to your cart</span>
+            </div>
+            <button type="button" class="close-btn" onclick="hideNotification()">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <div class="cart-notification-body">
+            <img src="https://placehold.co/80x80/ddd/555?text=Product" alt="Product Image" class="product-image">
+            <div>
+                <h3 class="product-title">8BitDo 8Bitbot Keychain</h3>
+                <p class="product-edition">Edition: Fami Edition</p>
+            </div>
+        </div>
+
+        <div class="cart-notification-actions">
+            <div class="cart-action">
+                <a th:href="@{/Cart}" class="contact-btn">
+                    <span class="contact-btn-text">View my cart</span>
+                </a>
+            </div>
+            <div class="cart-action">
+                <a th:href="@{/checkout}" class="contact-btn">
+                    <span class="contact-btn-text">Buy now</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{base :: page_head()}"></head>
+<body>
+    <div th:fragment="addressForm" class="max-w-2xl mx-auto p-6">
+        <h2 class="details-header">Add a new address</h2>
+        <form class="details-grid">
+            
+            <!-- First Name -->
+            <div class="contact-input-container col-span-1">
+                <input type="text" name="firstName" placeholder="" class="contact-input peer">
+                <span class="contact-input-text">First Name</span>
+            </div>
+
+            <!-- Last Name -->
+            <div class="contact-input-container col-span-1">
+                <input type="text" name="lastName" placeholder="" class="contact-input peer">
+                <span class="contact-input-text">Last Name</span>
+            </div>
+
+            <!-- Company -->
+            <div class="contact-input-container col-span-2">
+                <input type="text" name="company" placeholder="" class="contact-input peer">
+                <span class="contact-input-text">Company</span>
+            </div>
+
+            <div class="contact-input-container col-span-2">
+                <input type="text" name="company" placeholder="" class="contact-input peer">
+                <span class="contact-input-text">Address 1</span>
+            </div>
+
+            <div class="contact-input-container col-span-2">
+                <input type="text" name="company" placeholder="" class="contact-input peer">
+                <span class="contact-input-text">Address 2</span>
+            </div>
+
+            <!-- Country -->
+            <div class="col-span-2">
+                <label class="block text-sm text-gray-600 text-left">Country/region</label>
+                <select name="country" class="contact-input w-full border p-2 rounded">
+                    <option value="US">United States</option>
+                </select>
+            </div>            
+
+            <!-- Province -->
+            <div class="col-span-2">
+                <label class="block text-sm text-gray-600 text-left">Province</label>
+                <select name="province" class="contact-input">
+                    <option value="AL">Alabama</option>
+                </select>
+            </div>
+
+            <!-- Postal Code -->
+            <div class="contact-input-container col-span-2">
+                <input type="text" name="zip code" placeholder="" class="contact-input peer">
+                <span class="contact-input-text">Postal/Zip Code</span>
+            </div>
+
+            <div class="contact-input-container col-span-2">
+                <input type="tel" name="zip code" placeholder="" class="contact-input peer">
+                <span class="contact-input-text">Phone Number</span>
+            </div>
+            
+            <div class="flex justify-center col-span-2 mt-4">    
+                <button class="contact-btn">
+                    <span class="contact-btn-text">submit</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{base :: page_head(pageTitle=${pageTitle})}"></head>
+<body>
+  <header th:replace="~{base :: navbar}"></header>
+  <header th:replace="~{base :: searchbar}"></header>
+  <div th:replace="~{base :: searchOverlay}"></div>
+
+  <!-- Shop title -->
+  <div class="shop-title-container">
+    <h4 class="shop-title" th:text="${pageTitle}"></h4>  
+  </div>
+
+  <!-- Shop wrapper -->
+  <div class="shop-wrapper">
+    
+    <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="section">
+
+      <!-- Category filter -->
+      <div>
+        <h3>Category</h3>
+        <div class="checkbox-group">
+          <div class="checkbox-item">
+            <input type="checkbox" id="cat-console">
+            <label for="cat-console">Console</label>
+          </div>
+          <div class="checkbox-item">
+            <input type="checkbox" id="cat-game">
+            <label for="cat-game">Game</label>
+          </div>
+          <div class="checkbox-item">
+            <input type="checkbox" id="cat-accessory">
+            <label for="cat-accessory">Accessory</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Availability Filter -->
+      <div>
+        <h3>Availability</h3>
+        <div class="checkbox-group">
+          <div class="checkbox-item">
+            <input type="checkbox" id="stock-in">
+            <label for="stock-in">In Stock</label>
+          </div>
+          <div class="checkbox-item">
+            <input type="checkbox" id="stock-out">
+            <label for="stock-out">Out of stock</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Price filter -->
+      <div class="price-filter">
+        <h3>Price</h3>
+        <div class="price-inputs">
+          <input type="text" placeholder="From">
+          <span> - </span>
+          <input type="text" placeholder="To">
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+    <!-- Product List -->
+    <div class="product-list">
+      <div class="product-list-select">
+        <select class="product-sort-select">
+          <option>Featured</option>
+          <option>Best Selling</option>
+          <option>Alphabetically, A-Z</option>
+          <option>Alphabetically, Z-A</option>
+          <option>Price, low to high</option>
+          <option>Price, high to low</option>
+          <option>Date, old to new</option>
+          <option>Date, new to old</option>
+        </select>
+      </div>
+    </div>
+    
+    <div class="section-grid">
+      <div th:each="product : ${Products}">
+        <a th:href="@{'/product-view/' + ${product.id}}">
+          <div th:replace="~{product :: productCard(
+              @{'/imgs/' + ${product.image}},
+              ${product.name},
+              ${product.price},
+              ${product.price + 20}
+          )}"></div>
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+  <footer th:replace="~{base :: footer}"></footer>
+  <div th:replace="~{base :: copyright}"></div>
+
+  <script src="/js/searchbar.js"></script>
+  
+</body>
+</html>

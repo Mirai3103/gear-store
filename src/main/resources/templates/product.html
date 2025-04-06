@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{base :: page_head()}"></head>
+<body>
+
+  <!-- Product Card Fragment -->
+  <!-- Parameters: imageUrl, name, price, id -->
+  <a th:href="@{'/product-view/' + ${id}}" 
+     th:fragment="productCard(imageUrl, name, price, id)" 
+     class="product">
+
+    <div class="product-image-container">
+      <img th:src="${imageUrl}" alt="Product Image" class="product-image">
+    </div>
+
+    <div class="product-info-container">
+      <h5 class="product-link-content" th:text="${name}"></h5>
+
+      <div class="product-price-container">
+        <p class="product-price" th:text="${price}"></p>
+      </div>
+    </div>
+
+  </a>
+
+</body>
+</html>

@@ -1,0 +1,1099 @@
+@import "tailwindcss";
+
+* {
+  font-family: "Poppins", sans-serif;
+  box-sizing: border-box;
+}
+
+body {
+  @apply bg-gray-100;
+}
+
+/* #region Login/Register */
+.body {
+  @apply min-h-screen flex items-center justify-center;
+}
+
+.wrapper {
+  @apply relative w-[750px] h-[450px] bg-white rounded-lg shadow-2xl overflow-hidden;
+}
+
+/* Background animations (untouched) */
+.wrapper .bg1 {
+  @apply absolute w-[850px] h-[600px] bg-black top-[-4px] right-0;
+  transform: rotate(10deg) skewY(40deg);
+  transform-origin: bottom right;
+  transition: transform 1.5s ease;
+  transition-delay: 1.6s;
+}
+
+.wrapper .bg2 {
+  @apply absolute top-full left-[250px] w-[850px] h-[700px] bg-white;
+  transform: rotate(0) skewY(0);
+  transform-origin: bottom left;
+  transition: transform 1.5s ease;
+  transition-delay: 0.5s;
+}
+
+.wrapper.active .bg1 {
+  transform: rotate(0) skewY(0);
+  transition-delay: 0.5s;
+}
+
+.wrapper.active .bg2 {
+  transform: rotate(-11deg) skewY(-40deg);
+  transition-delay: 1.2s;
+}
+
+/* Form containers */
+.wrapper .form-wrapper {
+  @apply absolute top-0 w-1/2 h-full flex justify-center flex-col;
+}
+
+/* Login form (slides left when inactive) */
+.wrapper .form-wrapper.login {
+  @apply left-0 pl-10 pr-16;
+  transition: all 0.7s ease 3.1s; /* Waits for bg1 animation */
+}
+
+.wrapper.active .form-wrapper.login {
+  transform: translateX(-120%);
+  opacity: 0;
+  transition: all 0.7s ease 0s; /* Immediate when activating */
+}
+
+/* Register form (slides right when inactive) */
+.wrapper .form-wrapper.register {
+  @apply pr-10 pl-16 right-0 pointer-events-none;
+  transform: translateX(120%);
+  opacity: 0;
+  transition: all 0.7s ease 0s; /* Immediate when deactivating */
+}
+
+.wrapper.active .form-wrapper.register {
+  transform: translateX(0);
+  opacity: 1;
+  pointer-events: auto;
+  transition: all 0.7s ease 3.1s; /* Waits for bg2 animation */
+}
+
+/* Info containers */
+.wrapper .info-wrapper {
+  @apply absolute top-0 w-1/2 h-full flex flex-col justify-center text-white;
+}
+
+/* Login info (slides right when inactive) */
+.wrapper .info-wrapper.login {
+  @apply right-0 text-right pr-10 pb-[60px] pl-[150px];
+  transition: all 0.7s ease 3.1s; /* Waits for bg1 animation */
+}
+
+.wrapper.active .info-wrapper.login {
+  transform: translateX(120%);
+  opacity: 0;
+  transition: all 0.7s ease 0s; /* Immediate when activating */
+}
+
+/* Register info (slides left when inactive) */
+.wrapper .info-wrapper.register {
+  @apply left-0 text-left pl-10 pr-40 pointer-events-none;
+  transform: translateX(-120%);
+  opacity: 0;
+  transition: all 0.7s ease 0s; /* Immediate when deactivating */
+}
+
+.wrapper.active .info-wrapper.register {
+  transform: translateX(0);
+  opacity: 1;
+  pointer-events: auto;
+  transition: all 0.7s ease 3.1s; /* Waits for bg2 animation */
+}
+
+/* Form styling */
+.title {
+  @apply relative mb-2 text-3xl text-black text-center;
+}
+
+.title::after {
+  @apply absolute w-10 h-1 bg-black bottom-[-10px] left-1/2;
+  transform: translateX(-50%);
+  content: '';
+}
+
+.input-box {
+  @apply relative w-full h-12 my-6;
+}
+
+.input-box input {
+  @apply w-full h-full bg-transparent outline-none border-b-2 border-black text-black text-base font-medium pr-6;
+}
+
+.input-box label {
+  @apply absolute top-1/2 left-0 -translate-y-1/2 text-base text-black pointer-events-none;
+  transition: all 0.3s ease;
+}
+
+.input-box input:focus~label,
+.input-box input:valid~label {
+  @apply top-[-5px] text-sm;
+}
+
+.link {
+  @apply text-sm text-center text-black my-5;
+}
+
+.link a {
+  @apply no-underline font-semibold transition-colors duration-300;
+}
+
+.link a:hover {
+  @apply text-gray-600;
+}
+
+.info-wrapper h2 {
+  @apply text-4xl leading-tight uppercase;
+}
+
+.info-wrapper p {
+  @apply text-base mt-4;
+}
+/* #endregion */
+
+/* #region Base */
+.navbar {
+  @apply bg-black w-full;
+}
+
+.navbar-container {
+  @apply container mx-auto px-4 py-4;
+}
+
+.navbar-flex-container {
+  @apply flex flex-col md:flex-row justify-between items-center;
+}
+
+.navbar-logo-container {
+  @apply flex items-center space-x-6 mb-4 md:mb-0;
+}
+
+.navbar-logo {
+  @apply text-white text-4xl font-bold;
+}
+
+.navbar-language-container {
+  @apply flex items-center space-x-3;
+}
+
+.navbar-nav {
+  @apply flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-8;
+}
+
+.navbar-nav-item {
+  @apply text-white hover:text-orange-600 py-2 md:py-0;
+}
+
+.dropdown {
+  @apply bg-gray-800 min-w-40 shadow-lg z-10 py-2 rounded-md border border-white absolute opacity-0 transition-opacity duration-200 ease-in-out pointer-events-none group-hover:opacity-60 group-hover:pointer-events-auto;
+}
+
+.dropdown-item {
+  @apply block px-4 py-2 text-gray-200 hover:text-orange-600;
+}
+
+.dashboard_icon {
+  @apply text-black text-4xl mb-2 group-hover:text-white;
+}
+
+.dashboard_title {
+  @apply text-gray-800 font-semibold group-hover:text-white;
+}
+
+.footer {
+  @apply bg-black pt-8 pb-12 border-t border-gray-100 px-20 mt-auto;
+}
+
+.footer-grid {
+  @apply col-span-2 grid grid-cols-4 gap-8;
+}
+
+.footer-section {
+  @apply text-sm text-gray-100;
+}
+
+.footer-heading {
+  @apply pb-4 text-lg font-semibold text-gray-100 uppercase tracking-wider;
+}
+
+.footer-links {
+  @apply mt-4 space-y-4;
+}
+
+.footer-link {
+  @apply text-base text-gray-200 hover:text-gray-300 block;
+}
+
+.footer-logo {
+  @apply text-white text-4xl font-bold;
+}
+
+.copyright {
+  @apply bg-black pt-8 pb-8 py-4 border-t-2 border-white;
+}
+
+.copyright-container {
+  @apply container flex items-center justify-between;
+}
+
+.copyright-content {
+  @apply text-white ml-auto;
+}
+/* #endregion */
+
+/* #region Slider */
+@layer components {
+  .slider-container {
+    @apply relative w-full overflow-hidden bg-black;
+  }
+
+  .slider-slide {
+    @apply absolute inset-0 pointer-events-none opacity-0 transition-opacity duration-700 ease-in-out;
+  }
+
+  .slider-slide.active {
+    @apply opacity-100 pointer-events-auto;
+  }
+
+  .sliding-slider-container {
+    @apply relative w-full overflow-hidden bg-black;
+  }
+
+  .sliding-slider-wrapper {
+    @apply flex transition-transform duration-700 ease-in-out;
+  }
+
+  .sliding-slider-slide {
+    @apply flex-shrink-0 w-full h-full min-w-full relative;
+  }    
+
+  .sliding-slider-image {
+    @apply w-full h-full object-cover block;
+  }
+
+  .slider-overlay {
+    @apply absolute inset-0 flex flex-col items-center justify-center text-center text-white bg-black/50 p-6;
+  }
+
+  .slider-image {
+    @apply w-full h-full object-cover block;
+  }
+}
+
+/* Standard CSS media queries for custom values like height */
+@media (min-width: 1024px) {
+  .slider-container {
+    height: 650px;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .slider-container {
+    height: 550px;
+  }
+}
+
+@media (max-width: 767px) {
+  .slider-container {
+    height: 450px;
+  }
+}
+
+/* #endregion */
+
+/* #region Home */
+.features {
+  @apply py-10 flex items-center justify-center;
+}
+
+.features-grid {
+  @apply w-full max-w-[900px] grid grid-cols-3 gap-6 mx-auto justify-center;
+}
+
+.features-border {
+  @apply border border-black rounded-sm px-3 py-6 flex justify-center items-center gap-5;
+}
+
+.features-icon {
+  @apply text-3xl text-black;
+}
+
+.features-heading {
+  @apply font-medium capitalize text-lg text-black;
+}
+
+.features-content {
+  @apply text-gray-500 text-sm;
+}
+
+.section {
+  @apply w-full py-10;
+}
+
+.section-container {
+  @apply container mx-auto px-6 md:px-32;
+}
+
+.section-title {
+  @apply text-3xl font-bold mb-5;
+}
+
+.section-banner-container {
+  @apply relative w-full;
+}
+
+.section-banner {
+  @apply w-full rounded-lg shadow-lg;
+}
+
+.section-text-container {
+  @apply absolute inset-0 flex flex-col items-center justify-center text-center text-white bg-black/50 px-6;
+}
+
+.section-text-header {
+  @apply text-2xl md:text-3xl font-bold;
+}
+
+.section-text-content {
+  @apply text-sm md:text-base mt-2;
+}
+
+.section-product-link {
+  @apply mt-4 border border-white text-white py-2 px-6 rounded-md hover:bg-white hover:text-black transition;
+}
+
+.section-grid {
+  @apply grid grid-cols-5 gap-6;
+}
+/* #endregion */
+
+/* #region Product */
+.product {
+  @apply rounded-lg shadow-lg overflow-hidden relative hover:cursor-pointer;
+}
+
+.product-image-container {
+  @apply relative overflow-hidden;
+}
+
+.product-image {
+  @apply w-full transition-transform duration-300 transform;
+}
+
+.product:hover .product-image {
+  @apply scale-110;
+}
+
+.product-info-container {
+  @apply p-4 text-center;
+}
+
+.product-link-content {
+  @apply uppercase font-medium text-sm mb-2 text-gray-800 transition;
+}
+
+.product:hover .product-link-content {
+  @apply underline;
+}
+
+.product-price-container {
+  @apply flex items-center justify-center space-x-2;
+}
+
+.product-price {
+  @apply text-lg text-orange-600 font-semibold;
+}
+
+.product-discount {
+  @apply text-xs text-gray-400 line-through;
+}
+
+/* #endregion */
+
+/* #region Checkout */
+.checkout-body {
+  @apply flex items-center justify-center w-screen min-h-screen p-8;
+}
+
+.checkout-container {
+  @apply grid lg:grid-cols-3 md:grid-cols-2 gap-8 w-full max-w-screen-lg;
+}
+
+/* Payment Section */
+.payment-section {
+  @apply lg:col-span-2;
+}
+
+.payment-title {
+  @apply text-sm font-medium;
+}
+
+.payment-box {
+  @apply bg-white rounded mt-4 shadow-lg;
+}
+
+.payment-content {
+  @apply px-8 py-5 grid grid-cols-1;
+}
+
+.express-title {
+  @apply text-center w-full;
+}
+
+.paypal-button {
+  @apply bg-[#FFC439] text-blue-700 font-bold py-3 px-6 rounded-lg shadow-md hover:brightness-110 transition mt-2 justify-self-center w-56;
+}
+
+.paypal-text {
+  @apply italic;
+}
+
+.paypal-highlight {
+  @apply text-cyan-500;
+}
+
+/* Card Payment Section */
+.payment-divider {
+  @apply border-t;
+}
+
+.payment-form {
+  @apply px-8 py-5 flex flex-col items-center;
+}
+
+/* Mastercard Logo */
+.mastercard {
+  @apply flex flex-col items-center;
+}
+
+.mastercard-logo {
+  @apply relative w-8 h-8 rounded-full bg-yellow-300 opacity-80;
+}
+
+.mastercard-circle {
+  @apply absolute w-8 h-8 bg-red-400 rounded-full left-[-50%];
+}
+
+.mastercard-text {
+  @apply text-sm mt-2;
+}
+
+/* Card Input Fields */
+.payment-input-grid {
+  @apply grid grid-cols-2 gap-4 w-full mt-4;
+}
+
+.payment-label {
+  @apply text-xs font-semibold;
+}
+
+.payment-input {
+  @apply flex items-center h-10 border mt-1 rounded px-4 w-full text-sm;
+}
+
+/* Delivery Information */
+.delivery-title {
+  @apply text-sm font-medium mt-6;
+}
+
+.delivery-box {
+  @apply bg-white rounded mt-4 shadow-lg p-6;
+}
+
+.delivery-grid {
+  @apply grid grid-cols-2 gap-4;
+}
+
+/* Order Summary */
+.order-summary-title {
+  @apply text-sm font-medium;
+}
+
+.order-summary-box {
+  @apply bg-white rounded mt-4 shadow-lg py-6;
+}
+
+.order-summary-content {
+  @apply px-8;
+}
+
+/* Cart Items */
+.cart-items {
+  @apply border-b pb-4 mb-4;
+}
+
+.cart-items-title {
+  @apply text-sm font-semibold;
+}
+
+.cart-items-note {
+  @apply text-xs text-gray-600;
+}
+
+/* Coupon Section */
+.coupon-section {
+  @apply mb-4;
+}
+
+.coupon-input-container {
+  @apply flex mt-1;
+}
+
+.coupon-input {
+  @apply flex-grow border rounded px-4 h-10 text-sm;
+}
+
+.coupon-button {
+  @apply ml-2 px-4 border border-black bg-black text-white rounded h-10 text-sm transition duration-200 hover:bg-white hover:text-black;
+}
+
+/* Pricing Details */
+.price-row {
+  @apply flex items-end justify-between;
+}
+
+.price-label {
+  @apply text-sm font-semibold;
+}
+
+.price-value {
+  @apply text-sm font-medium;
+}
+
+.total-row {
+  @apply flex items-end justify-between border-t mt-4 pt-4;
+}
+
+.total-value {
+  @apply text-lg font-bold;
+}
+
+/* Checkout Button */
+.checkout-button-container {
+  @apply flex items-end justify-between border-t mt-4 pt-4;
+}
+
+.checkout-button {
+  @apply w-full bg-black text-white py-3 rounded text-lg font-semibold transition duration-200 border hover:bg-white hover:text-black;
+}
+/* #endregion */
+
+/* #region Contact */
+.contact {
+  @apply max-w-xl mx-auto p-8;
+}
+
+.contact-title {
+  @apply text-2xl font-medium mb-4;
+}
+
+.contact-header {
+  @apply font-semibold;
+}
+
+.contact-email {
+  @apply mb-6 text-blue-600;
+}
+
+.contact-form {
+  @apply space-y-4;
+}
+
+.contact-grid {
+  @apply grid grid-cols-1 md:grid-cols-2 gap-4;
+}
+
+.contact-input-container {
+  @apply relative w-full;
+}
+
+.contact-input {
+  @apply w-full px-4 py-2 border border-gray-400 bg-transparent outline-none duration-200;
+}
+
+.contact-input-text {
+  @apply absolute left-4 top-1/2 -translate-y-1/2 text-base text-gray-600 pointer-events-none duration-200 bg-white px-1 opacity-70;
+}
+
+.contact-input:focus ~ .contact-input-text,
+.contact-input:not(:placeholder-shown) ~ .contact-input-text {
+  @apply top-0.5 left-4 text-sm opacity-100;
+}
+
+.contact-btn {
+  @apply relative text-black font-bold uppercase px-6 py-3 border-2 border-black shadow-[4px_4px_0px_black] transition-all duration-150 
+  bg-white skew-x-[-15deg] active:bg-orange-600 active:text-white active:shadow-[2px_2px_0px_black] 
+  active:translate-x-0.5 active:translate-y-0.5;
+}
+
+.contact-btn-text {
+  @apply inline-block skew-x-[15deg];
+}
+
+/* #endregion */
+
+/* #region Shop */
+.shop-title-container {
+  @apply container py-8 px-35 flex items-center gap-2;
+}
+
+.shop-title {
+  @apply text-5xl font-light;
+}
+
+.shop-wrapper {
+  @apply container px-35 grid grid-cols-4 gap-6 pt-8 pb-16 items-start;
+}
+
+/* Sidebar Container */
+.sidebar {
+  @apply col-span-1 bg-gray-100 px-4 pb-6 shadow rounded overflow-hidden;
+}
+
+/* Sections Divider */
+.sidebar .section {
+  @apply divide-y divide-gray-200 space-y-5;
+}
+
+/* Section Title */
+.sidebar h3 {
+  @apply text-center text-xl text-black mb-3 uppercase font-semibold;
+}
+
+/* Checkbox Wrapper */
+.sidebar .checkbox-group {
+  @apply space-y-2;
+}
+
+/* Checkbox Row */
+.sidebar .checkbox-item {
+  @apply flex items-center;
+}
+
+/* Checkbox Input */
+.sidebar .checkbox-item input[type="checkbox"] {
+  @apply accent-orange-600 rounded-sm;
+}
+
+/* Checkbox Label */
+.sidebar .checkbox-item label {
+  @apply text-gray-600 ml-3 cursor-pointer;
+}
+
+/* Price Filter Container */
+.sidebar .price-filter {
+  @apply pt-2;
+}
+
+/* Price Input Row */
+.sidebar .price-inputs {
+  @apply mt-4 flex items-center;
+}
+
+/* Price Inputs */
+.sidebar .price-inputs input {
+  @apply w-full border-0 border-b-2 border-b-gray-300 focus:border-b-orange-600 focus:outline-none bg-transparent px-4 py-1 text-gray-600 text-sm transition-all duration-300;
+}
+
+/* Price Separator */
+.sidebar .price-inputs span {
+  @apply mx-3 text-gray-500;
+}
+
+.product-list {
+  @apply col-span-3;
+}
+
+.product-list-select {
+  @apply col-start-3 col-span-1 flex justify-end mb-4;
+}
+
+.product-sort-select {
+  @apply w-44 text-sm text-gray-600 px-4 py-3 border-0 border-b-2 border-b-gray-300 focus:border-b-orange-600 focus:outline-none bg-transparent transition-all duration-300;
+}
+
+/* #endregion */
+
+/* #region Product View */
+.product-view {
+  @apply max-w-6xl mx-auto px-4 sm:px-8 py-12 grid grid-cols-[1.3fr_1fr] gap-12;
+}
+
+.product-view-main-image {
+  @apply w-full rounded-lg;
+}
+
+.product-view-sub-image {
+  @apply w-full cursor-pointer border border-orange-600 rounded-md;
+}
+
+.product-view-content {
+  @apply max-w-md;
+}
+
+.product-view-title {
+  @apply text-3xl font-medium uppercase mb-4;
+}
+
+.product-view-content-container {
+  @apply space-y-3 text-sm;
+}
+
+.product-view-grid {
+  @apply space-y-3 text-sm;
+}
+
+.product-view-availability-header {
+  @apply text-gray-800 font-semibold;
+}
+
+.product-view-availability {
+  @apply text-green-600;
+}
+
+.product-view-content-text {
+  @apply text-gray-600;
+}
+
+.product-view-price {
+  @apply flex items-baseline mb-3 space-x-2 mt-4;
+}
+
+.product-view-discount {
+  @apply text-2xl text-orange-600 font-semibold;
+}
+
+.product-view-original-price {
+  @apply text-sm text-gray-400 line-through;
+}
+
+.product-view-headup {
+  @apply flex items-baseline;
+}
+
+.product-view-headup-object {
+  @apply text-gray-700 underline;
+}
+
+.product-view-headup-content {
+  @apply text-gray-600;
+}
+
+.product-view-section-header {
+  @apply text-sm font-medium text-gray-700 mt-6;
+}
+
+.product-view-edition-grid {
+  @apply flex gap-2 justify-between w-full;
+}
+
+.product-quantity-box {
+  @apply flex items-center justify-between border border-gray-300 w-32 h-12 rounded-md overflow-hidden bg-gray-100;
+}
+
+.product-quantity-btn {
+  @apply w-1/3 h-full text-xl font-semibold flex items-center justify-center cursor-pointer select-none hover:bg-gray-200;
+}
+
+.product-quantity-nums {
+  @apply w-1/3 h-full text-base font-medium flex items-center justify-center;
+}
+
+.product-view-btn-grid {
+  @apply space-y-3 mt-6;
+}
+
+.product-view-btn-grid-hrz {
+  @apply grid grid-cols-2 gap-0.5;
+}
+
+.product-view-payment-option {
+  @apply block text-center text-sm underline;
+}
+
+.product-view-details {
+  @apply max-w-4xl mx-auto px-4 sm:px-8 pb-16;
+}
+
+.product-view-details-header {
+  @apply border-b border-gray-200 text-gray-800 pb-3 font-medium;
+}
+
+.product-view-details-content {
+  @apply pt-6 text-gray-600 space-y-4 leading-relaxed text-justify;
+}
+
+/* #endregion */
+
+/* #region Modal */
+@layer components {
+  .modal-container {
+    @apply fixed inset-0 flex items-center justify-center bg-gray-900/80 backdrop-blur-sm;
+  }
+
+  .modal-content {
+    @apply w-full max-w-3xl p-8 bg-white rounded-lg shadow-lg relative transform transition-all;
+  }
+
+  .modal-close-btn {
+    @apply absolute top-4 right-4 text-gray-500 hover:text-black text-2xl transition-colors;
+  }
+
+  .modal-title {
+    @apply text-center;
+  }
+
+  .modal-title h2 {
+    @apply text-3xl font-bold text-gray-900;
+  }
+
+  .upload-form {
+    @apply mt-8 space-y-6;
+  }
+
+  .upload-label {
+    @apply text-sm font-bold text-gray-600;
+  }
+
+  .drop-zone {
+    @apply flex flex-col items-center justify-center w-full h-45 p-5 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-orange-600 transition-colors;
+  }
+
+  .upload-image {
+    @apply h-24 object-center;
+  }
+
+  .upload-text {
+    @apply text-gray-500 text-lg;
+  }
+
+  .upload-link {
+    @apply text-orange-600 font-semibold hover:underline cursor-pointer;
+  }
+
+  .error-message {
+    @apply text-red-500 text-sm mt-2;
+  }
+
+  .preview-container {
+    @apply grid grid-cols-1 gap-4 mt-4;
+  }
+}
+/* #endregion */
+
+/* #region Cart */
+.cart-container {
+  @apply container mx-auto px-6 lg:px-8 py-10;
+}
+
+.cart-header {
+  @apply flex justify-between items-baseline mb-6;
+}
+
+.continue-shopping {
+  @apply text-2xl text-gray-500 hover:text-gray-700 hover:underline font-medium;
+}
+
+.cart-grid {
+  @apply hidden lg:grid grid-cols-3 gap-4 pb-2 border-b border-gray-300 text-sm text-gray-700;
+}
+
+.cart-item {
+  @apply bg-white rounded-md shadow-sm;
+}
+
+.product-image {
+  @apply w-20 h-20 rounded object-cover mr-4 hidden sm:block;
+}
+
+.product-title {
+  @apply font-semibold text-gray-800;
+}
+
+.product-price,
+.product-edition {
+  @apply text-gray-600 text-sm mt-1;
+}
+
+.quantity-control {
+  @apply flex items-center border border-gray-300 rounded-md;
+}
+
+.quantity-btn {
+  @apply px-3 py-2 text-gray-600 hover:text-gray-800 focus:outline-none;
+}
+
+.quantity-input {
+  @apply w-12 text-center border-l border-r border-gray-300 focus:ring-gray-500 focus:border-gray-500 text-sm;
+}
+
+.remove-item {
+  @apply ml-2 text-gray-500 hover:text-gray-700 focus:outline-none;
+}
+
+.order-instructions-label {
+  @apply block text-sm font-medium text-gray-700 mb-2;
+}
+
+.order-instructions-input {
+  @apply h-32 shadow-sm focus:ring-gray-500 focus:border-gray-500 block w-full sm:text-sm border-gray-300 rounded-md;
+}
+
+.summary-box {
+  @apply bg-white rounded-md shadow-sm p-6;
+}
+
+.subtotal {
+  @apply flex justify-between text-sm text-gray-700 mb-3;
+}
+
+.tax-info {
+  @apply text-xs text-gray-500 mb-4;
+}
+
+.checkout-btn {
+  @apply w-full bg-gray-900 text-white py-3 rounded-md font-semibold hover:bg-gray-800 focus:outline-none mb-2;
+}
+
+.paypal-btn {
+  @apply w-full bg-[#FFC439] text-blue-700 py-3 rounded-md font-semibold focus:outline-none;
+}
+/* #endregion */
+
+/* #region Details Form */
+.details-header {
+  @apply text-2xl font-semibold mb-4; 
+}
+
+.details-grid {
+  @apply grid grid-cols-1 md:grid-cols-2 gap-4;
+}
+/* #endregion */
+
+/* #region Address */
+.page-title {
+  @apply text-5xl font-semibold text-gray-900;
+}
+
+.return-link {
+  @apply text-gray-600 mt-4 hover:underline block;
+}
+
+.address-name {
+  @apply text-xl font-semibold;
+}
+/* #endregion */
+
+/* #region Sell */
+.upload-header {
+  @apply block text-sm text-gray-600 text-left;
+}
+
+.upload-input {
+  @apply block w-full text-sm text-gray-900 border border-gray-300 rounded-sm cursor-pointer 
+  bg-white file:bg-gray-300 file:border-gray-400 file:text-gray-900 
+  file:py-2 file:px-4 file:mr-3 file:font-medium file:rounded-sm 
+  hover:file:bg-gray-400 focus:outline-none;
+}
+
+.btn-alignment {
+  @apply flex justify-center col-span-2 mt-4;
+}
+/* #endregion */
+
+/* #region Notification */
+.cart-notification {
+  @apply fixed top-4 right-4 bg-gray-900 text-white rounded-lg p-4 shadow-lg w-80 z-50 opacity-0 transform translate-x-4 transition-all duration-300;
+}
+
+.cart-notification-header {
+  @apply flex justify-between items-center mb-2;
+}
+
+.cart-notification-icon {
+  @apply flex items-center text-green-500;
+}
+
+.close-btn {
+  @apply text-gray-400 hover:text-white focus:outline-none;
+}
+
+.cart-notification-body {
+  @apply flex items-center mb-3;
+}
+
+.product-image {
+  @apply w-16 h-16 object-cover rounded mr-3;
+}
+
+.product-title {
+  @apply font-semibold text-sm;
+}
+
+.product-edition {
+  @apply text-gray-400 text-xs mt-1;
+}
+
+.cart-notification-actions {
+  @apply space-y-2;
+}
+
+.cart-action {
+  @apply flex justify-center col-span-2 mt-4;
+}
+/* #endregion */
+
+/* #region Report */
+.section-header {
+  @apply flex justify-between border-gray-300 border-b pb-3;
+}
+
+.dt {
+  @apply text-base font-semibold text-gray-600 pb-1;
+}
+
+.dd {
+  @apply leading-none text-3xl font-bold text-black;
+}
+
+.dt-profit {
+  @apply leading-none text-xl font-bold text-green-600;
+}
+
+.dt-expense {
+  @apply leading-none text-xl font-bold text-red-600;
+}
+
+.profit-grid {
+  @apply grid grid-cols-2 py-3;
+}
+
+.profit-rate-up {
+  @apply bg-green-200 text-green-800 text-xs font-medium inline-flex items-center px-2.5 py-1 rounded-md;
+}
+
+.profit-rate-content {
+  @apply w-2.5 h-2.5 me-1.5;
+}
+
+.chart {
+  @apply w-full h-48;
+}
+
+.utils-grid {
+  @apply mt-4 grid grid-cols-1 items-center border-gray-300 border-t;
+}
+
+.utils-content {
+  @apply flex justify-between items-center pt-5;
+}
+
+/* #endregion */

@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{base :: page_head(pageTitle=${product.name})}"></head>
+<body>
+
+  <header th:replace="~{base :: navbar}"></header>
+  <header th:replace="~{base :: searchbar}"></header>
+  <div th:replace="~{base :: searchOverlay}"></div>
+
+  <div class="product-view">
+    
+    <!-- Images -->
+    <div>
+      <img th:src="@{${product.imageUrl}}" class="product-view-main-image">
+      <div class="grid grid-cols-5 gap-4 mt-4">
+        <img th:each="image : ${product.galleryImages}" th:src="@{${image}}" class="product-view-sub-image">
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="product-view-content">
+
+      <h2 class="product-view-title" th:text="${product.name}"></h2>
+
+      <div class="product-view-grid">
+        <p class="product-view-availability-header">
+          Availability: <span class="product-view-availability" th:text="${product.availability}"></span>
+        </p>
+        <p>
+          Brand: <span class="product-view-content-text" th:text="${product.brand}"></span>
+        </p>
+        <p>
+          Category: <span class="product-view-content-text" th:text="${product.category}"></span>
+        </p>
+        <p>
+          SKU: <span class="product-view-content-text" th:text="${product.sku}"></span>
+        </p>
+
+        <div class="product-view-price">
+          <p class="product-view-discount" th:text="'$' + ${product.price}"></p>
+          <p class="product-view-original-price" th:text="'$' + ${product.originalPrice}"></p>
+        </div>
+
+        <div class="product-view-headup">
+          <p class="product-view-headup-object">Shipping&nbsp;</p>
+          <p class="product-view-headup-content">calculated at checkout.</p>
+        </div>
+
+        <h4 class="product-view-section-header">Edition</h4>
+        <div id="edition-buttons" class="product-view-edition-grid">
+          <button th:each="edition : ${product.editions}" th:text="${edition}" class="btn flex-1"></button>
+        </div>
+
+        <h4 class="product-view-section-header">Quantity</h4>
+        <div class="product-quantity-box">
+          <div class="product-quantity-btn">-</div>
+          <div class="product-quantity-nums">1</div>
+          <div class="product-quantity-btn">+</div>
+        </div>
+
+        <div class="product-view-btn-grid">
+          <div class="flex justify-center col-span-2 mt-4">    
+            <div class="flex justify-center col-span-2 mt-4">    
+              <button class="contact-btn" onclick="showNotification()">
+                  <span class="contact-btn-text">Add to cart</span>
+              </button>
+            </div>            
+          </div>
+
+          <div class="product-view-btn-grid-hrz">
+            <div class="flex justify-center col-span-2 mt-4">    
+              <a th:href="@{/checkout}" class="contact-btn">
+                <span class="contact-btn-text">Buy now</span>
+              </a>
+            </div>
+          
+            <div class="flex justify-center col-span-2 mt-4">    
+              <a th:href="@{/checkout}" class="contact-btn">
+                <span class="contact-btn-text">Sell now</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Product Details -->
+  <div class="product-view-details">
+    <h3 class="product-view-details-header">Product Details</h3>
+    <div class="product-view-details-content">
+      <p th:text="${product.description1}"></p>
+      <p th:text="${product.description2}"></p>
+    </div>
+  </div>
+
+  <div th:replace="~{base :: recommendedProducts(${hotSaleProducts})}"></div>
+
+  <script src="/js/selected.js"></script>
+  <script src="/js/notify.js"></script>
+
+  <footer th:replace="~{base :: footer}"></footer>
+  <div th:replace="~{base :: copyright}"></div>
+
+</body>
+</html>

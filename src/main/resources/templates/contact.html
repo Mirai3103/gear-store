@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{base :: page_head(pageTitle='Contact')}"></head>
+<body>
+  <header th:replace="~{base :: navbar}"></header>
+  <header th:replace="~{base :: searchbar}"></header>
+  <div th:replace="~{base :: searchOverlay}"></div>
+
+  <section class="contact">
+    <h2 class="contact-title">Contact</h2>
+  
+    <p class="contact-header">Customer support:</p>
+    <p class="contact-email">shop@8bitdo.com</p>
+  
+    <form class="contact-form">
+      <!-- Name and Email -->
+      <div class="contact-grid">
+        <!-- Name Input -->
+        <div class="contact-input-container">
+          <input
+            type="text"
+            placeholder=""
+            class="contact-input"
+          />
+          <span
+            class="contact-input-text"
+          >
+            Name
+          </span>
+        </div>
+
+        <!-- Email Input -->
+        <div class="contact-input-container">
+          <input
+            type="email"
+            placeholder=""
+            class="contact-input peer"
+          />
+          <span
+            class="contact-input-text"
+          >
+            Email
+          </span>
+        </div>
+      </div>
+  
+      <!-- Phone number -->
+      <div class="contact-input-container">
+        <input
+        type="tel"
+        placeholder=""
+        class="contact-input peer"
+        />
+        <span class="contact-input-text">Phone number</span>
+      </div>
+  
+      <!-- Comment -->
+      <div class="contact-input-container relative w-full">
+        <textarea
+          placeholder="Comment"
+          class="contact-input h-32"
+        ></textarea>
+      </div>      
+  
+      <!-- Submit button -->
+      <button
+        type="submit"
+        class="contact-btn"
+      >
+        <span class="contact-btn-text">submit</span>
+      </button>
+    </form>
+  </section>  
+
+  <footer th:replace="~{base :: footer}"></footer>
+  <div th:replace="~{base :: copyright}"></div>
+
+  <script src="/js/searchbar.js"></script>
+  
+</body>
+</html>

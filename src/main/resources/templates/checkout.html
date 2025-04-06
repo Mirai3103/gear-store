@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{base :: page_head(pageTitle='Checkout')}">
+</head>
+<body class="checkout-body">
+
+	<div class="checkout-container">
+		<div class="payment-section">
+			<h2 class="payment-title">Payment Method</h2>
+			<div class="payment-box">
+				<div class="payment-content">
+					<h2 class="express-title">Express Checkout</h2>
+                    <button class="paypal-button">
+                        <span class="paypal-text">
+                            Pay<span class="paypal-highlight">Pal</span>
+                        </span>
+                    </button>
+				</div>
+
+				<!-- Payment Form Section -->
+				<div class="payment-divider">
+					<div class="payment-form">
+						<!-- Logo Section -->
+						<div class="mastercard">
+							<div class="mastercard-logo">
+								<div class="mastercard-circle"></div>
+							</div>
+							<div class="mastercard-text">Mastercard</div>
+						</div>
+
+						<!-- Form Section -->
+						<div class="payment-input-grid">
+							<div class="col-span-2">
+								<label class="payment-label" for="cardNumber">Card number</label>
+								<input class="payment-input" type="text" placeholder="0000 0000 0000 0000"> 
+							</div>
+							<div>
+								<label class="payment-label" for="expiryDate">Expiry Date</label>
+								<input class="payment-input" type="text" placeholder="MM/YY"> 
+							</div>
+							<div>
+								<label class="payment-label" for="cvv">CVC/CVV</label>
+								<input class="payment-input" type="password" placeholder="..."> 
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Delivery Information -->
+			<h2 class="delivery-title">Delivery Information</h2>
+			<div class="delivery-box">
+				<div class="delivery-grid">
+					<div class="col-span-2">
+						<label class="payment-label" for="fullName">Full Name</label>
+						<input class="payment-input" type="text" placeholder="John Doe">
+					</div>
+					<div class="col-span-2">
+						<label class="payment-label" for="address">Address</label>
+						<input class="payment-input" type="text" placeholder="1234 Main St">
+					</div>
+					<div>
+						<label class="payment-label" for="city">City</label>
+						<input class="payment-input" type="text" placeholder="New York">
+					</div>
+					<div>
+						<label class="payment-label" for="zipCode">Zip Code</label>
+						<input class="payment-input" type="text" placeholder="10001">
+					</div>
+					<div>
+						<label class="payment-label" for="region">Region/Country</label>
+						<input class="payment-input" type="text" placeholder="United States">
+					</div>
+					<div>
+						<label class="payment-label" for="state">State</label>
+						<input class="payment-input" type="text" placeholder="New York">
+					</div>
+					<div class="col-span-2">
+						<label class="payment-label" for="phone">Phone</label>
+						<input class="payment-input" type="text" placeholder="(123) 456-7890">
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Order Summary -->
+		<div>
+			<h2 class="order-summary-title">Order Summary</h2>
+			<div class="order-summary-box">
+				<div class="order-summary-content">
+					<!-- Cart Items Section -->
+					<div class="cart-items">
+						<p class="cart-items-title">Cart Items</p>
+						<p class="cart-items-note">Scroll for more items</p>
+					</div>
+
+                    <!-- Coupon Section -->
+                    <div class="coupon-section">
+						<label class="payment-label">Discount Code</label>
+						<div class="coupon-input-container">
+							<input class="coupon-input" type="text" placeholder="Enter code">
+							<button class="coupon-button">Apply</button>
+						</div>
+					</div>
+
+					<!-- Pricing Section -->
+					<div class="price-row">
+						<span class="price-label">Subtotal</span>
+						<span class="price-value" th:text="${subtotal}">$0.00</span>
+					</div>
+					<div class="total-row">
+						<span class="price-label">Total</span>
+						<span class="total-value" th:text="${total}">$0.00</span>
+					</div>
+
+                    <div class="checkout-button-container">
+						<button class="checkout-button">Checkout</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

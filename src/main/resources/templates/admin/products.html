@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{base :: page_head()}"></head>
+<body>
+
+    <div th:fragment="productModal" id="product" class="modal-container hidden">
+        
+        <!-- Modal Content -->
+        <div class="modal-content">
+            <!-- Close Button -->
+            <button id="close-modal" class="modal-close-btn">&times;</button>
+
+            <!-- Title Section -->
+            <div class="modal-title">
+                <h2>Products</h2>
+            </div>
+
+            <div th:replace="~{base :: table-search-bar}"></div>                      
+
+            <div class="pt-4">
+                <div th:replace="~{base :: table(rows=${rows}, headers=${headers})}"></div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+</body>
+</html>
