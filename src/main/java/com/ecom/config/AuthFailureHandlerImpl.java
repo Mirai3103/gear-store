@@ -4,8 +4,10 @@ import java.io.IOException;
 
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException.Unauthorized;
 
 import com.ecom.model.User;
 import com.ecom.repository.UserRepository;
@@ -37,7 +39,7 @@ public class AuthFailureHandlerImpl extends SimpleUrlAuthenticationFailureHandle
 
         if (user == null) {
             // user không tồn tại
-            exception = new LockedException("Email or password invalid");
+            exception = new UsernameNotFoundException("Email or password invalid");
         } 
         // Nếu bạn có logic khác (failedAttempt) thì để ở đây
         // else { ... }

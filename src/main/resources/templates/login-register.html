@@ -12,32 +12,42 @@
   
       <div class="form-wrapper login">
         <h2 class="title">Login</h2>
-        <form action="#">
+        <div th:if="${param.error}" class="text-red-500 text-sm mt-2">
+          <p>Error: Invalid email or password.</p>
+          <script>
+            //clear the query string after displaying the error message
+            window.history.replaceState({}, document.title, window.location.pathname);
+          </script>
+        </div>
+        
+        <form action="/signin" method="post" th:action="@{/signin}">
           <div class="input-box">
-            <input type="email" required>
+            <input type="email" name="email" required>
             <label for="">Email</label>
           </div>
-          
           <div class="input-box">
-            <input type="text" required>
+            <input type="password" name="password" required>
             <label for="">Password</label>
           </div>
-  
-          <div class="flex justify-center col-span-2 mt-4">    
-            <button class="contact-btn">
-                <span class="contact-btn-text">Login</span>
+          <div class="remember-me">
+            <input type="checkbox" name="rememberMe" id="rememberMe">
+            <label for="rememberMe">Remember me</label>
+          </div>
+          <!-- CSRF Token - Spring Security yêu cầu -->
+          <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+          <div class="flex justify-center col-span-2 mt-4">
+            <button type="submit" class="contact-btn">
+              <span class="contact-btn-text">Login</span>
             </button>
           </div>
-
           <div class="link">
             <p>
               Don't have an account? <a href="#" class="signup-link">SignUp</a>
             </p>
           </div>
-
           <div class="link">
             <p>
-              Forgot your password? <a href="#" class="signup-link">Reset password</a>
+              Forgot your password? <a href="/forgot-password" class="signup-link">Reset password</a>
             </p>
           </div>
         </form>

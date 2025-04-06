@@ -3,14 +3,12 @@ package com.ecom.model;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.Date;
-
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "User") // Tên bảng theo diagram
+@Table(name = "AppUser") // Tên bảng theo diagram
 public class User {
 
     @Id
@@ -26,7 +24,7 @@ public class User {
 
     private String password;
 
-    private String role;
+    private String role="ROLE_USER"; // Mặc định là ROLE_USER, có thể thay đổi nếu cần
 
     // Nếu diagram có cột "enable" (hoặc "is_enable"):
     @Column(name = "enable")

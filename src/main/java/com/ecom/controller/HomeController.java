@@ -12,15 +12,25 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.couchbase.CouchbaseProperties.Authentication;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.domain.Page;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.authentication.RememberMeServices;
+import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.ObjectUtils;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
 
+import com.ecom.dtos.requests.RegisterRequest;
 import com.ecom.model.Category;
 import com.ecom.model.Product;
 import com.ecom.model.User;
@@ -33,7 +43,15 @@ import com.ecom.util.CommonUtil;
 import io.micrometer.common.util.StringUtils;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
+import lombok.Data;
+
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
+
 
 @Controller
 public class HomeController {
@@ -55,6 +73,9 @@ public class HomeController {
 
     @Autowired
     private CartService cartService;
+    
+    @Autowired
+    private AuthenticationManager authenticationManager;
 
     @ModelAttribute
     public void getUserDetails(Principal p, Model m) {
@@ -81,15 +102,51 @@ public class HomeController {
         return "index";
     }
     @GetMapping("/signin")
-    public String signIn() {
-        return "login-register"; // hoặc "login.html" tùy file bạn muốn hiển thị
+    public String getSignIn(Model m) {
+        m.addAttribute("registerRequest", new RegisterRequest());
+      
+        return "login-register"; 
     }
+
 
 
     @GetMapping("/register")
-    public String register() {
-        return "register";
+    public String getRegister() {
+        return "redirect:/signin"; // Chuyển hướng về trang đăng nhập
     }
+
+
+    @PostMapping("/register")
+    public String postRegister(@ModelAttribute @Valid RegisterRequest registerRequest,
+                           HttpSession session,Model m, BindingResult bindingResult) {
+
+        if (userService.existsEmail(registerRequest.getEmail())) {
+            bindingResult.rejectValue("email", "error.email", "Email already exists");
+        }
+        if (bindingResult.hasErrors()) {
+            m.addAttribute("registerRequest", registerRequest);
+            return "login-register"; 
+        }
+
+        String encodedPassword = passwordEncoder.encode(registerRequest.getPassword());
+        registerRequest.setPassword(encodedPassword);
+
+        User u = new User();
+        u.setName(registerRequest.getEmail());
+        u.setEmail(registerRequest.getEmail());
+        u.setPassword(registerRequest.getPassword());
+        
+        userService.saveUser(u);
+
+        m.addAttribute("notification", "Đăng ký thành công! Vui lòng đăng nhập.");
+        
+        return "redirect:/signin"; 
+      
+    }
+    
+
+
+
 
     @GetMapping("/products")
     public String products(Model m,
