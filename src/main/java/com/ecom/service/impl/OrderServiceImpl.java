@@ -48,7 +48,7 @@ public class OrderServiceImpl implements OrderService {
         double totalMoney = 0.0;
         for (Cart cart : carts) {
             // Lấy cột price (String) => parseDouble
-            String priceStr = cart.getProduct().getPrice();
+            String priceStr = cart.getProduct().getPrice().toString();
             double numericPrice = Double.parseDouble(priceStr);
 
             double realDiscountPrice = numericPrice
@@ -81,7 +81,7 @@ public class OrderServiceImpl implements OrderService {
             od.setQuantity(cart.getQuantity());
 
             // Tính lại line total
-            String priceStr = cart.getProduct().getPrice();
+            String priceStr = cart.getProduct().getPrice().toString();
             double numericPrice = Double.parseDouble(priceStr);
             double realDiscountPrice = numericPrice
                     - (numericPrice * cart.getProduct().getDiscount() / 100.0);

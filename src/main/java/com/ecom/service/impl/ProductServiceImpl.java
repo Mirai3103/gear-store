@@ -14,6 +14,7 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import lombok.Data;
+import lombok.extern.log4j.Log4j2;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
@@ -33,8 +34,8 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 
-
 @Service
+@Log4j2
 public class ProductServiceImpl implements ProductService {
 
     @Autowired
@@ -79,7 +80,8 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Product updateProduct(Product product, MultipartFile image) {
         Product dbProduct = getProductById(product.getId());
-        if (dbProduct == null) return null;
+        if (dbProduct == null)
+            return null;
 
         // Mapping lại các field
         dbProduct.setName(product.getName());
@@ -102,8 +104,8 @@ public class ProductServiceImpl implements ProductService {
             try {
                 File saveFile = new ClassPathResource("static/img").getFile();
                 Path path = Paths.get(saveFile.getAbsolutePath() + File.separator
-                                      + "product_img" + File.separator
-                                      + image.getOriginalFilename());
+                        + "product_img" + File.separator
+                        + image.getOriginalFilename());
                 Files.copy(image.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -144,7 +146,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     /**
-     * Phân trang + lọc category => findByCategory_Name..., 
+     * Phân trang + lọc category => findByCategory_Name...,
      * nếu category rỗng => findAll(pageable).
      */
     @Override
@@ -169,8 +171,7 @@ public class ProductServiceImpl implements ProductService {
         if (!org.springframework.util.ObjectUtils.isEmpty(category)) {
             // Tìm name OR category.name ignoring case
             return productRepository.findByNameContainingIgnoreCaseOrCategory_NameContainingIgnoreCase(
-                    ch, category, pageable
-            );
+                    ch, category, pageable);
         } else {
             // chỉ tìm theo name
             return productRepository.findByNameContainingIgnoreCase(ch, pageable);
@@ -180,113 +181,91 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<Gallery> getAllProductsGallery(Integer id) {
         return galleryRepository.findByProductId(id);
-        
+
     }
 
     @Override
     public Page<Product> getAllProductsByQuery(ProductQuery query) {
-        
-// @Data
-// public  class ProductQuery {
-//      public enum SortBy {
-//         FEATURED("Featured"),
-//         BEST_SELLING("Best Selling"),
-//         ALPHABETICALLY_A_Z("Alphabetically A-Z"),
-//         ALPHABETICALLY_Z_A("Alphabetically Z-A"),
-//         PRICE_LOW_TO_HIGH("Price low to high"),
-//         PRICE_HIGH_TO_LOW("Price high to low"),
-//         DATE_OLD_TO_NEW("Date old to new"),
-//         DATE_NEW_TO_OLD("Date new to old");
-//         private final String displayName;
-//         SortBy(String displayName) {
-//             this.displayName = displayName;
-//         }
-//         public String getDisplayName() {
-//             return displayName;
-//         }
-//         @Override
-//         public String toString() {
-//             return displayName;
-//         }
-//     }
-//     private String search;
-//     private Integer categoryId;
-//     private SortBy sortBy;
-//     private Integer page = 0;
-//     private Integer pageSize = 10;
-//     private Integer priceFrom;
-//     private Integer priceTo;
-
-//     // Getters and Setters
-// }
-        // TODO Auto-generated method stub
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        var criteriaQuery = cb.createQuery(Product.class);
         CriteriaQuery<Product> cq = cb.createQuery(Product.class);
-         Root<Product> productRoot = cq.from(Product.class);
-           List<Predicate> predicates = new ArrayList<>();
-    
-    if (query.getSearch() != null && !query.getSearch().isEmpty()) {
-        predicates.add(cb.like(cb.lower(productRoot.get("name")), "%" + query.getSearch().toLowerCase() + "%"));
-    }
-    
-    if (query.getCategoryId() != null) {
-        predicates.add(cb.equal(productRoot.get("category").get("id"), query.getCategoryId()));
-    }
-    
-    if (query.getPriceFrom() != null) {
-        predicates.add(cb.greaterThanOrEqualTo(productRoot.get("price"), query.getPriceFrom()));
-    }
-    
-    if (query.getPriceTo() != null) {
-        predicates.add(cb.lessThanOrEqualTo(productRoot.get("price"), query.getPriceTo()));
-    }
-    
-    // Apply predicates (filters)
-    cq.where(cb.and(predicates.toArray(new Predicate[0])));
-    
-    // Handle sorting
-    if (query.getSortBy() != null) {
-        switch (query.getSortBy()) {
-            case FEATURED:
-                cq.orderBy(cb.desc(productRoot.get("featured"))); // Example field for sorting
-                break;
-            case BEST_SELLING:
-                cq.orderBy(cb.desc(productRoot.get("sales"))); // Example field for best selling
-                break;
-            case ALPHABETICALLY_A_Z:
-                cq.orderBy(cb.asc(productRoot.get("name")));
-                break;
-            case ALPHABETICALLY_Z_A:
-                cq.orderBy(cb.desc(productRoot.get("name")));
-                break;
-            case PRICE_LOW_TO_HIGH:
-                cq.orderBy(cb.asc(productRoot.get("price")));
-                break;
-            case PRICE_HIGH_TO_LOW:
-                cq.orderBy(cb.desc(productRoot.get("price")));
-                break;
-            case DATE_OLD_TO_NEW:
-                cq.orderBy(cb.asc(productRoot.get("createdAt")));
-                break;
-            case DATE_NEW_TO_OLD:
-                cq.orderBy(cb.desc(productRoot.get("createdAt")));
-                break;
-            default:
-                break;
+        Root<Product> productRoot = cq.from(Product.class);
+        List<Predicate> predicates = new ArrayList<>();
+
+        if (query.getSearch() != null && !query.getSearch().isEmpty()) {
+            predicates.add(cb.like(cb.lower(productRoot.get("name")), "%" + query.getSearch().toLowerCase() + "%"));
         }
+
+        // if (query.getCategoryId() != null) {
+        //     predicates.add(cb.equal(productRoot.get("categoryId"), query.getCategoryId()));
+        // }
+
+        // if (query.getPriceFrom() != null) {
+        //     predicates.add(cb.greaterThanOrEqualTo(productRoot.get("price"), query.getPriceFrom()));
+        // }
+
+        // if (query.getPriceTo() != null) {
+        //     predicates.add(cb.lessThanOrEqualTo(productRoot.get("price"), query.getPriceTo()));
+        // }
+
+        // // Apply predicates (filters)
+        // cq.where(cb.and(predicates.toArray(new Predicate[0])));
+
+        // Handle sorting
+        if (query.getSortBy() != null) {
+            switch (query.getSortBy()) {
+                case FEATURED:
+                    cq.orderBy(cb.desc(productRoot.get("featured"))); // Example field for sorting
+                    break;
+                case BEST_SELLING:
+                    cq.orderBy(cb.desc(productRoot.get("sales"))); // Example field for best selling
+                    break;
+                case ALPHABETICALLY_A_Z:
+                    cq.orderBy(cb.asc(productRoot.get("name")));
+                    break;
+                case ALPHABETICALLY_Z_A:
+                    cq.orderBy(cb.desc(productRoot.get("name")));
+                    break;
+                case PRICE_LOW_TO_HIGH:
+                    cq.orderBy(cb.asc(productRoot.get("price")));
+                    break;
+                case PRICE_HIGH_TO_LOW:
+                    cq.orderBy(cb.desc(productRoot.get("price")));
+                    break;
+                case DATE_OLD_TO_NEW:
+                    cq.orderBy(cb.asc(productRoot.get("createdAt")));
+                    break;
+                case DATE_NEW_TO_OLD:
+                    cq.orderBy(cb.desc(productRoot.get("createdAt")));
+                    break;
+                default:
+                    cq.orderBy(cb.desc(productRoot.get("id"))); // Default sorting by ID
+                    break;
+            }
+        }
+        log.info("query: " + cq.toString());
+
+        // Paginate
+        TypedQuery<Product> typedQuery = entityManager.createQuery(cq);
+        int pageSize = query.getPageSize();
+        int pageNumber = query.getPage();
+        typedQuery.setFirstResult(pageNumber * pageSize);
+        typedQuery.setMaxResults(pageSize);
+
+        List<Product> products = typedQuery.getResultList();
+        long totalProducts = getTotalProductsCount(predicates);
+
+        return new PageImpl<>(products, PageRequest.of(pageNumber, pageSize), totalProducts);
     }
 
-    // Paginate
-    TypedQuery<Product> typedQuery = entityManager.createQuery(cq);
-    int pageSize = query.getPageSize();
-    int pageNumber = query.getPage();
-    typedQuery.setFirstResult(pageNumber * pageSize);
-    typedQuery.setMaxResults(pageSize);
+    private long getTotalProductsCount(List<Predicate> predicates) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+        Root<Product> productRoot = cq.from(Product.class);
 
-    List<Product> products = typedQuery.getResultList();
-    long totalProducts = getTotalProductsCount(predicates); // Method to count products with filters applied
-    
-    return new PageImpl<>(products, PageRequest.of(pageNumber, pageSize), totalProducts);
+        cq.select(cb.count(productRoot));
+        cq.where(cb.and(predicates.toArray(new Predicate[0])));
+
+        TypedQuery<Long> typedQuery = entityManager.createQuery(cq);
+        return typedQuery.getSingleResult();
     }
 }

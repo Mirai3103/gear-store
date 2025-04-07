@@ -36,7 +36,7 @@ public class CartServiceImpl implements CartService {
         }
 
         // price là String => parseDouble
-        String priceStr = product.getPrice();
+        String priceStr = product.getPrice().toString();
         // Nếu DB có ký tự $, bạn có thể cắt bỏ trước khi parse:
         // priceStr = priceStr.replace("$", "");
         double numericPrice = Double.parseDouble(priceStr);
@@ -74,7 +74,7 @@ public class CartServiceImpl implements CartService {
         for (Cart c : carts) {
             Product p = c.getProduct();
             // parse price sang double
-            String priceStr = p.getPrice();
+            String priceStr = p.getPrice().toString();
             double numericPrice = Double.parseDouble(priceStr);
 
             double realDiscountPrice = numericPrice
@@ -98,7 +98,7 @@ public class CartServiceImpl implements CartService {
 
         Product p = cart.getProduct();
         // parse price sang double
-        String priceStr = p.getPrice();
+        String priceStr = p.getPrice().toString();
         double numericPrice = Double.parseDouble(priceStr);
 
         double realDiscountPrice = numericPrice

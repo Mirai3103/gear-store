@@ -13,6 +13,7 @@ import com.ecom.service.CartService;
 // import các service khác nếu cần
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.ObjectUtils;
@@ -42,8 +43,9 @@ public class MappingController {
     @GetMapping("/All_Product")
     public String allProduct(ProductQuery query,Model m) {
         log.info("All Productll Product: {}", query);
-        List<Product> allProducts = productService.getAllProducts();
-        m.addAttribute("Products", allProducts);
+        Page<Product> allProducts = productService.getAllProductsByQuery(query);
+        m.addAttribute("Products", allProducts.getContent());
+        m.addAttribute("totalPages", allProducts.getTotalPages());
         m.addAttribute("pageTitle", "All Products");
         
         return "shop"; 

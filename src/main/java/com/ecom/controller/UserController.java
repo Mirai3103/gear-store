@@ -100,7 +100,7 @@ public class UserController {
         double totalOrderPrice = 0.0;
         for (Cart c : carts) {
             // Lấy price dạng String
-            String priceStr = c.getProduct().getPrice();
+            String priceStr = c.getProduct().getPrice().toString();
             // Nếu DB lưu "299.99$" thì cắt bỏ ký tự $, ví dụ:
             // priceStr = priceStr.replace("$", "");
 
@@ -131,7 +131,7 @@ public class UserController {
         // Tính tạm "orderPrice" = tổng giỏ
         double orderPrice = 0.0;
         for (Cart c : carts) {
-            String priceStr = c.getProduct().getPrice();
+            String priceStr = c.getProduct().getPrice().toString();
             double numericPrice = Double.parseDouble(priceStr);
             double lineTotal = numericPrice * c.getQuantity();
             orderPrice += lineTotal;
