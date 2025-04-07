@@ -26,7 +26,7 @@ public class Product {
      * DB cột: category_id (FK)
      * => map sang Entity Category (nếu có)
      */
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER) // Nhiều sản phẩm thuộc về 1 danh mục
     @JoinColumn(name = "category_id")
     private Category category;
 

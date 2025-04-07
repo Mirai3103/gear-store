@@ -11,6 +11,7 @@ import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
 
+import com.ecom.config.CustomUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.domain.Page;
@@ -89,11 +90,17 @@ public class HomeController {
     }
 
     @GetMapping("/")
-    public String index(Model m) {
+    public String index(Model m, Authentication auth, HttpSession session) {
         // Bỏ logic allActiveCategory, allActiveProducts => tuỳ cột isActive
         // Thay = getAllCategory(), getAllProducts()
         List<Category> categories = categoryService.getAllCategory();
         List<Product> products = productService.getAllProducts();
+        if (auth != null && auth.isAuthenticated()) {
+            var user = (CustomUser) auth.getPrincipal();
+            var totalCart = cartService.getCountCart(user.getUser().getId());
+            session.setAttribute("cartItemsLength", totalCart);
+
+        }
         m.addAttribute("category", categories);
         m.addAttribute("products", products);
         return "index";
@@ -112,14 +119,14 @@ public class HomeController {
 
     @GetMapping("/register")
     public String getRegister() {
-        return "redirect:/signin?signup"; 
+        return "redirect:/signin?signup";
     }
 
     @PostMapping("/register")
     public String postRegister(@Valid @ModelAttribute RegisterRequest registerRequest,
-            BindingResult bindingResult,
-            HttpSession session,
-            Model model) {
+                               BindingResult bindingResult,
+                               HttpSession session,
+                               Model model) {
 
         // Manual validation
         if (userService.existsEmail(registerRequest.getEmail())) {
@@ -146,10 +153,10 @@ public class HomeController {
 
     @GetMapping("/products")
     public String products(Model m,
-            @RequestParam(value = "category", defaultValue = "") String category,
-            @RequestParam(name = "pageNo", defaultValue = "0") Integer pageNo,
-            @RequestParam(name = "pageSize", defaultValue = "12") Integer pageSize,
-            @RequestParam(defaultValue = "") String ch) {
+                           @RequestParam(value = "category", defaultValue = "") String category,
+                           @RequestParam(name = "pageNo", defaultValue = "0") Integer pageNo,
+                           @RequestParam(name = "pageSize", defaultValue = "12") Integer pageSize,
+                           @RequestParam(defaultValue = "") String ch) {
 
         List<Category> categories = categoryService.getAllCategory();
         m.addAttribute("paramValue", category);
@@ -187,8 +194,8 @@ public class HomeController {
 
     @PostMapping("/saveUser")
     public String saveUser(@ModelAttribute User user,
-            @RequestParam("img") MultipartFile file,
-            HttpSession session) throws IOException {
+                           @RequestParam("img") MultipartFile file,
+                           HttpSession session) throws IOException {
 
         Boolean existsEmail = userService.existsEmail(user.getEmail());
         if (existsEmail) {
@@ -222,8 +229,8 @@ public class HomeController {
 
     @PostMapping("/forgot-password")
     public String processForgotPassword(@RequestParam String email,
-            HttpSession session,
-            HttpServletRequest request)
+                                        HttpSession session,
+                                        HttpServletRequest request)
             throws UnsupportedEncodingException, MessagingException {
 
         User userByEmail = userService.getUserByEmail(email);
@@ -247,8 +254,8 @@ public class HomeController {
 
     @GetMapping("/reset-password")
     public String showResetPassword(@RequestParam String token,
-            HttpSession session,
-            Model m) {
+                                    HttpSession session,
+                                    Model m) {
         User userByToken = userService.getUserByToken(token);
         if (userByToken == null) {
             m.addAttribute("msg", "Your link is invalid or expired !!");
@@ -260,9 +267,9 @@ public class HomeController {
 
     @PostMapping("/reset-password")
     public String resetPassword(@RequestParam String token,
-            @RequestParam String password,
-            HttpSession session,
-            Model m) {
+                                @RequestParam String password,
+                                HttpSession session,
+                                Model m) {
         User userByToken = userService.getUserByToken(token);
         if (userByToken == null) {
             m.addAttribute("errorMsg", "Your link is invalid or expired !!");

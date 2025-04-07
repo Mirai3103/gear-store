@@ -1,104 +1,304 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-  <head th:replace="~{base :: page_head(pageTitle=${pageTitle})}"></head>
-  <body>
-    <header th:replace="~{base :: navbar}"></header>
-    <header th:replace="~{base :: searchbar}"></header>
-    <div th:replace="~{base :: searchOverlay}"></div>
+<head th:replace="~{base :: page_head(pageTitle=${pageTitle})}"></head>
+<body>
+<header th:replace="~{base :: navbar}"></header>
+<header th:replace="~{base :: searchbar}"></header>
+<div th:replace="~{base :: searchOverlay}"></div>
 
-    <!-- Shop title -->
-    <div class="shop-title-container">
-      <h4 class="shop-title" th:text="${pageTitle}"></h4>
-    </div>
+<!-- Shop title -->
+<div class="shop-title-container">
+    <h4 class="shop-title" th:text="${pageTitle}"></h4>
+</div>
 
-    <!-- Shop wrapper -->
-    <div class="shop-wrapper">
-      <!-- Sidebar -->
-      <div class="sidebar">
-        <div class="section">
-          <!-- Category filter -->
-          <div>
-            <h3>Category</h3>
-            <div class="checkbox-group">
-              <div class="checkbox-item">
-                <input type="checkbox" id="cat-console" />
-                <label for="cat-console">Console</label>
-              </div>
-              <div class="checkbox-item">
-                <input type="checkbox" id="cat-game" />
-                <label for="cat-game">Game</label>
-              </div>
-              <div class="checkbox-item">
-                <input type="checkbox" id="cat-accessory" />
-                <label for="cat-accessory">Accessory</label>
-              </div>
+<!-- Shop wrapper -->
+<div class="shop-wrapper">
+    <!-- Sidebar -->
+    <div class="sidebar bg-gray-50 p-4 rounded-lg shadow-sm" x-data="productFilters()">
+        <div class="section divide-y divide-gray-200 space-y-6">
+            <!-- Category filter -->
+            <div class="pt-2">
+                <h3 class="text-lg font-semibold text-gray-900 mb-3">Category</h3>
+                <div class="checkbox-group space-y-2">
+                    <div class="checkbox-item flex items-center" th:each="category : ${categories}">
+                        <input
+                                type="checkbox"
+                                th:id="${'cat-' + category.id}"
+                                th:value="${category.id}"
+                                name="categoryId"
+                                x-model="filters.categories"
+                                class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                        >
+                        <label th:for="${'cat-' + category.id}" th:text="${category.name}"
+                               class="ml-3 text-sm text-gray-700"></label>
+                    </div>
+                </div>
             </div>
-          </div>
 
-          <!-- Availability Filter -->
-          <div>
-            <h3>Availability</h3>
-            <div class="checkbox-group">
-              <div class="checkbox-item">
-                <input type="checkbox" id="stock-in" />
-                <label for="stock-in">In Stock</label>
-              </div>
-              <div class="checkbox-item">
-                <input type="checkbox" id="stock-out" />
-                <label for="stock-out">Out of stock</label>
-              </div>
+            <!-- Availability Filter -->
+            <div class="pt-4">
+                <h3 class="text-lg font-semibold text-gray-900 mb-3">Availability</h3>
+                <div class="checkbox-group space-y-2">
+                    <div class="checkbox-item flex items-center">
+                        <input
+                                type="checkbox"
+                                id="stock-in"
+                                x-model="filters.inStock"
+                                class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                        >
+                        <label for="stock-in" class="ml-3 text-sm text-gray-700">In Stock</label>
+                    </div>
+                    <div class="checkbox-item flex items-center">
+                        <input
+                                type="checkbox"
+                                id="stock-out"
+                                x-model="filters.outOfStock"
+                                class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                        >
+                        <label for="stock-out" class="ml-3 text-sm text-gray-700">Out of stock</label>
+                    </div>
+                </div>
             </div>
-          </div>
 
-          <!-- Price filter -->
-          <div class="price-filter">
-            <h3>Price</h3>
-            <div class="price-inputs">
-              <input type="text" placeholder="From" />
-              <span> - </span>
-              <input type="text" placeholder="To" />
+            <!-- Price filter -->
+            <div class="price-filter pt-4">
+                <h3 class="text-lg font-semibold text-gray-900 mb-3">Price</h3>
+                <div class="price-inputs flex items-center">
+                    <input
+                            type="number"
+                            placeholder="From"
+                            x-model="filters.minPrice"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                    >
+                    <span class="mx-2 text-gray-500">-</span>
+                    <input
+                            type="number"
+                            placeholder="To"
+                            x-model="filters.maxPrice"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                    >
+                </div>
             </div>
-          </div>
+
+            <!-- Action Buttons -->
+            <div class="flex gap-4 pt-8">
+                <button
+                        type="button"
+                        @click="applyFilters()"
+                        class="btn-apply relative text-black font-bold uppercase px-6 py-3 border-2 border-black shadow-[4px_4px_0px_black] transition-all duration-150 bg-white skew-x-[-15deg] active:bg-orange-600 active:text-white active:shadow-[2px_2px_0px_black] active:translate-x-0.5 active:translate-y-0.5 flex-1 text-center"
+                >
+                    <span class="inline-block skew-x-[15deg]">Apply</span>
+                </button>
+
+                <button
+                        type="button"
+                        @click="clearFilters()"
+                        class="btn-clear relative text-black font-bold uppercase px-6 py-3 border-2 border-black shadow-[4px_4px_0px_black] transition-all duration-150 bg-gray-100 skew-x-[-15deg] active:bg-gray-200 active:shadow-[2px_2px_0px_black] active:translate-x-0.5 active:translate-y-0.5 flex-1 text-center"
+                >
+                    <span class="inline-block skew-x-[15deg]">Clear</span>
+                </button>
+            </div>
         </div>
-      </div>
-
-      <!-- Product List -->
-      <div class="product-list">
+    </div>
+    <!-- Product List -->
+    <div class="product-list">
         <div class="product-list-select">
-          <select class="product-sort-select">
-            <option>Featured</option>
-            <option>Best Selling</option>
-            <option>Alphabetically, A-Z</option>
-            <option>Alphabetically, Z-A</option>
-            <option>Price, low to high</option>
-            <option>Price, high to low</option>
-            <option>Date, old to new</option>
-            <option>Date, new to old</option>
-          </select>
+            <select class="product-sort-select">
+                <option>Featured</option>
+                <option>Best Selling</option>
+                <option>Alphabetically, A-Z</option>
+                <option>Alphabetically, Z-A</option>
+                <option>Price, low to high</option>
+                <option>Price, high to low</option>
+                <option>Date, old to new</option>
+                <option>Date, new to old</option>
+            </select>
+        </div>
+        <div id="product-root">
+            <div th:replace="~{list-product :: productList(Products=${Products})}"></div>
         </div>
 
-        <div class="section-grid">
-          <div th:each="product : ${Products}">
-            <a th:href="@{'/product-view/' + ${product.id}}">
-              <div
+        <div class="pagination-controls flex justify-center mt-8" x-data="paginationHandler()">
+            <div class="flex items-center space-x-1">
+                <!-- Previous Button -->
+                <button
+                        @click="changePage(currentPage - 1)"
+                        :disabled="currentPage === 1"
+                        :class="{'opacity-50 cursor-not-allowed': currentPage === 1}"
+                        class="px-3 py-1 border border-black rounded-sm bg-white text-black hover:bg-gray-100 transition-colors duration-200">
+                    &larr; Prev
+                </button>
 
-                th:replace="~{product :: productCard(
-              @{ ${product.image}},
-              ${product.name},
-              ${product.price},
-              ${product.id},
-              ${product.discount} ? ${product.discount} : 0
-          )}"
-              ></div>
-            </a>
-          </div>
+                <!-- Page Numbers -->
+                <template x-for="page in displayedPages" :key="page">
+                    <button
+                            @click="changePage(page)"
+                            :class="{
+                    'bg-black text-white border-black': currentPage === page,
+                    'bg-white text-gray-800 border-gray-300 hover:bg-gray-50': currentPage !== page
+                }"
+                            class="px-3 py-1 border rounded-sm text-sm font-medium transition-colors duration-200">
+                        <span x-text="page"></span>
+                    </button>
+                </template>
+
+                <!-- Next Button -->
+                <button
+                        @click="changePage(currentPage + 1)"
+                        :disabled="currentPage === totalPages"
+                        :class="{'opacity-50 cursor-not-allowed': currentPage === totalPages}"
+                        class="px-3 py-1 border border-black rounded-sm bg-white text-black hover:bg-gray-100 transition-colors duration-200">
+                    Next &rarr;
+                </button>
+            </div>
         </div>
-      </div>
     </div>
+</div>
+<script th:inline="javascript">
+    /*<![CDATA[*/
 
-    <footer th:replace="~{base :: footer}"></footer>
-    <div th:replace="~{base :: copyright}"></div>
+    var totalPage = /*[[${totalPages}]]*/ 1;
 
-    <script src="/js/searchbar.js"></script>
-  </body>
+    /*]]>*/
+</script>
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('productFilters', () => ({
+            filters: {
+                categories: [],
+                inStock: false,
+                outOfStock: false,
+                minPrice: '',
+                maxPrice: ''
+            },
+
+            init() {
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.has('categoryId')) {
+                    this.filters.categories = urlParams.getAll('categoryId');
+                }
+
+                this.filters.inStock = urlParams.get('isInStock') === 'true';
+                this.filters.outOfStock = urlParams.get('isInStock') === 'false';
+
+                this.filters.minPrice = urlParams.get('priceFrom') || '';
+                this.filters.maxPrice = urlParams.get('priceTo') || '';
+            },
+
+            applyFilters() {
+                const params = new URLSearchParams();
+
+                this.filters.categories.forEach(categoryId => {
+                    params.append('categoryId', categoryId);
+                });
+                if (this.filters.inStock && !this.filters.outOfStock) {
+                    params.append('isInStock', "true");
+                } else if (this.filters.outOfStock && !this.filters.inStock) {
+                    params.append('isInStock', "false");
+                }
+
+                if (this.filters.minPrice) {
+                    params.append('priceFrom', this.filters.minPrice);
+                }
+                if (this.filters.maxPrice) {
+                    params.append('priceTo', this.filters.maxPrice);
+                }
+
+                window.location.href = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
+            },
+
+            clearFilters() {
+                this.filters.categories = [];
+                this.filters.inStock = false;
+                this.filters.outOfStock = false;
+                this.filters.minPrice = '';
+                this.filters.maxPrice = '';
+
+                window.location.href = window.location.pathname;
+            }
+        }));
+
+        // Add the pagination handler
+        Alpine.data('paginationHandler', () => ({
+            currentPage: 1,
+            totalPages: totalPage, // This comes from your Thymeleaf inline script
+
+            init() {
+                const urlParams = new URLSearchParams(window.location.search);
+                this.currentPage = parseInt(urlParams.get('page') || '1');
+
+                // Listen for custom events from filter application
+                window.addEventListener('filters-applied', (event) => {
+                    this.loadProducts(1, event.detail);
+                });
+            },
+
+            get displayedPages() {
+                const pages = [];
+                const maxPagesToShow = 5;
+
+                let startPage = Math.max(1, this.currentPage - Math.floor(maxPagesToShow / 2));
+                let endPage = Math.min(this.totalPages, startPage + maxPagesToShow - 1);
+
+                if (endPage - startPage + 1 < maxPagesToShow) {
+                    startPage = Math.max(1, endPage - maxPagesToShow + 1);
+                }
+
+                for (let i = startPage; i <= endPage; i++) {
+                    pages.push(i);
+                }
+
+                return pages;
+            },
+
+            changePage(page) {
+                if (page < 1 || page > this.totalPages || page === this.currentPage) {
+                    return;
+                }
+
+                this.currentPage = page;
+                this.loadProducts(page);
+
+                // Update URL without reloading the page
+                const url = new URL(window.location);
+                url.searchParams.set('page', page);
+                window.history.pushState({}, '', url);
+            },
+
+            loadProducts(page, additionalParams = null) {
+                // Create URL with current filters and page
+                const params = new URLSearchParams(window.location.search);
+                params.set('page', page);
+                params.set('size', params.get('size') || '12'); // Default page size if not set
+
+                // Add any additional parameters
+                if (additionalParams) {
+                    for (const [key, value] of Object.entries(additionalParams)) {
+                        if (Array.isArray(value)) {
+                            params.delete(key);
+                            value.forEach(v => params.append(key, v));
+                        } else if (value !== '' && value !== null && value !== undefined) {
+                            params.set(key, value);
+                        } else {
+                            params.delete(key);
+                        }
+                    }
+                }
+
+                // Make AJAX request
+                fetch(`/ajax/all-product?${params.toString()}`)
+                    .then(response => response.text())
+                    .then(html => {
+                        document.getElementById('product-root').innerHTML = html;
+                    })
+                    .catch(error => console.error('Error loading products:', error));
+            }
+        }));
+    });
+</script>
+<footer th:replace="~{base :: footer}"></footer>
+<div th:replace="~{base :: copyright}"></div>
+
+<script src="/js/searchbar.js"></script>
+</body>
 </html>

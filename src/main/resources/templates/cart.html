@@ -4,95 +4,133 @@
 <link rel="stylesheet" href="/css/cart.css">
 <body>
 
-    <header th:replace="~{base :: navbar}"></header>
-    <header th:replace="~{base :: searchbar}"></header>
-    <div th:replace="~{base :: searchOverlay}"></div>
+<header th:replace="~{base :: navbar}"></header>
+<header th:replace="~{base :: searchbar}"></header>
+<div th:replace="~{base :: searchOverlay}"></div>
 
-    <div class="container mx-auto px-6 lg:px-8 py-10">
-        <div class="cart-header">
-            <h4 class="shop-title">Your cart</h4>
-            <a href="#" class="continue-shopping">Continue shopping</a>
+<div class="container mx-auto px-6 lg:px-8 py-10">
+    <div class="cart-header">
+        <h4 class="shop-title">Your cart</h4>
+        <a href="#" class="continue-shopping">Continue shopping</a>
+    </div>
+
+    <!-- Replace the static cart item with dynamic iteration -->
+    <div class="mb-8">
+        <div class="cart-grid">
+            <div>PRODUCT</div>
+            <div class="text-center">QUANTITY</div>
+            <div class="text-right">TOTAL</div>
         </div>
 
-        <div class="mb-8">
-            <div class="cart-grid">
-                <div>PRODUCT</div>
-                <div class="text-center">QUANTITY</div>
-                <div class="text-right">TOTAL</div>
-            </div>
-            <div class="cart-item">
-                <div class="px-4 py-5 sm:px-6">
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 items-center">
-                        <div class="flex items-center">
-                            <img src="https://placehold.co/100x100/ddd/555?text=Product" alt="Product Image" class="product-image">
-                            <div>
-                                <h3 class="product-title">8BitDo 8Bitbot Keychain</h3>
-                                <p class="product-price">$9.99</p>
-                                <p class="product-edition">Edition: Fami Edition</p>
-                            </div>
+        <!-- Empty cart message -->
+        <div th:if="${#lists.isEmpty(carts)}" class="text-center py-8">
+            Your cart is empty.
+        </div>
+
+        <!-- Iterate through cart items -->
+        <div th:each="cart : ${carts}" class="cart-item">
+            <div class="px-4 py-5 sm:px-6">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 items-center">
+                    <div class="flex items-center">
+                        <img th:src="${cart.product.image != null ? cart.product.image : '/images/placeholder.jpg'}"
+                             alt="Product Image" class="product-image">
+                        <div>
+                            <h3 class="product-title" th:text="${cart.product.name}">Product Name</h3>
+                            <p class="product-price"
+                               th:text="'$' + ${#numbers.formatDecimal(cart.product.price, 1, 2)}">Price</p>
+                            <!-- Add category if needed -->
+                            <p class="product-edition" th:if="${cart.product.category != null}"
+                               th:text="'Category: ' + ${cart.product.category.name}">Category</p>
                         </div>
-                        <div class="flex justify-center">
-                            <div class="quantity-control">
-                                <button class="quantity-btn">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M18 12H6" />
-                                    </svg>
-                                </button>
-                                <input type="number" value="1" min="1" class="quantity-input"/>
-                                <button class="quantity-btn">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m6-6H6" />
-                                    </svg>
-                                </button>
-                            </div>
-                            <button class="remove-item">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
-                                    <path fill-rule="evenodd" d="M5.47 5.47a.75.75 0 011.06 0L12 10.94l5.47-5.47a.75.75 0 111.06 1.06L13.06 12l5.47 5.47a.75.75 0 11-1.06 1.06L12 13.06l-5.47 5.47a.75.75 0 01-1.06-1.06L10.94 12 5.47 5.47a.75.75 0 010-1.06z" clip-rule="evenodd" />
+                    </div>
+                    <div class="flex justify-center">
+                        <div class="quantity-control">
+                            <button class="quantity-btn">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                     stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M18 12H6"/>
+                                </svg>
+                            </button>
+                            <input type="number" th:value="${cart.quantity}" min="1" class="quantity-input"/>
+                            <button class="quantity-btn">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                     stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m6-6H6"/>
                                 </svg>
                             </button>
                         </div>
-                        <div class="text-right font-semibold text-gray-800 lg:text-left justify-self-end">
-                            $9.99
-                        </div>
-                    </div>  
+
+                        <form method="post"
+                              th:action="@{/user/cart/delete/{pid}(pid=${cart.product.id})}">
+                            <button class="remove-item" type="submit">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+                                     class="w-5 h-5">
+                                    <path fill-rule="evenodd"
+                                          d="M5.47 5.47a.75.75 0 011.06 0L12 10.94l5.47-5.47a.75.75 0 111.06 1.06L13.06 12l5.47 5.47a.75.75 0 11-1.06 1.06L12 13.06l-5.47 5.47a.75.75 0 01-1.06-1.06L10.94 12 5.47 5.47a.75.75 0 010-1.06z"
+                                          clip-rule="evenodd"/>
+                                </svg>
+                            </button>
+                        </form>
+                    </div>
+                    <div class="text-right font-semibold text-gray-800 lg:text-left justify-self-end">
+                        <!-- Calculate line total: price * quantity -->
+                        <span th:text="'$' + ${#numbers.formatDecimal(cart.product.price * cart.quantity, 1, 2)}">Line Total</span>
+                    </div>
                 </div>
             </div>
         </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div class="mb-8">
-                <label for="order-instructions" class="order-instructions-label">Order special instructions</label>
-                <textarea id="order-instructions" rows="3" class="order-instructions-input"></textarea>
-            </div>
-        
-            <div class="lg:w-1/2 lg:ml-auto">
-                <div class="summary-box">
-                    <div class="subtotal">
-                        <div>Subtotal</div>
-                        <div class="font-semibold">$9.99 USD</div>
-                    </div>
-                    <div class="tax-info">
-                        Taxes and shipping calculated at checkout
-                    </div>
-                    <button class="checkout-btn">
-                        Check out
-                    </button>
-                    <button class="paypal-btn">
-                        <span class="paypal-text">
-                            Pay<span class="paypal-highlight">Pal</span>
-                        </span>
-                    </button>
-                </div>
-            </div>
-        </div>        
     </div>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="mb-8">
+            <label for="order-instructions" class="order-instructions-label">Order special instructions</label>
+            <textarea id="order-instructions" rows="3" class="order-instructions-input"></textarea>
+        </div>
 
-    <div th:replace="~{base :: recommendedProducts(${hotSaleProducts})}"></div>
+        <div class="lg:w-1/2 lg:ml-auto">
+            <div class="summary-box">
+                <div class="subtotal">
+                    <div>Subtotal</div>
+                    <div class="font-semibold"
+                         th:text="'$' + ${#numbers.formatDecimal(totalOrderPrice, 1, 2)} + ' USD'">$0.00 USD
+                    </div>
+                </div>
+                <div class="tax-info">
+                    Taxes and shipping calculated at checkout
+                </div>
+                <button class="checkout-btn">
+                    Check out
+                </button>
+                <!-- ZaloPay Button -->
+                <!-- ZaloPay Button -->
+                <button class="w-full bg-gray-100 text-white py-3 rounded-md font-semibold focus:outline-none flex items-center justify-center
+              transition-all duration-300 hover:bg-gray-200 hover:shadow-lg hover:-translate-y-0.5">
+                    <img src="https://upload.wikimedia.org/wikipedia/vi/7/77/ZaloPay_Logo.png"
+                         alt="ZaloPay"
+                         class="h-6 mr-2"/>
+                    <span class="group-hover:scale-105 transition-transform text-blue-600">ZaloPay</span>
+                </button>
 
-    <footer th:replace="~{base :: footer}"></footer>
-    <div th:replace="~{base :: copyright}"></div>
+                <!-- MoMo Button -->
+                <button class="w-full bg-[#A50064] text-white py-3 rounded-md font-semibold focus:outline-none flex items-center justify-center mt-2
+              transition-all duration-300 hover:bg-[#8a0055] hover:shadow-lg hover:-translate-y-0.5 group">
+                    <img src="https://upload.wikimedia.org/wikipedia/vi/f/fe/MoMo_Logo.png"
+                         alt="MoMo"
+                         class="h-6 mr-2 transition-transform group-hover:scale-110"/>
+                    <span class="group-hover:scale-105 transition-transform">MoMo</span>
+                </button>
 
-    <script src="/js/searchbar.js"></script>
-    
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{base :: recommendedProducts(${hotSaleProducts})}"></div>
+
+<footer th:replace="~{base :: footer}"></footer>
+<div th:replace="~{base :: copyright}"></div>
+
+<script src="/js/searchbar.js"></script>
+
 </body>
 </html>

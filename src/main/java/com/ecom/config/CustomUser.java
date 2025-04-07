@@ -3,12 +3,16 @@ package com.ecom.config;
 import java.util.Arrays;
 import java.util.Collection;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.ecom.model.User;
 
+@Getter
+@Setter
 public class CustomUser implements UserDetails {
 
     private User user;

@@ -1,10 +1,14 @@
 package com.ecom.dtos.requests;
 
 import lombok.Data;
+import lombok.Getter;
+
+import java.util.List;
 
 @Data
-public  class ProductQuery {
-     public enum SortBy {
+public class ProductQuery {
+    @Getter
+    public enum SortBy {
         FEATURED("Featured"),
         BEST_SELLING("Best Selling"),
         ALPHABETICALLY_A_Z("Alphabetically A-Z"),
@@ -14,21 +18,22 @@ public  class ProductQuery {
         DATE_OLD_TO_NEW("Date old to new"),
         DATE_NEW_TO_OLD("Date new to old");
         private final String displayName;
+
         SortBy(String displayName) {
             this.displayName = displayName;
         }
-        public String getDisplayName() {
-            return displayName;
-        }
+
         @Override
         public String toString() {
             return displayName;
         }
     }
+
     private String search;
-    private Integer categoryId;
+    private List<Integer> categoryId;
+    private Boolean isInStock =null;
     private SortBy sortBy;
-    private Integer page = 0;
+    private Integer page = 1;
     private Integer pageSize = 10;
     private Integer priceFrom;
     private Integer priceTo;

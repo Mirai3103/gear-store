@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+<!-- Product list fragment that can be included elsewhere -->
+<div th:fragment="productList(Products)">
+    <div class="section-grid">
+        <div th:each="product : ${Products}">
+            <a th:href="@{'/product-view/' + ${product.id}}">
+                <div
+                        th:replace="~{product :: productCard(
+                          @{ ${product.image}},
+                          ${product.name},
+                          ${product.price},
+                          ${product.id},
+                          ${product.discount} ? ${product.discount} : 0
+                        )}"
+                ></div>
+            </a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

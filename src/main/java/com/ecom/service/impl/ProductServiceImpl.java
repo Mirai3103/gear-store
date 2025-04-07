@@ -8,6 +8,7 @@ import com.ecom.repository.ProductRepository;
 import com.ecom.service.ProductService;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -23,6 +24,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -32,6 +34,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -185,32 +188,16 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Page<Product> getAllProductsByQuery(ProductQuery query) {
+    public List<Product> getAllProductsByQuery(ProductQuery query) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Product> cq = cb.createQuery(Product.class);
         Root<Product> productRoot = cq.from(Product.class);
-        List<Predicate> predicates = new ArrayList<>();
 
-        if (query.getSearch() != null && !query.getSearch().isEmpty()) {
-            predicates.add(cb.like(cb.lower(productRoot.get("name")), "%" + query.getSearch().toLowerCase() + "%"));
-        }
 
-        // if (query.getCategoryId() != null) {
-        //     predicates.add(cb.equal(productRoot.get("categoryId"), query.getCategoryId()));
-        // }
+        // Apply predicates (filters)
+        Predicate[] predicateArray = createPredicates(cb, productRoot, query);
+        cq.where(cb.and(predicateArray));
 
-        // if (query.getPriceFrom() != null) {
-        //     predicates.add(cb.greaterThanOrEqualTo(productRoot.get("price"), query.getPriceFrom()));
-        // }
-
-        // if (query.getPriceTo() != null) {
-        //     predicates.add(cb.lessThanOrEqualTo(productRoot.get("price"), query.getPriceTo()));
-        // }
-
-        // // Apply predicates (filters)
-        // cq.where(cb.and(predicates.toArray(new Predicate[0])));
-
-        // Handle sorting
         if (query.getSortBy() != null) {
             switch (query.getSortBy()) {
                 case FEATURED:
@@ -241,31 +228,58 @@ public class ProductServiceImpl implements ProductService {
                     cq.orderBy(cb.desc(productRoot.get("id"))); // Default sorting by ID
                     break;
             }
+        } else {
+            cq.orderBy(cb.desc(productRoot.get("id"))); // Default sorting by ID
         }
-        log.info("query: " + cq.toString());
 
-        // Paginate
         TypedQuery<Product> typedQuery = entityManager.createQuery(cq);
         int pageSize = query.getPageSize();
-        int pageNumber = query.getPage();
+        int pageNumber = query.getPage()-1; // Assuming page starts from 1
         typedQuery.setFirstResult(pageNumber * pageSize);
         typedQuery.setMaxResults(pageSize);
 
-        List<Product> products = typedQuery.getResultList();
-        long totalProducts = getTotalProductsCount(predicates);
-
-        return new PageImpl<>(products, PageRequest.of(pageNumber, pageSize), totalProducts);
+        return typedQuery.getResultList();
     }
 
-    private long getTotalProductsCount(List<Predicate> predicates) {
+    @Override
+    public Long countAllProductsByQuery(ProductQuery query) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Long> cq = cb.createQuery(Long.class);
         Root<Product> productRoot = cq.from(Product.class);
-
         cq.select(cb.count(productRoot));
-        cq.where(cb.and(predicates.toArray(new Predicate[0])));
-
+        Predicate[] predicateArray = createPredicates(cb, productRoot, query);
+        cq.where(cb.and(predicateArray));
         TypedQuery<Long> typedQuery = entityManager.createQuery(cq);
         return typedQuery.getSingleResult();
+    }
+
+
+    private Predicate[] createPredicates(CriteriaBuilder cb, Root<Product> productRoot, ProductQuery query) {
+        List<Predicate> predicates = new ArrayList<>();
+
+        if (query.getSearch() != null && !query.getSearch().isEmpty()) {
+            predicates.add(cb.like(cb.lower(productRoot.get("name")), "%" + query.getSearch().toLowerCase() + "%"));
+        }
+        if (query.getIsInStock() != null) {
+            if (query.getIsInStock()) {
+                predicates.add(cb.greaterThan(productRoot.get("stock"), 0));
+            } else {
+                predicates.add(cb.equal(productRoot.get("stock"), 0));
+            }
+        }
+
+        if (query.getCategoryId() != null  &&!CollectionUtils.isEmpty(query.getCategoryId())) {
+            predicates.add(cb.and(productRoot.get("category").get("id").in(query.getCategoryId())));
+        }
+
+        if (query.getPriceFrom() != null) {
+            predicates.add(cb.greaterThanOrEqualTo(productRoot.get("price"), query.getPriceFrom()));
+        }
+
+        if (query.getPriceTo() != null) {
+            predicates.add(cb.lessThanOrEqualTo(productRoot.get("price"), query.getPriceTo()));
+        }
+
+        return predicates.toArray(new Predicate[0]);
     }
 }

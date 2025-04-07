@@ -20,8 +20,8 @@ public interface ProductService {
      */
     List<Product> getAllProducts();
 
-    Page<Product> getAllProductsByQuery(ProductQuery query);
-
+    List<Product> getAllProductsByQuery(ProductQuery query);
+    Long countAllProductsByQuery(ProductQuery query);
     /**
      * Xoá sản phẩm theo id.
      */

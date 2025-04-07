@@ -11,7 +11,7 @@ public interface CartService {
      * @param userId    ID user
      * @return Cart đã lưu
      */
-    Cart saveCart(Integer productId, Integer userId);
+    Cart saveCart(Integer productId, Integer userId, Integer quantity);
 
     /**
      * Lấy danh sách cart của 1 user.
@@ -29,4 +29,6 @@ public interface CartService {
      * @param cid ID cart
      */
     void updateQuantity(String sy, Integer cid);
+
+    void deleteCart(Integer pid, Integer uid);
 }

@@ -8,6 +8,7 @@ import com.ecom.repository.ProductRepository;
 import com.ecom.repository.UserRepository;
 import com.ecom.service.CartService;
 
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
@@ -27,7 +28,7 @@ public class CartServiceImpl implements CartService {
     private ProductRepository productRepository;
 
     @Override
-    public Cart saveCart(Integer productId, Integer userId) {
+    public Cart saveCart(Integer productId, Integer userId, Integer quantity) {
         User user = userRepository.findById(userId).orElse(null);
         Product product = productRepository.findById(productId).orElse(null);
 
@@ -53,13 +54,13 @@ public class CartServiceImpl implements CartService {
             cart = new Cart();
             cart.setProduct(product);
             cart.setUser(user);
-            cart.setQuantity(1);
+            cart.setQuantity(quantity);
 
             // line total = realDiscountPrice * quantity
             cart.setTotalPrice(realDiscountPrice);
         } else {
             cart = cartStatus;
-            int newQty = cart.getQuantity() + 1;
+            int newQty = cart.getQuantity() + quantity;
             cart.setQuantity(newQty);
             cart.setTotalPrice(newQty * realDiscountPrice);
         }
@@ -119,5 +120,11 @@ public class CartServiceImpl implements CartService {
             cart.setTotalPrice(newQty * realDiscountPrice);
             cartRepository.save(cart);
         }
+    }
+
+    @Override
+    @Transactional
+    public void deleteCart(Integer pid, Integer uid) {
+        cartRepository.deleteByProductIdAndUserId(pid, uid);
     }
 }

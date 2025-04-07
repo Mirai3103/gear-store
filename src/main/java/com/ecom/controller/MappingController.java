@@ -1,8 +1,10 @@
 package com.ecom.controller;
 
 import com.ecom.dtos.requests.ProductQuery;
+import com.ecom.model.Category;
 import com.ecom.model.Product;
 import com.ecom.model.User;
+import com.ecom.service.CategoryService;
 import com.ecom.service.ProductService;
 import com.ecom.service.UserService;
 
@@ -14,10 +16,12 @@ import com.ecom.service.CartService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
+
 import java.security.Principal;
 import java.util.List;
 
@@ -27,6 +31,8 @@ public class MappingController {
 
     @Autowired
     private ProductService productService;
+    @Autowired
+    private CategoryService categoryService;
 
     @Autowired
     private UserService userService;
@@ -37,18 +43,32 @@ public class MappingController {
     // ----------------------------------------------------
     // 1. All Products => "/All_Product"
     // ----------------------------------------------------
-   
-    
-   
+
+
     @GetMapping("/All_Product")
-    public String allProduct(ProductQuery query,Model m) {
+    public String allProduct(ProductQuery query, Model m) {
         log.info("All Productll Product: {}", query);
-        Page<Product> allProducts = productService.getAllProductsByQuery(query);
-        m.addAttribute("Products", allProducts.getContent());
-        m.addAttribute("totalPages", allProducts.getTotalPages());
+        List<Product> allProducts = productService.getAllProductsByQuery(query);
+        Long count = productService.countAllProductsByQuery(query);
+        List<Category> categories = categoryService.getAllCategory();
+        m.addAttribute("Products", allProducts);
+        m.addAttribute("totalPages", Math.ceil((double) count / query.getPageSize()));
         m.addAttribute("pageTitle", "All Products");
-        
-        return "shop"; 
+        m.addAttribute("categories", categories);
+        return "shop";
+    }
+
+    @GetMapping("ajax/all-product")
+    public String ajaxAllProduct(ProductQuery query, Model m) {
+        if (query.getPage() == null) {
+            query.setPage(1);
+        }
+        if (query.getPageSize() == null) {
+            query.setPageSize(12);
+        }
+        List<Product> allProducts = productService.getAllProductsByQuery(query);
+        m.addAttribute("Products", allProducts);
+        return "list-product :: productList";
     }
 
     // ----------------------------------------------------
@@ -108,7 +128,7 @@ public class MappingController {
     //    => Tạo mapping tương ứng
     // ----------------------------------------------------
     @GetMapping("/product-view/{id}")
-    public String productView(@PathVariable int id, Model m) {
+    public String productView(@PathVariable int id, Model m, Authentication auth) {
         Product product = productService.getProductById(id);
         if (ObjectUtils.isEmpty(product)) {
             // xử lý nếu không tìm thấy sản phẩm

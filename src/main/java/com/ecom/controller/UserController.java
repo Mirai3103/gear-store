@@ -3,7 +3,10 @@ package com.ecom.controller;
 import java.security.Principal;
 import java.util.List;
 
+import com.ecom.config.CustomUser;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -75,43 +78,36 @@ public class UserController {
     }
 
     // ======================== CART ========================
-    @GetMapping("/addCart")
-    public String addToCart(@RequestParam Integer pid,
-                            @RequestParam Integer uid,
-                            HttpSession session)
-    {
-        // Gọi service để thêm sản phẩm vào giỏ
-        Cart saveCart = cartService.saveCart(pid, uid);
-        if (ObjectUtils.isEmpty(saveCart)) {
-            session.setAttribute("errorMsg", "Product add to cart failed");
-        } else {
-            session.setAttribute("succMsg", "Product added to cart");
-        }
-        return "redirect:/product/" + pid;
-    }
+
 
     @GetMapping("/cart")
     public String loadCartPage(Principal p, Model m) {
         User user = getLoggedInUser(p);
         List<Cart> carts = cartService.getCartsByUser(user.getId());
         m.addAttribute("carts", carts);
-
-        // Tính tổng tiền giỏ hàng, cột price là String => parseDouble
         double totalOrderPrice = 0.0;
         for (Cart c : carts) {
-            // Lấy price dạng String
             String priceStr = c.getProduct().getPrice().toString();
-            // Nếu DB lưu "299.99$" thì cắt bỏ ký tự $, ví dụ:
-            // priceStr = priceStr.replace("$", "");
-
-            // parse sang double
             double numericPrice = Double.parseDouble(priceStr);
             double lineTotal = numericPrice * c.getQuantity();
             totalOrderPrice += lineTotal;
         }
         m.addAttribute("totalOrderPrice", totalOrderPrice);
 
-        return "/user/cart";
+        return "cart";
+    }
+
+    @PostMapping("/cart/delete/{pid}")
+    @PreAuthorize("isAuthenticated()")
+    public String deleteCart(
+                             Authentication p,
+                             HttpSession session, @PathVariable Integer pid) {
+        CustomUser user = (CustomUser) p.getPrincipal();
+        cartService.deleteCart(pid, user.getUser().getId());
+        session.setAttribute("succMsg", "Product removed from cart");
+        Integer countCart = cartService.getCountCart(user.getUser().getId());
+        session.setAttribute("cartItemsLength", countCart);
+        return "redirect:/user/cart";
     }
 
     @GetMapping("/cartQuantityUpdate")
@@ -146,8 +142,7 @@ public class UserController {
 
     @PostMapping("/save-order")
     public String saveOrder(@ModelAttribute OrderRequest request,
-                            Principal p) throws Exception
-    {
+                            Principal p) throws Exception {
         // Tạo đơn hàng (Approach B: Orders + OrderDetails)
         User user = getLoggedInUser(p);
         orderService.saveOrder(user.getId(), request);
@@ -172,8 +167,7 @@ public class UserController {
     @GetMapping("/update-status")
     public String updateOrderStatus(@RequestParam Integer id,
                                     @RequestParam Integer st,
-                                    HttpSession session)
-    {
+                                    HttpSession session) {
         OrderStatus[] values = OrderStatus.values();
         String status = null;
         for (OrderStatus orderSt : values) {
