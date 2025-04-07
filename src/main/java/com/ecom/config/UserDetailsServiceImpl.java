@@ -9,7 +9,10 @@ import org.springframework.stereotype.Service;
 import com.ecom.model.User;
 import com.ecom.repository.UserRepository;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
+@Slf4j
 public class UserDetailsServiceImpl implements UserDetailsService {
 
 	@Autowired
@@ -17,7 +20,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-
+		log.info("UserDetailsServiceImpl.loadUserByUsername() called with username: {}", username);
 		User user = userRepository.findByEmail(username);
 
 		if (user == null) {

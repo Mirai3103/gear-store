@@ -1,72 +1,63 @@
 <!doctype html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{base :: page_head(pageTitle=${product.name})}"></head>
+<head th:replace="~{base :: page_head(pageTitle=${product.name})}">
+  <!-- Add Alpine.js via CDN -->
+</head>
 <body>
-
   <header th:replace="~{base :: navbar}"></header>
   <header th:replace="~{base :: searchbar}"></header>
   <div th:replace="~{base :: searchOverlay}"></div>
-
-  <div class="product-view">
+  
+  <!-- Product view with Alpine.js -->
+  <div class="product-view" x-data="pageState()">
     
     <!-- Images -->
     <div>
-      <img th:src="@{${product.imageUrl}}" class="product-view-main-image">
+      <img :src="selectedImage" class="product-view-main-image">
       <div class="grid grid-cols-5 gap-4 mt-4">
-        <img th:each="image : ${product.galleryImages}" th:src="@{${image}}" class="product-view-sub-image">
+        <img 
+          th:each="g : ${galleries}" 
+          th:src="@{${g.thumbnail}}" 
+          class="product-view-sub-image"
+          @click="const url=$el.src; changeImage(url)"
+          :class="{'border-2 border-blue-500': selectedImage === $el.src}"
+          alt="Product Image"
+        >
       </div>
     </div>
-
+    
     <!-- Content -->
     <div class="product-view-content">
-
       <h2 class="product-view-title" th:text="${product.name}"></h2>
-
       <div class="product-view-grid">
         <p class="product-view-availability-header">
-          Availability: <span class="product-view-availability" th:text="${product.availability}"></span>
+          Availability: <span class="product-view-availability" th:text="${product.stock}"></span>
         </p>
+      
         <p>
-          Brand: <span class="product-view-content-text" th:text="${product.brand}"></span>
+          Category: <span class="product-view-content-text" th:text="${product.category.name}"></span>
         </p>
-        <p>
-          Category: <span class="product-view-content-text" th:text="${product.category}"></span>
-        </p>
-        <p>
-          SKU: <span class="product-view-content-text" th:text="${product.sku}"></span>
-        </p>
-
         <div class="product-view-price">
           <p class="product-view-discount" th:text="'$' + ${product.price}"></p>
-          <p class="product-view-original-price" th:text="'$' + ${product.originalPrice}"></p>
+          <p class="product-view-original-price" th:text="'$' + ${product.price}"></p>
         </div>
-
         <div class="product-view-headup">
           <p class="product-view-headup-object">Shipping&nbsp;</p>
           <p class="product-view-headup-content">calculated at checkout.</p>
         </div>
-
-        <h4 class="product-view-section-header">Edition</h4>
-        <div id="edition-buttons" class="product-view-edition-grid">
-          <button th:each="edition : ${product.editions}" th:text="${edition}" class="btn flex-1"></button>
-        </div>
-
+     
         <h4 class="product-view-section-header">Quantity</h4>
         <div class="product-quantity-box">
-          <div class="product-quantity-btn">-</div>
-          <div class="product-quantity-nums">1</div>
-          <div class="product-quantity-btn">+</div>
+          <div class="product-quantity-btn" @click="decreaseQuantity()">-</div>
+          <div class="product-quantity-nums" x-text="quantity">1</div>
+          <div class="product-quantity-btn" @click="increaseQuantity()">+</div>
         </div>
-
         <div class="product-view-btn-grid">
           <div class="flex justify-center col-span-2 mt-4">    
-            <div class="flex justify-center col-span-2 mt-4">    
-              <button class="contact-btn" onclick="showNotification()">
-                  <span class="contact-btn-text">Add to cart</span>
-              </button>
-            </div>            
-          </div>
-
+            <button class="contact-btn" @click="addToCart()">
+              <span class="contact-btn-text">Add to cart</span>
+            </button>
+          </div>            
           <div class="product-view-btn-grid-hrz">
             <div class="flex justify-center col-span-2 mt-4">    
               <a th:href="@{/checkout}" class="contact-btn">
@@ -81,27 +72,70 @@
             </div>
           </div>
         </div>
-
       </div>
     </div>
   </div>
-
+  
   <!-- Product Details -->
   <div class="product-view-details">
     <h3 class="product-view-details-header">Product Details</h3>
     <div class="product-view-details-content">
-      <p th:text="${product.description1}"></p>
-      <p th:text="${product.description2}"></p>
+      <p th:text="${product.description}"></p>
     </div>
   </div>
+  <script>
+  
+  const stock = [[${product.stock}]];
+  const mainImage = '[[${product.image}]]';
 
+  document.addEventListener('alpine:init', () => {
+    Alpine.data('pageState', () => ({
+      quantity: 1,
+      stock: stock,
+      selectedImage: mainImage,
+      mainImage: mainImage,
+      
+      init() {
+        this.selectedImage = this.mainImage;
+      },
+      
+      increaseQuantity() {
+        if (this.quantity < this.stock) {
+          this.quantity++;
+        }
+      },
+      
+      decreaseQuantity() {
+        if (this.quantity > 1) {
+          this.quantity--;
+        }
+      },
+      
+      changeImage(newImage) {
+        this.selectedImage = newImage;
+      },
+      
+      addToCart() {
+        if (this.quantity <= 0) {
+          alert('Error: Quantity must be greater than 0');
+          return;
+        }
+        
+        if (this.quantity > this.stock) {
+          alert('Error: Quantity exceeds available stock');
+          return;
+        }
+        
+        // Add to cart logic here
+        showNotification();
+      }
+    }));
+  });
+  </script>
   <div th:replace="~{base :: recommendedProducts(${hotSaleProducts})}"></div>
-
   <script src="/js/selected.js"></script>
   <script src="/js/notify.js"></script>
-
   <footer th:replace="~{base :: footer}"></footer>
   <div th:replace="~{base :: copyright}"></div>
-
 </body>
 </html>

@@ -12,3 +12,7 @@ signup_links.forEach(link => {
 login_link.addEventListener("click", () => {
   wrapper.classList.remove("active");
 });
+//  default is login page, but if has query string "signup" then show signup page
+if (window.location.search.includes("signup")||isRegister) {
+  wrapper.classList.add("active");
+}

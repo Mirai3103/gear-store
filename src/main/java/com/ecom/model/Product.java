@@ -31,7 +31,7 @@ public class Product {
     private Category category;
 
     @Column(name = "price") // cột DB = price (varchar)
-    private String price;
+    private Float price;
     
 
     /**

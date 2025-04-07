@@ -4,6 +4,8 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.ecom.dtos.requests.ProductQuery;
+import com.ecom.model.Gallery;
 import com.ecom.model.Product;
 
 public interface ProductService {
@@ -17,6 +19,8 @@ public interface ProductService {
      * Lấy tất cả sản phẩm (không phân trang).
      */
     List<Product> getAllProducts();
+
+    Page<Product> getAllProductsByQuery(ProductQuery query);
 
     /**
      * Xoá sản phẩm theo id.
@@ -66,5 +70,5 @@ public interface ProductService {
      * Lấy tất cả sản phẩm + phân trang (không filter).
      */
     Page<Product> getAllProductsPagination(Integer pageNo, Integer pageSize);
-
+    List<Gallery> getAllProductsGallery(Integer id);
 }

@@ -5,22 +5,33 @@
 
   <!-- Product Card Fragment -->
   <!-- Parameters: imageUrl, name, price, id -->
-  <a th:href="@{'/product-view/' + ${id}}" 
-     th:fragment="productCard(imageUrl, name, price, id)" 
-     class="product">
-
-    <div class="product-image-container">
-      <img th:src="${imageUrl}" alt="Product Image" class="product-image">
+  <a th:href="@{'/product-view/' + ${id}}"
+  th:fragment="productCard(image, name, price, id, discount)"
+  class="group block overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-300 bg-white relative">
+    <!-- Discount Badge -->
+    <div th:if="${discount > 0}" 
+         class="absolute top-3 right-3 bg-red-600 text-white font-bold text-sm px-2 py-1 rounded-full z-10">
+      -[[${discount}]]%
     </div>
-
-    <div class="product-info-container">
-      <h5 class="product-link-content" th:text="${name}"></h5>
-
-      <div class="product-price-container">
-        <p class="product-price" th:text="${price}"></p>
+    
+    <div class="relative overflow-hidden aspect-square">
+      <img th:src="${image}" alt="${name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+    </div>
+  
+    <div class="p-4">
+      <h3 class="text-gray-900 font-medium truncate mb-2" th:text="${name}"></h3>
+      
+      <div class="flex items-center gap-2">
+        <span class="text-lg font-bold text-red-600" 
+              th:text="${price}" >
+            
+            </span>
+        <span th:if="${discount > 0}" 
+              class="text-sm text-gray-400 line-through" 
+              th:text="${price} + 'đ'">
+        </span>
       </div>
     </div>
-
   </a>
 
 </body>

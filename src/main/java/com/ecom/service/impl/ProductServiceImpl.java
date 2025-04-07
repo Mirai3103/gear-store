@@ -1,12 +1,24 @@
 package com.ecom.service.impl;
 
+import com.ecom.dtos.requests.ProductQuery;
+import com.ecom.model.Gallery;
 import com.ecom.model.Product;
+import com.ecom.repository.GalleryRepository;
 import com.ecom.repository.ProductRepository;
 import com.ecom.service.ProductService;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import lombok.Data;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -18,6 +30,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -25,7 +38,11 @@ import java.util.List;
 public class ProductServiceImpl implements ProductService {
 
     @Autowired
+    private GalleryRepository galleryRepository;
+    @Autowired
     private ProductRepository productRepository;
+    @Autowired
+    private EntityManager entityManager;
 
     @Override
     public Product saveProduct(Product product) {
@@ -158,5 +175,118 @@ public class ProductServiceImpl implements ProductService {
             // chỉ tìm theo name
             return productRepository.findByNameContainingIgnoreCase(ch, pageable);
         }
+    }
+
+    @Override
+    public List<Gallery> getAllProductsGallery(Integer id) {
+        return galleryRepository.findByProductId(id);
+        
+    }
+
+    @Override
+    public Page<Product> getAllProductsByQuery(ProductQuery query) {
+        
+// @Data
+// public  class ProductQuery {
+//      public enum SortBy {
+//         FEATURED("Featured"),
+//         BEST_SELLING("Best Selling"),
+//         ALPHABETICALLY_A_Z("Alphabetically A-Z"),
+//         ALPHABETICALLY_Z_A("Alphabetically Z-A"),
+//         PRICE_LOW_TO_HIGH("Price low to high"),
+//         PRICE_HIGH_TO_LOW("Price high to low"),
+//         DATE_OLD_TO_NEW("Date old to new"),
+//         DATE_NEW_TO_OLD("Date new to old");
+//         private final String displayName;
+//         SortBy(String displayName) {
+//             this.displayName = displayName;
+//         }
+//         public String getDisplayName() {
+//             return displayName;
+//         }
+//         @Override
+//         public String toString() {
+//             return displayName;
+//         }
+//     }
+//     private String search;
+//     private Integer categoryId;
+//     private SortBy sortBy;
+//     private Integer page = 0;
+//     private Integer pageSize = 10;
+//     private Integer priceFrom;
+//     private Integer priceTo;
+
+//     // Getters and Setters
+// }
+        // TODO Auto-generated method stub
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        var criteriaQuery = cb.createQuery(Product.class);
+        CriteriaQuery<Product> cq = cb.createQuery(Product.class);
+         Root<Product> productRoot = cq.from(Product.class);
+           List<Predicate> predicates = new ArrayList<>();
+    
+    if (query.getSearch() != null && !query.getSearch().isEmpty()) {
+        predicates.add(cb.like(cb.lower(productRoot.get("name")), "%" + query.getSearch().toLowerCase() + "%"));
+    }
+    
+    if (query.getCategoryId() != null) {
+        predicates.add(cb.equal(productRoot.get("category").get("id"), query.getCategoryId()));
+    }
+    
+    if (query.getPriceFrom() != null) {
+        predicates.add(cb.greaterThanOrEqualTo(productRoot.get("price"), query.getPriceFrom()));
+    }
+    
+    if (query.getPriceTo() != null) {
+        predicates.add(cb.lessThanOrEqualTo(productRoot.get("price"), query.getPriceTo()));
+    }
+    
+    // Apply predicates (filters)
+    cq.where(cb.and(predicates.toArray(new Predicate[0])));
+    
+    // Handle sorting
+    if (query.getSortBy() != null) {
+        switch (query.getSortBy()) {
+            case FEATURED:
+                cq.orderBy(cb.desc(productRoot.get("featured"))); // Example field for sorting
+                break;
+            case BEST_SELLING:
+                cq.orderBy(cb.desc(productRoot.get("sales"))); // Example field for best selling
+                break;
+            case ALPHABETICALLY_A_Z:
+                cq.orderBy(cb.asc(productRoot.get("name")));
+                break;
+            case ALPHABETICALLY_Z_A:
+                cq.orderBy(cb.desc(productRoot.get("name")));
+                break;
+            case PRICE_LOW_TO_HIGH:
+                cq.orderBy(cb.asc(productRoot.get("price")));
+                break;
+            case PRICE_HIGH_TO_LOW:
+                cq.orderBy(cb.desc(productRoot.get("price")));
+                break;
+            case DATE_OLD_TO_NEW:
+                cq.orderBy(cb.asc(productRoot.get("createdAt")));
+                break;
+            case DATE_NEW_TO_OLD:
+                cq.orderBy(cb.desc(productRoot.get("createdAt")));
+                break;
+            default:
+                break;
+        }
+    }
+
+    // Paginate
+    TypedQuery<Product> typedQuery = entityManager.createQuery(cq);
+    int pageSize = query.getPageSize();
+    int pageNumber = query.getPage();
+    typedQuery.setFirstResult(pageNumber * pageSize);
+    typedQuery.setMaxResults(pageSize);
+
+    List<Product> products = typedQuery.getResultList();
+    long totalProducts = getTotalProductsCount(predicates); // Method to count products with filters applied
+    
+    return new PageImpl<>(products, PageRequest.of(pageNumber, pageSize), totalProducts);
     }
 }

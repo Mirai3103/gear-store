@@ -1,9 +1,14 @@
 package com.ecom.controller;
 
+import com.ecom.dtos.requests.ProductQuery;
 import com.ecom.model.Product;
 import com.ecom.model.User;
 import com.ecom.service.ProductService;
 import com.ecom.service.UserService;
+
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
+
 import com.ecom.service.CartService;
 // import các service khác nếu cần
 
@@ -16,6 +21,7 @@ import java.security.Principal;
 import java.util.List;
 
 @Controller
+@Slf4j
 public class MappingController {
 
     @Autowired
@@ -30,14 +36,17 @@ public class MappingController {
     // ----------------------------------------------------
     // 1. All Products => "/All_Product"
     // ----------------------------------------------------
+   
+    
+   
     @GetMapping("/All_Product")
-    public String allProduct(Model m) {
-        // Ví dụ: Lấy toàn bộ product và hiển thị bằng template "shop.html" hoặc "product.html"
+    public String allProduct(ProductQuery query,Model m) {
+        log.info("All Productll Product: {}", query);
         List<Product> allProducts = productService.getAllProducts();
         m.addAttribute("Products", allProducts);
-        // pageTitle để hiển thị tiêu đề trang (nếu muốn)
         m.addAttribute("pageTitle", "All Products");
-        return "shop";  // hoặc "product", tuỳ template bạn muốn
+        
+        return "shop"; 
     }
 
     // ----------------------------------------------------
@@ -103,6 +112,8 @@ public class MappingController {
             // xử lý nếu không tìm thấy sản phẩm
             return "redirect:/All_Product";
         }
+        m.addAttribute("galleries", productService.getAllProductsGallery(id));
+
         m.addAttribute("product", product);
         // Template "product-view.html"
         return "product-view";

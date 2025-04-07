@@ -121,7 +121,13 @@ body {
 }
 
 .input-box {
-  @apply relative w-full h-12 my-6;
+  @apply relative w-full my-6;
+}
+.input-box.error input {
+  @apply border-red-500;
+}
+.input-box.error label {
+  @apply text-red-500;
 }
 
 .input-box input {
@@ -650,7 +656,7 @@ body {
 }
 
 .shop-wrapper {
-  @apply container px-35 grid grid-cols-4 gap-6 pt-8 pb-16 items-start;
+  @apply container px-35 grid grid-cols-4 gap-6 pt-8 pb-16 items-start mx-auto;
 }
 
 /* Sidebar Container */

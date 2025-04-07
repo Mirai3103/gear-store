@@ -12,11 +12,11 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.couchbase.CouchbaseProperties.Authentication;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.domain.Page;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -47,13 +47,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.Data;
-
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-
-
+import lombok.extern.log4j.Log4j2;
 
 @Controller
+@Log4j2
 public class HomeController {
 
     @Autowired
@@ -73,7 +70,7 @@ public class HomeController {
 
     @Autowired
     private CartService cartService;
-    
+
     @Autowired
     private AuthenticationManager authenticationManager;
 
@@ -101,59 +98,58 @@ public class HomeController {
         m.addAttribute("products", products);
         return "index";
     }
+
     @GetMapping("/signin")
-    public String getSignIn(Model m) {
+    public String getSignIn(Model m, Authentication auth) {
         m.addAttribute("registerRequest", new RegisterRequest());
-      
-        return "login-register"; 
+        log.info("getSignIn() called with auth: {}", auth);
+        if (auth != null) {
+            log.info("User is already authenticated: {}", auth.getName());
+            return "redirect:/"; // Chuyển hướng về trang chủ nếu đã đăng nhập
+        }
+        return "login-register";
     }
-
-
 
     @GetMapping("/register")
     public String getRegister() {
-        return "redirect:/signin"; // Chuyển hướng về trang đăng nhập
+        return "redirect:/signin?signup"; 
     }
-
 
     @PostMapping("/register")
-    public String postRegister(@ModelAttribute @Valid RegisterRequest registerRequest,
-                           HttpSession session,Model m, BindingResult bindingResult) {
+    public String postRegister(@Valid @ModelAttribute RegisterRequest registerRequest,
+            BindingResult bindingResult,
+            HttpSession session,
+            Model model) {
 
+        // Manual validation
         if (userService.existsEmail(registerRequest.getEmail())) {
-            bindingResult.rejectValue("email", "error.email", "Email already exists");
+            bindingResult.rejectValue("email", "email.exists", "Email already exists");
         }
+
+        // Return to form if errors exist
         if (bindingResult.hasErrors()) {
-            m.addAttribute("registerRequest", registerRequest);
-            return "login-register"; 
+            model.addAttribute("registerRequest", registerRequest); // Repopulate form
+            model.addAttribute("page", "Register");
+            return "login-register"; // Return the same view to show errors
         }
 
-        String encodedPassword = passwordEncoder.encode(registerRequest.getPassword());
-        registerRequest.setPassword(encodedPassword);
+        // Process valid registration
+        User user = new User();
+        user.setName(registerRequest.getName());
+        user.setEmail(registerRequest.getEmail());
+        user.setPassword(registerRequest.getPassword());
 
-        User u = new User();
-        u.setName(registerRequest.getEmail());
-        u.setEmail(registerRequest.getEmail());
-        u.setPassword(registerRequest.getPassword());
-        
-        userService.saveUser(u);
-
-        m.addAttribute("notification", "Đăng ký thành công! Vui lòng đăng nhập.");
-        
-        return "redirect:/signin"; 
-      
+        userService.saveUser(user);
+        model.addAttribute("notification", "Registration successful! Please log in.");
+        return "redirect:/signin";
     }
-    
-
-
-
 
     @GetMapping("/products")
     public String products(Model m,
-                           @RequestParam(value = "category", defaultValue = "") String category,
-                           @RequestParam(name = "pageNo", defaultValue = "0") Integer pageNo,
-                           @RequestParam(name = "pageSize", defaultValue = "12") Integer pageSize,
-                           @RequestParam(defaultValue = "") String ch) {
+            @RequestParam(value = "category", defaultValue = "") String category,
+            @RequestParam(name = "pageNo", defaultValue = "0") Integer pageNo,
+            @RequestParam(name = "pageSize", defaultValue = "12") Integer pageSize,
+            @RequestParam(defaultValue = "") String ch) {
 
         List<Category> categories = categoryService.getAllCategory();
         m.addAttribute("paramValue", category);
@@ -184,14 +180,15 @@ public class HomeController {
     @GetMapping("/product/{id}")
     public String product(@PathVariable int id, Model m) {
         Product productById = productService.getProductById(id);
+        m.addAttribute("galleries", productService.getAllProductsGallery(id));
         m.addAttribute("product", productById);
         return "view_product";
     }
 
     @PostMapping("/saveUser")
     public String saveUser(@ModelAttribute User user,
-                           @RequestParam("img") MultipartFile file,
-                           HttpSession session) throws IOException {
+            @RequestParam("img") MultipartFile file,
+            HttpSession session) throws IOException {
 
         Boolean existsEmail = userService.existsEmail(user.getEmail());
         if (existsEmail) {
@@ -204,8 +201,8 @@ public class HomeController {
                 if (!file.isEmpty()) {
                     File saveFile = new ClassPathResource("static/img").getFile();
                     Path path = Paths.get(saveFile.getAbsolutePath() + File.separator
-                                          + "profile_img" + File.separator
-                                          + file.getOriginalFilename());
+                            + "profile_img" + File.separator
+                            + file.getOriginalFilename());
                     Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
                 }
                 session.setAttribute("succMsg", "Register successfully");
@@ -213,7 +210,7 @@ public class HomeController {
                 session.setAttribute("errorMsg", "Something wrong on server");
             }
         }
-        return "redirect:/register";
+        return "redirect:/register?signup";
     }
 
     // ===================== Forgot Password Code =====================
@@ -225,9 +222,9 @@ public class HomeController {
 
     @PostMapping("/forgot-password")
     public String processForgotPassword(@RequestParam String email,
-                                        HttpSession session,
-                                        HttpServletRequest request)
-                                        throws UnsupportedEncodingException, MessagingException {
+            HttpSession session,
+            HttpServletRequest request)
+            throws UnsupportedEncodingException, MessagingException {
 
         User userByEmail = userService.getUserByEmail(email);
         if (ObjectUtils.isEmpty(userByEmail)) {
@@ -250,8 +247,8 @@ public class HomeController {
 
     @GetMapping("/reset-password")
     public String showResetPassword(@RequestParam String token,
-                                    HttpSession session,
-                                    Model m) {
+            HttpSession session,
+            Model m) {
         User userByToken = userService.getUserByToken(token);
         if (userByToken == null) {
             m.addAttribute("msg", "Your link is invalid or expired !!");
@@ -263,9 +260,9 @@ public class HomeController {
 
     @PostMapping("/reset-password")
     public String resetPassword(@RequestParam String token,
-                                @RequestParam String password,
-                                HttpSession session,
-                                Model m) {
+            @RequestParam String password,
+            HttpSession session,
+            Model m) {
         User userByToken = userService.getUserByToken(token);
         if (userByToken == null) {
             m.addAttribute("errorMsg", "Your link is invalid or expired !!");

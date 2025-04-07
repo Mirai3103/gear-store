@@ -1,108 +1,186 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{base :: page_head(pageTitle='Login/Register')}"></head>
-<body>
-  <header th:replace="~{base :: navbar}"></header>
-  <header th:replace="~{base :: searchbar}"></header>
-  <div th:replace="~{base :: searchOverlay}"></div>
+  <head th:replace="~{base :: page_head(pageTitle='Login/Register')}"></head>
+  <body>
+    <header th:replace="~{base :: navbar}"></header>
+    <header th:replace="~{base :: searchbar}"></header>
+    <div th:replace="~{base :: searchOverlay}"></div>
 
-  <div class="body">
-    <div class="wrapper">
-      <span class="bg1"></span>
-  
-      <div class="form-wrapper login">
-        <h2 class="title">Login</h2>
-        <div th:if="${param.error}" class="text-red-500 text-sm mt-2">
-          <p>Error: Invalid email or password.</p>
-          <script>
-            //clear the query string after displaying the error message
-            window.history.replaceState({}, document.title, window.location.pathname);
-          </script>
+    <div class="body">
+      <div class="wrapper !w-[850px]">
+        <span class="bg1"></span>
+
+        <div class="form-wrapper login">
+          <h2 class="title">Login</h2>
+          <div th:if="${param.error}" class="text-red-500 text-sm mt-2">
+            <p>Error: Invalid email or password.</p>
+            <script>
+              //clear the query string after displaying the error message
+              window.history.replaceState(
+                {},
+                document.title,
+                window.location.pathname
+              );
+            </script>
+          </div>
+
+          <form action="/signin" method="post" th:action="@{/signin}">
+            <div class="input-box">
+              <input type="email" name="email" required />
+              <label for="">Email</label>
+            </div>
+            <div class="input-box">
+              <input type="password" name="password" required />
+              <label for="">Password</label>
+            </div>
+            <div class="remember-me">
+              <input type="checkbox" name="rememberMe" id="rememberMe" />
+              <label for="rememberMe">Remember me</label>
+            </div>
+            <!-- CSRF Token - Spring Security yêu cầu -->
+            <input
+              type="hidden"
+              name="${_csrf.parameterName}"
+              value="${_csrf.token}"
+            />
+            <div class="flex justify-center col-span-2 mt-4">
+              <button type="submit" class="contact-btn">
+                <span class="contact-btn-text">Login</span>
+              </button>
+            </div>
+            <div class="link">
+              <p>
+                Don't have an account?
+                <a href="#" class="signup-link">SignUp</a>
+              </p>
+            </div>
+            <div class="link">
+              <p>
+                Forgot your password?
+                <a href="/forgot-password" class="signup-link"
+                  >Reset password</a
+                >
+              </p>
+            </div>
+          </form>
         </div>
-        
-        <form action="/signin" method="post" th:action="@{/signin}">
-          <div class="input-box">
-            <input type="email" name="email" required>
-            <label for="">Email</label>
-          </div>
-          <div class="input-box">
-            <input type="password" name="password" required>
-            <label for="">Password</label>
-          </div>
-          <div class="remember-me">
-            <input type="checkbox" name="rememberMe" id="rememberMe">
-            <label for="rememberMe">Remember me</label>
-          </div>
-          <!-- CSRF Token - Spring Security yêu cầu -->
-          <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
-          <div class="flex justify-center col-span-2 mt-4">
-            <button type="submit" class="contact-btn">
-              <span class="contact-btn-text">Login</span>
-            </button>
-          </div>
-          <div class="link">
-            <p>
-              Don't have an account? <a href="#" class="signup-link">SignUp</a>
-            </p>
-          </div>
-          <div class="link">
-            <p>
-              Forgot your password? <a href="/forgot-password" class="signup-link">Reset password</a>
-            </p>
-          </div>
-        </form>
-      </div>
-  
-      <div class="info-wrapper login">
-        <h2>Welcome Back</h2>
-        <p>Login into your account to access our services</p>
-      </div>
-  
-      <span class="bg2"></span>
-      
-      <div class="form-wrapper register">
-        <h2 class="title">Signup</h2>
-        <form action="#">
-          <div class="input-box">
-            <input type="email" required />
-            <label for="">Email</label>
-          </div>
-          <div class="input-box">
-            <input type="password" required />
-            <label for="">Password</label>
-          </div>
-          <div class="input-box">
-            <input type="password" required />
-            <label for="">Confirm Password</label>
-          </div>
 
-          <div class="flex justify-center col-span-2 mt-4">    
-            <button class="contact-btn">
+        <div class="info-wrapper login">
+          <h2>Welcome Back</h2>
+          <p>Login into your account to access our services</p>
+        </div>
+
+        <span class="bg2"></span>
+
+        <div class="form-wrapper register">
+          <h2 class="title">Signup</h2>
+          <form
+            action="#"
+            th:action="@{/register}"
+            th:object="${registerRequest}"
+            method="post"
+          >
+            <div
+              class="input-box"
+              th:classappend="${#fields.hasErrors('name') ? 'error' : ''}"
+            >
+              <input type="text" th:field="*{name}" required />
+              <label>Name</label>
+            </div>
+            <small
+              class="text-red-500 text-sm -mt-4 block"
+              th:if="${#fields.hasErrors('name')}"
+              th:errors="*{name}"
+            ></small>
+            <div
+              class="input-box"
+              th:classappend="${#fields.hasErrors('email') ? 'error' : ''}"
+            >
+              <input type="email" th:field="*{email}" required />
+              <label>Email</label>
+            </div>
+            <small
+              class="text-red-500 text-sm -mt-4 block"
+              th:if="${#fields.hasErrors('email')}"
+              th:errors="*{email}"
+            ></small>
+            <!-- Password Field -->
+            <div
+              class="input-box"
+              th:classappend="${#fields.hasErrors('password') ? 'error' : ''}"
+            >
+              <input type="password" th:field="*{password}" required />
+              <label>Password</label>
+            </div>
+            <small
+              class="text-red-500 text-sm -mt-4 block"
+              th:if="${#fields.hasErrors('password')}"
+              th:errors="*{password}"
+            ></small>
+            <!-- Confirm Password Field -->
+            <div
+              class="input-box"
+              th:classappend="${#fields.hasErrors('confirmPassword') ? 'error' : ''}"
+            >
+              <input type="password" th:field="*{confirmPassword}" required />
+              <label>Confirm Password</label>
+            </div>
+            <small
+              class="text-red-500 text-sm -mt-4 block"
+              th:if="${#fields.hasErrors('confirmPassword')}"
+              th:errors="*{confirmPassword}"
+            ></small>
+            <div class="flex justify-center col-span-2 mt-4">
+              <button type="submit" class="contact-btn">
                 <span class="contact-btn-text">Register</span>
-            </button>
-          </div>
+              </button>
+            </div>
 
-          <div class="link">
-            <p>
-              Already have an account? <a href="#" class="login-link">Login</a>
-            </p>
-          </div>
-        </form>
-      </div>
-  
-      <div class="info-wrapper register">
-        <h2>Welcome!</h2>
-        <p>Create your account to access our services</p>
+            <div class="link">
+              <p>
+                Already have an account?
+                <a href="#" class="login-link">Login</a>
+              </p>
+            </div>
+          </form>
+        </div>
+
+        <div class="info-wrapper register">
+          <h2>Welcome!</h2>
+          <p>Create your account to access our services</p>
+        </div>
       </div>
     </div>
-  </div>
 
-  <script src="js/switch.js"></script>
+    <script>
+            var page = '[[${page}]]'|| 'Login';
+            var isRegister = page === "Register";
+    </script>
+    <script src="js/switch.js"></script>
 
-  <footer th:replace="~{base :: footer}"></footer>
-  <div th:replace="~{base :: copyright}"></div>
+    <footer th:replace="~{base :: footer}"></footer>
+    <div th:replace="~{base :: copyright}"></div>
+    <script>
+      document.querySelectorAll(".error input").forEach((input) => {
+        const handleChange = (event) => {
+          // Xóa class .error của input
+          event.target.closest(".input-box").classList.remove("error");
 
-  <script src="/js/searchbar.js"></script>
-  
-</body>
+          // Xóa node tiếp theo nếu nó chứa thông báo lỗi
+          const nextNode =
+            event.target.closest(".input-box").nextElementSibling;
+          if (nextNode && nextNode.classList.contains("text-red-500")) {
+            nextNode.remove();
+          }
+
+          // Gỡ bỏ listener sau khi thực hiện xong
+          input.removeEventListener("keydown", handleChange);
+        };
+
+        // Thêm event listener
+        input.addEventListener("keydown", handleChange);
+      });
+    </script>
+    <script src="/js/searchbar.js"></script>
+  </body>
 </html>

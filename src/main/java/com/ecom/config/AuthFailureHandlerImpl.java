@@ -16,8 +16,10 @@ import com.ecom.service.UserService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 
 @Component
+@Slf4j
 public class AuthFailureHandlerImpl extends SimpleUrlAuthenticationFailureHandler {
 
     private final UserRepository userRepository;
@@ -33,10 +35,9 @@ public class AuthFailureHandlerImpl extends SimpleUrlAuthenticationFailureHandle
                                         HttpServletResponse response,
                                         AuthenticationException exception)
                                         throws IOException, ServletException {
-
         String email = request.getParameter("username");
         User user = userRepository.findByEmail(email);
-
+        log.info(exception.getMessage());
         if (user == null) {
             // user không tồn tại
             exception = new UsernameNotFoundException("Email or password invalid");
