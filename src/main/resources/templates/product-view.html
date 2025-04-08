@@ -9,11 +9,11 @@
 <div th:replace="~{base :: searchOverlay}"></div>
 
 <!-- Product view with Alpine.js -->
-<div th:replace="notification :: cartNotification(
+<div th:replace="~{notification :: cartNotification(
     ${product.name},
     ${product.getCategory()},
     ${product.image}
-)"></div>
+)}"></div>
 <div class="product-view" x-data="pageState()">
 
     <!-- Images -->
@@ -75,9 +75,8 @@
 
 <!-- Product Details -->
 <div class="product-view-details">
-    <h3 class="product-view-details-header">Product Details</h3>
-    <div class="product-view-details-content">
-        <p th:text="${product.description}"></p>
+    <h3 class="product-view-details-header font-bold text-xl">Product Details</h3>
+    <div class="product-view-details-content prose-xl" th:utext="${product.description}">
     </div>
 </div>
 <script th:inline="javascript">
@@ -87,9 +86,12 @@
     const stock = /*[[${product.stock}]]*/0;
     const mainImage = /*[[${product.image}]]*/'';
     const pid = /*[[${product.id }]]*/0;
-    const uid = /*[[${#authentication.principal.getUser().getId()}]]*/0;
+    const uid = /*[[${#authentication.principal instanceof T(java.lang.String) ? 0 : #authentication.principal.getUser().getId()}]]*/0;
+
+
     ;
     /*]]>*/
+    ;
 </script>
 <script>
 

@@ -1,5 +1,5 @@
 @import "tailwindcss";
-
+@plugin "@tailwindcss/typography";
 * {
   font-family: "Poppins", sans-serif;
   box-sizing: border-box;

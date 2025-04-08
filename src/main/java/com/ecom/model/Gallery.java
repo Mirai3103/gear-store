@@ -9,6 +9,7 @@ import lombok.*;
 @NoArgsConstructor
 @Entity
 @Table(name = "Gallery")
+@Builder
 public class Gallery {
 
     @Id

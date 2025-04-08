@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Builder
 @Table(name = "Product") // Tên bảng trong DB
 public class Product {
 
@@ -66,5 +67,7 @@ public class Product {
      * => dùng @Lob để JPA map cột TEXT / LONGTEXT
      */
 
+    @Lob
+    @Column(columnDefinition = "TEXT") // cột DB = description (TEXT)
     private String description;
 }

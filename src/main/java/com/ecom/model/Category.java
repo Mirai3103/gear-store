@@ -9,6 +9,7 @@ import lombok.*;
 @NoArgsConstructor
 @Entity
 @Table(name = "Category")
+@Builder
 public class Category {
 
     @Id
