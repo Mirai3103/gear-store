@@ -4,7 +4,7 @@
 <body>
 
 <!-- templates/fragments/cart-notification.html -->
-<div th:fragment="cartNotification(productTitle, productEdition, productImage)">
+<div th:fragment="cartNotification(productTitle, category, productImage)">
     <div id="cart-notification" class="cart-notification">
         <div class="cart-notification-header">
             <div class="cart-notification-icon">
@@ -27,7 +27,7 @@
             <img th:src="${productImage}" alt="Product Image" class="product-image">
             <div>
                 <h3 class="product-title" th:text="${productTitle}">Product Title</h3>
-                <p class="product-edition" th:text="'Edition: ' + ${productEdition}">Edition</p>
+                <p class="product-edition" th:text="'Category: ' + ${category}">Category</p>
             </div>
         </div>
 

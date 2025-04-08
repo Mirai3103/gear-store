@@ -787,11 +787,6 @@
   .justify-self-end {
     justify-self: flex-end;
   }
-  .truncate {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
   .overflow-hidden {
     overflow: hidden;
   }
@@ -1053,6 +1048,9 @@
     &::placeholder {
       color: transparent;
     }
+  }
+  .\!opacity-100 {
+    opacity: 100% !important;
   }
   .opacity-0 {
     opacity: 0%;

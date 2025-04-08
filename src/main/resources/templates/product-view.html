@@ -11,7 +11,7 @@
 <!-- Product view with Alpine.js -->
 <div th:replace="~{notification :: cartNotification(
     ${product.name},
-    ${product.getCategory()},
+    ${product.getCategory().getName()},
     ${product.image}
 )}"></div>
 <div class="product-view" x-data="pageState()">
@@ -53,7 +53,7 @@
                 <p class="product-view-headup-content">calculated at checkout.</p>
             </div>
 
-            <h3 class="product-view-section-header !font-bold !text-xl">Quantity</h3>
+            <h3 class="product-view-section-header !font-bold !text-xl !opacity-100">Quantity</h3>
             <div class="product-quantity-box">
                 <div class="product-quantity-btn" @click="decreaseQuantity()">-</div>
                 <div class="product-quantity-nums" x-text="quantity">1</div>
