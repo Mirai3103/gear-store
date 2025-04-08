@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import com.ecom.service.CartService;
 // import các service khác nếu cần
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.security.core.Authentication;
@@ -53,7 +54,7 @@ public class MappingController {
         List<Category> categories = categoryService.getAllCategory();
         m.addAttribute("Products", allProducts);
         m.addAttribute("totalPages", Math.ceil((double) count / query.getPageSize()));
-        m.addAttribute("pageTitle", "All Products");
+        m.addAttribute("pageTitle", StringUtils.isBlank(query.getSearch()) ? "All Products" : "Search results for: " + query.getSearch());
         m.addAttribute("categories", categories);
         return "shop";
     }

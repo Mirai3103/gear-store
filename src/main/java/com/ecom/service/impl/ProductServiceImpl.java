@@ -201,10 +201,10 @@ public class ProductServiceImpl implements ProductService {
         if (query.getSortBy() != null) {
             switch (query.getSortBy()) {
                 case FEATURED:
-                    cq.orderBy(cb.desc(productRoot.get("featured"))); // Example field for sorting
+                    cq.orderBy(cb.desc(productRoot.get("id"))); // todo: Example field for featured
                     break;
                 case BEST_SELLING:
-                    cq.orderBy(cb.desc(productRoot.get("sales"))); // Example field for best selling
+                    cq.orderBy(cb.desc(productRoot.get("id"))); // toDo: Example field for best selling
                     break;
                 case ALPHABETICALLY_A_Z:
                     cq.orderBy(cb.asc(productRoot.get("name")));

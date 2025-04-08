@@ -12,7 +12,7 @@
 </div>
 
 <!-- Shop wrapper -->
-<div class="shop-wrapper">
+<div class="shop-wrapper"  x-data="paginationHandler()">
     <!-- Sidebar -->
     <div class="sidebar bg-gray-50 p-4 rounded-lg shadow-sm" x-data="productFilters()">
         <div class="section divide-y divide-gray-200 space-y-6">
@@ -103,22 +103,20 @@
     <!-- Product List -->
     <div class="product-list">
         <div class="product-list-select">
-            <select class="product-sort-select">
-                <option>Featured</option>
-                <option>Best Selling</option>
-                <option>Alphabetically, A-Z</option>
-                <option>Alphabetically, Z-A</option>
-                <option>Price, low to high</option>
-                <option>Price, high to low</option>
-                <option>Date, old to new</option>
-                <option>Date, new to old</option>
+            <select class="product-sort-select"
+                    x-model="sortOption"
+               >
+                <option th:each="sort : ${T(com.ecom.dtos.requests.ProductQuery.SortBy).values()}"
+                        th:value="${sort.name()}"
+                        th:text="${sort.toString()}">
+                </option>
             </select>
         </div>
         <div id="product-root">
             <div th:replace="~{list-product :: productList(Products=${Products})}"></div>
         </div>
 
-        <div class="pagination-controls flex justify-center mt-8" x-data="paginationHandler()">
+        <div class="pagination-controls flex justify-center mt-8">
             <div class="flex items-center space-x-1">
                 <!-- Previous Button -->
                 <button
@@ -222,7 +220,7 @@
         Alpine.data('paginationHandler', () => ({
             currentPage: 1,
             totalPages: totalPage, // This comes from your Thymeleaf inline script
-
+            sortOption: 'DATE_NEW_TO_OLD',
             init() {
                 const urlParams = new URLSearchParams(window.location.search);
                 this.currentPage = parseInt(urlParams.get('page') || '1');
@@ -230,6 +228,9 @@
                 // Listen for custom events from filter application
                 window.addEventListener('filters-applied', (event) => {
                     this.loadProducts(1, event.detail);
+                });
+                this.$watch('sortOption', (newValue) => {
+                    this.loadProducts(this.currentPage, { sort: newValue });
                 });
             },
 
@@ -263,14 +264,18 @@
                 const url = new URL(window.location);
                 url.searchParams.set('page', page);
                 window.history.pushState({}, '', url);
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
             },
 
             loadProducts(page, additionalParams = null) {
                 // Create URL with current filters and page
                 const params = new URLSearchParams(window.location.search);
                 params.set('page', page);
-                params.set('size', params.get('size') || '12'); // Default page size if not set
-
+                params.set('size', params.get('size') || '16'); // Default page size if not set
+                params.set('sortBy', this.sortOption);
                 // Add any additional parameters
                 if (additionalParams) {
                     for (const [key, value] of Object.entries(additionalParams)) {

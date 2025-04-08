@@ -89,6 +89,12 @@ public class HomeController {
         m.addAttribute("categorys", categories);
     }
 
+
+    @GetMapping("Sell")
+    public String sell() {
+        return "sell";
+    }
+
     @GetMapping("/")
     public String index(Model m, Authentication auth, HttpSession session) {
         // Bỏ logic allActiveCategory, allActiveProducts => tuỳ cột isActive

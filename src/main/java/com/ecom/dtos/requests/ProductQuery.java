@@ -32,9 +32,9 @@ public class ProductQuery {
     private String search;
     private List<Integer> categoryId;
     private Boolean isInStock =null;
-    private SortBy sortBy;
+    private SortBy sortBy = SortBy.DATE_NEW_TO_OLD;
     private Integer page = 1;
-    private Integer pageSize = 10;
+    private Integer pageSize = 16;
     private Integer priceFrom;
     private Integer priceTo;
 

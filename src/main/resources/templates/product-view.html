@@ -44,7 +44,9 @@
             </p>
             <div class="product-view-price">
                 <p class="product-view-discount" th:text="'$' + ${product.price}"></p>
-                <p class="product-view-original-price" th:text="'$' + ${product.price}"></p>
+                <p
+                        th:if="${product.discount != null&& product.discount > 0}"
+                        class="product-view-original-price" th:text="'$' + ${product.price}"></p>
             </div>
             <div class="product-view-headup">
                 <p class="product-view-headup-object">Shipping&nbsp;</p>
@@ -125,6 +127,7 @@
 
 
             addToCart() {
+                if(uid ===0) window.location.href = '/signin';
                 if (this.quantity <= 0) {
                     alert('Error: Quantity must be greater than 0');
                     return;

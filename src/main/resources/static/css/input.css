@@ -377,7 +377,7 @@ body {
 }
 
 .section-grid {
-  @apply grid grid-cols-5 gap-6;
+  @apply grid grid-cols-4 gap-6;
 }
 /* #endregion */
 
@@ -652,7 +652,7 @@ body {
 }
 
 .shop-title {
-  @apply text-5xl font-light;
+  @apply text-3xl font-light;
 }
 
 .shop-wrapper {
