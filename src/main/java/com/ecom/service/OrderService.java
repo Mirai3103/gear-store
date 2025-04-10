@@ -3,12 +3,12 @@ package com.ecom.service;
 import java.util.List;
 
 import com.ecom.dtos.requests.CreateOrderRequest;
-import com.ecom.dtos.responses.CreatePaymentResponse;
 import org.springframework.data.domain.Page;
 
 import com.ecom.model.OrderRequest;
 // Đổi ProductOrder -> Orders
 import com.ecom.model.Orders;
+
 public interface OrderService {
     void saveOrder(Integer userId, OrderRequest orderRequest) throws Exception;
 
@@ -23,5 +23,5 @@ public interface OrderService {
     // Giữ nguyên hàm này, nhưng giờ sẽ parse orderId (String) thành int
     Orders getOrdersByOrderId(String orderId);
 
-    CreatePaymentResponse createOrder(CreateOrderRequest request) ;
+    Orders createOrder(CreateOrderRequest request);
 }

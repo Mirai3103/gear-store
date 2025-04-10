@@ -13,43 +13,14 @@
                     <span x-text="selected ? ' - ' + selected : ''"></span>
                 </h2>
                 <input type="hidden" name="paymentMethod" x-bind:value="selected" th:field="*{paymentType}"/>
-                <!-- ZaloPay Button -->
-                <button
-                        type="button"
-                        class="w-full py-3 rounded-md font-semibold focus:outline-none flex items-center justify-center mb-2 transition-all duration-300
-                   hover:bg-gray-200 hover:shadow-lg hover:-translate-y-0.5
-                   bg-gray-100 text-blue-600"
-                        :class="{ 'opacity-50 ': selected && selected !== 'zalopay' }"
-                        @click="selected = 'zalopay'"
-                >
-                    <img src="https://upload.wikimedia.org/wikipedia/vi/7/77/ZaloPay_Logo.png"
-                         alt="ZaloPay"
-                         class="h-6 mr-2"/>
-                    <span class="group-hover:scale-105 transition-transform">ZaloPay</span>
-                </button>
-
-                <!-- MoMo Button -->
-                <button
-                        type="button"
-                        class="w-full py-3 rounded-md font-semibold focus:outline-none flex items-center justify-center mb-2 transition-all duration-300
-                   hover:bg-[#8a0055] hover:shadow-lg hover:-translate-y-0.5
-                   bg-[#A50064] text-white"
-                        :class="{ 'opacity-50 ': selected && selected !== 'momo' }"
-                        @click="selected = 'momo'"
-                >
-                    <img src="https://upload.wikimedia.org/wikipedia/vi/f/fe/MoMo_Logo.png"
-                         alt="MoMo"
-                         class="h-6 mr-2 transition-transform group-hover:scale-110"/>
-                    <span class="group-hover:scale-105 transition-transform">MoMo</span>
-                </button>
 
                 <!-- Cash on Delivery Button -->
                 <button
                         type="button"
                         class="w-full py-3 rounded-md font-semibold focus:outline-none flex items-center justify-center transition-all duration-300
-                   hover:bg-green-600 hover:shadow-lg hover:-translate-y-0.5
-                   bg-green-500 text-white"
-                        :class="{ 'opacity-50 ': selected && selected !== 'cod' }"
+                hover:bg-green-600 hover:shadow-lg hover:-translate-y-0.5
+                bg-green-500 text-white mb-4"
+                        :class="{ 'opacity-50': selected && selected !== 'cod' }"
                         @click="selected = 'cod'"
                 >
                     <svg class="h-6 w-6 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
@@ -57,10 +28,61 @@
                         <path stroke-linecap="round" stroke-linejoin="round"
                               d="M17 9V7a4 4 0 00-8 0v2M5 12h14M7 12v6m10-6v6M5 18h14a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2z"/>
                     </svg>
-                    <span class="group-hover:scale-105 transition-transform">Cash on Delivery</span>
+                    <span>Cash on Delivery</span>
                 </button>
+
+                <!-- Card Payment Button -->
+                <button
+                        type="button"
+                        class="w-full py-3 rounded-md font-semibold focus:outline-none flex items-center justify-center transition-all duration-300
+                hover:bg-blue-600 hover:shadow-lg hover:-translate-y-0.5
+                bg-blue-500 text-white mb-4"
+                        :class="{ 'opacity-50': selected && selected !== 'card' }"
+                        @click="selected = 'card'"
+                >
+                    <svg class="h-6 w-6 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+                         xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M21 10H3M21 6H3a2 2 0 00-2 2v8a2 2 0 002 2h18a2 2 0 002-2V8a2 2 0 00-2-2z"/>
+                    </svg>
+                    <span>Credit / Debit Card</span>
+                </button>
+
+                <!-- Divider & Card Form -->
+                <div class="payment-divider" x-show="selected === 'card'" x-transition>
+                    <div class="payment-form">
+                        <!-- Logo Section -->
+                        <div class="mastercard mb-4">
+                            <div class="mastercard-logo">
+                                <div class="mastercard-circle"></div>
+                            </div>
+                            <div class="mastercard-text">Mastercard</div>
+                        </div>
+
+                        <!-- Form Section -->
+                        <div class="payment-input-grid">
+                            <div class="col-span-2">
+                                <label class="payment-label" for="cardNumber">Card number</label>
+                                <input class="payment-input" id="cardNumber" type="text"
+                                       placeholder="0000 0000 0000 0000"
+                                       th:field="*{cardNumber}">
+                            </div>
+                            <div>
+                                <label class="payment-label" for="expiryDate">Expiry Date</label>
+                                <input class="payment-input" id="expiryDate" type="text" placeholder="MM/YY"
+                                       th:field="*{cardExpiryDate}">
+                            </div>
+                            <div>
+                                <label class="payment-label" for="cvv">CVC/CVV</label>
+                                <input class="payment-input" id="cvv" type="password" placeholder="..."
+                                       th:field="*{cardCvv}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
+
 
         <!-- Delivery Information -->
         <h2 class="delivery-title">Delivery Information</h2>

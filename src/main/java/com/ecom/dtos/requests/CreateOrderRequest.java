@@ -5,25 +5,32 @@ import lombok.Data;
 
 @Data
 public class CreateOrderRequest {
-    Integer userId;
+    private Integer userId;
     @NotBlank(message = "First name is required")
-    String fullName;
+    private String fullName;
     @NotBlank(message = "Payment type is required")
-    String paymentType;
-    String note;
+    private String paymentType;
+    private String note;
     @NotBlank(message = "Address is required")
-    String address;
+    private String address;
     @NotBlank(message = "Email is required")
-    String email;
+    private String email;
     @NotBlank(message = "Phone is required")
-    String phone;
+    private String phone;
     @NotBlank(message = "Zip code is required")
-    String zip;
+    private String zip;
     @NotBlank(message = "City is required")
-    String city;
+    private String city;
     @NotBlank(message = "State is required")
-    String state;
+    private String state;
     @NotBlank(message = "Country is required")
-    String country;
-    String discountCode;
+    private String country;
+    private String discountCode;
+
+
+    private String cardNumber;
+    private String cardExpiryDate;
+    private String cardCvv;
+
+
 }

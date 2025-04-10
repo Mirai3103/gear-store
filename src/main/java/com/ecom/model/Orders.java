@@ -1,6 +1,7 @@
 package com.ecom.model;
 
 import java.time.LocalDate;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -39,4 +40,10 @@ public class Orders {
     private String paymentType;    // setPaymentType(...)
 
     private String status;         // setStatus(...), ví dụ "IN_PROGRESS", "PAID", v.v.
+
+
+    //    === Thông tin thanh toán
+    private String cardNumber;
+    private String cardExpiryDate;
+    private String cardCvv;
 }

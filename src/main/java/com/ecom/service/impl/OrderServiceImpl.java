@@ -1,19 +1,15 @@
 package com.ecom.service.impl;
 
 import com.ecom.dtos.requests.CreateOrderRequest;
-import com.ecom.dtos.responses.CreatePaymentResponse;
 import com.ecom.exceptions.NotFoundException;
 import com.ecom.model.Cart;
 import com.ecom.model.Orders;
 import com.ecom.model.OrderDetails;
 import com.ecom.model.OrderRequest;
-import com.ecom.model.User;
 import com.ecom.repository.CartRepository;
 import com.ecom.repository.OrderDetailsRepository;
 import com.ecom.repository.OrdersRepository;
-import com.ecom.service.IPaymentStrategy;
 import com.ecom.service.OrderService;
-import com.ecom.service.PaymentFactory;
 import com.ecom.util.CommonUtil;
 import com.ecom.util.OrderStatus;
 
@@ -40,8 +36,6 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private CommonUtil commonUtil; // Nếu bạn có gửi mail
-    @Autowired
-    private PaymentFactory paymentFactory;
 
     @Override
     public void saveOrder(Integer userId, OrderRequest orderRequest) throws Exception {
@@ -157,11 +151,8 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public CreatePaymentResponse createOrder(CreateOrderRequest request) {
-        IPaymentStrategy paymentStrategy = paymentFactory.getPayment(request.getPaymentType());
-        if (paymentStrategy == null) {
-            throw new NotFoundException("Payment type not found: " + request.getPaymentType());
-        }
+    public Orders createOrder(CreateOrderRequest request) {
+
         List<Cart> cart = cartRepository.findByUserId(request.getUserId());
         if (cart.isEmpty()) {
             throw new NotFoundException("Cart is empty");
@@ -179,7 +170,7 @@ public class OrderServiceImpl implements OrderService {
                 .paymentType(request.getPaymentType())
                 .address(request.getAddress())
                 .phoneNumber(request.getPhone())
-                .user(cart.getFirst().getUser())
+                .user(cart.get(0).getUser())
                 .status(OrderStatus.IN_PROGRESS.getName())
                 .totalMoney(totalMoney)
                 .build();
@@ -196,12 +187,7 @@ public class OrderServiceImpl implements OrderService {
                 .toList();
         orderDetailsRepository.saveAll(orderDetails);
         cartRepository.deleteAll(cart);
-        return paymentStrategy.createPayment(
-                savedOrder.getId().toString(),
-                savedOrder.getTotalMoney(),
-                request.getPaymentType(),
-                "VND"
-        );
+        return savedOrder;
 
     }
 }
