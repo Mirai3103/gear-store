@@ -18,6 +18,8 @@ public class Address {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+    @Column(name = "user_id", insertable = false, updatable = false)
+    private Integer userId;
     private String phone;
     private String email;
     private boolean isPrimary;

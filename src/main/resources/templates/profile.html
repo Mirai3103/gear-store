@@ -2,76 +2,152 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{base :: page_head(pageTitle='Profile')}"></head>
 <body class="font-sans antialiased">
-    
-    <header th:replace="~{base :: navbar}"></header>
-    <header th:replace="~{base :: searchbar}"></header>
-    <div th:replace="~{base :: searchOverlay}"></div>
 
-    <div class="container mx-auto px-4 py-10">
-        <div class="items-center mb-8">
-            <h1 class="text-4xl font-bold text-gray-900">Account</h1>
-            <a href="#" class="text-gray-600 hover:text-gray-800 flex items-center mt-4">
-                <i class="ri-user-line mr-1"></i> Log out
-            </a>
-        </div>
+<header th:replace="~{base :: navbar}"></header>
+<header th:replace="~{base :: searchbar}"></header>
+<div th:replace="~{base :: searchOverlay}"></div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-16">
-            <!-- Order history (Left side) -->
-            <div class="md:col-span-2">
-                <h2 class="text-xl font-semibold text-gray-900 mb-4">Order history</h2>
-
-                <div th:if="${orders != null and !orders.isEmpty()}">
-                    <div th:each="order : ${orders}" class="border-b pb-4 mb-4">
-                        <h3 class="text-lg font-semibold text-gray-900">
-                            Order #<span th:text="${order.id}"></span>
-                        </h3>
-                        <p class="text-gray-600">
-                            <span th:text="${#temporals.format(order.orderDate, 'dd MMM yyyy')}"></span> 
-                            at <span th:text="${#temporals.format(order.orderDate, 'hh:mm a')}"></span>
-                        </p>
-                    </div>
-                </div>
-
-                <div th:unless="${orders != null and !orders.isEmpty()}">
-                    <p class="text-gray-700">You haven't placed any orders yet.</p>
-                </div>
-            </div>
-        
-            <!-- Account details (Far right) -->
-            <div class="md:col-start-3">
-                <h2 class="text-xl font-semibold text-gray-900 mb-4">Account details</h2>
-                <div>
-                    <!-- Dynamic name based on address -->
-                    <p class="text-gray-800 font-medium" th:text="${address != null} ? (address.firstName + ' ' + address.lastName) : 'Your Name'"></p>
-                    
-                    <!-- Address details if exists -->
-                    <div th:if="${address != null}">
-                        <p class="text-gray-600 mt-2" th:if="${address.company != null and !address.company.isEmpty()}" 
-                        th:text="${address.company}"></p>
-                        <p class="text-gray-600" th:text="${address.address1}"></p>
-                        <p class="text-gray-600" th:if="${address.address2 != null and !address.address2.isEmpty()}" 
-                        th:text="${address.address2}"></p>
-                        <p class="text-gray-600" th:text="${address.postalCode}"></p>
-                        <p class="text-gray-600" th:text="${address.country}"></p>
-                    </div>
-                    
-                    <!-- Placeholder if no address -->
-                    <div th:if="${address == null}">
-                        <p class="text-gray-600 mt-2">No address saved.</p>
-                    </div>
-                    
-                    <a th:href="@{/Address}" class="mt-4 block text-sm text-primary-500 hover:text-primary-700 hover:underline transition duration-200 ease-in-out">
-                        View addresses
-                    </a>
-                </div>
-            </div>
-        </div>        
+<div class="container mx-auto px-4 py-10">
+    <div class="items-center mb-8">
+        <h1 class="text-4xl font-bold text-gray-900">Account</h1>
+        <a href="/logout" class="text-gray-600 hover:text-gray-800 flex items-center mt-4">
+            <i class="ri-user-line mr-1"></i> Log out
+        </a>
     </div>
 
-    <footer th:replace="~{base :: footer}"></footer>
-    <div th:replace="~{base :: copyright}"></div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-16">
+        <!-- Order history (Left side) -->
+        <div class="md:col-span-2">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">Order history</h2>
 
-    <script src="/js/searchbar.js"></script>
-    
+            <div th:if="${orders != null and !orders.isEmpty()}">
+                <div th:each="order : ${orders}" class="border-b pb-4 mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900">
+                        Order #<span th:text="${order.id}"></span>
+                    </h3>
+                    <p class="text-gray-600">
+                        <span th:text="${#temporals.format(order.orderDate, 'dd MMM yyyy')}"></span>
+                        at <span th:text="${#temporals.format(order.orderDate, 'hh:mm a')}"></span>
+                    </p>
+                </div>
+            </div>
+
+            <div th:unless="${orders != null and !orders.isEmpty()}">
+                <p class="text-gray-700">You haven't placed any orders yet.</p>
+            </div>
+            <div class="min-h-screen   mt-10">
+                <h1 class="text-2xl font-bold mb-8">Manager Dashboard</h1>
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+
+                    <!-- Card Item -->
+                    <div class="bg-white rounded-xl shadow p-6 flex flex-col items-center hover:shadow-md cursor-pointer transition">
+                        <div class="text-3xl mb-4">
+                            <!-- Icon placeholder -->
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24"
+                                 stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M12 4v16m8-8H4"/>
+                            </svg>
+                        </div>
+                        <p class="text-center font-medium">Add Product</p>
+                    </div>
+
+                    <!-- Repeat for other cards -->
+                    <div class="bg-white rounded-xl shadow p-6 flex flex-col items-center hover:shadow-md cursor-pointer transition">
+                        <div class="text-3xl mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24"
+                                 stroke="currentColor">
+                                <path d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+                            </svg>
+                        </div>
+                        <p class="text-center font-medium">Storage</p>
+                    </div>
+
+                    <!-- Product -->
+                    <div class="bg-white rounded-xl shadow p-6 flex flex-col items-center hover:shadow-md cursor-pointer transition">
+                        <div class="text-3xl mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24"
+                                 stroke="currentColor">
+                                <path d="M12 6v6h4M4 6h16v12H4z"/>
+                            </svg>
+                        </div>
+                        <p class="text-center font-medium">Product</p>
+                    </div>
+
+                    <!-- Orders -->
+                    <div class="bg-white rounded-xl shadow p-6 flex flex-col items-center hover:shadow-md cursor-pointer transition">
+                        <div class="text-3xl mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24"
+                                 stroke="currentColor">
+                                <path d="M5 13l4 4L19 7"/>
+                            </svg>
+                        </div>
+                        <p class="text-center font-medium">Orders</p>
+                    </div>
+
+                    <!-- Customer -->
+                    <div class="bg-white rounded-xl shadow p-6 flex flex-col items-center hover:shadow-md cursor-pointer transition">
+                        <div class="text-3xl mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24"
+                                 stroke="currentColor">
+                                <path d="M12 14c4 0 8 2 8 4v2H4v-2c0-2 4-4 8-4zm0-4a4 4 0 110-8 4 4 0 010 8z"/>
+                            </svg>
+                        </div>
+                        <p class="text-center font-medium">Customer</p>
+                    </div>
+
+                    <!-- Report -->
+                    <div class="bg-white rounded-xl shadow p-6 flex flex-col items-center hover:shadow-md cursor-pointer transition">
+                        <div class="text-3xl mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24"
+                                 stroke="currentColor">
+                                <path d="M4 6h16M4 10h16M4 14h10"/>
+                            </svg>
+                        </div>
+                        <p class="text-center font-medium">Report</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Account details (Far right) -->
+        <div class="md:col-start-3">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">Account details</h2>
+            <div>
+                <!-- Dynamic name based on address -->
+                <p class="text-gray-800 font-medium"
+                   th:text="${address != null} ? (address.firstName + ' ' + address.lastName) : 'Your Name'"></p>
+
+                <!-- Address details if exists -->
+                <div th:if="${address != null}">
+                    <p class="text-gray-600 mt-2" th:if="${address.company != null and !address.company.isEmpty()}"
+                       th:text="${address.company}"></p>
+                    <p class="text-gray-600" th:text="${address.address1}"></p>
+                    <p class="text-gray-600" th:if="${address.address2 != null and !address.address2.isEmpty()}"
+                       th:text="${address.address2}"></p>
+                    <p class="text-gray-600" th:text="${address.postalCode}"></p>
+                    <p class="text-gray-600" th:text="${address.country}"></p>
+                </div>
+
+                <!-- Placeholder if no address -->
+                <div th:if="${address == null}">
+                    <p class="text-gray-600 mt-2">No address saved.</p>
+                </div>
+
+                <a href="/user/my-address"
+                   class="mt-4 block text-sm text-primary-500 hover:text-primary-700 hover:underline transition duration-200 ease-in-out">
+                    View addresses
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer th:replace="~{base :: footer}"></footer>
+<div th:replace="~{base :: copyright}"></div>
+
+<script src="/js/searchbar.js"></script>
+
 </body>
 </html>

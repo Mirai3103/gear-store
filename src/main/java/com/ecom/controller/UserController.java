@@ -4,6 +4,10 @@ import java.security.Principal;
 import java.util.List;
 
 import com.ecom.config.CustomUser;
+import com.ecom.dtos.requests.AddressRequest;
+import com.ecom.model.*;
+import com.ecom.service.*;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -11,18 +15,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.ObjectUtils;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.ecom.model.Cart;
-import com.ecom.model.Category;
-import com.ecom.model.OrderRequest;
-import com.ecom.model.Orders; // Thay ProductOrder -> Orders
-import com.ecom.model.User;   // Thay UserDtls -> User
-import com.ecom.service.CartService;
-import com.ecom.service.CategoryService;
-import com.ecom.service.OrderService;
-import com.ecom.service.UserService;
 import com.ecom.util.CommonUtil;
 import com.ecom.util.OrderStatus;
 
@@ -49,6 +45,9 @@ public class UserController {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private AddressService addressService;
 
     // ======================== HOME ========================
     @GetMapping("/")
@@ -247,8 +246,48 @@ public class UserController {
     @GetMapping("my-address")
     @PreAuthorize("isAuthenticated()")
     public String addressPage(Authentication auth, Model m) {
-
+        var userId = ((CustomUser) auth.getPrincipal()).getUser().getId();
+        Address address = addressService.getAddressByUserId(userId);
+        m.addAttribute("address", address);
+        m.addAttribute("addressRequest", new AddressRequest());
         return "address";
     }
 
+    @PostMapping("my-address")
+    @PreAuthorize("isAuthenticated()")
+    public String addressPage(Authentication auth, Model m,
+
+                              @ModelAttribute @Valid AddressRequest addressRequest, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return "address";
+        }
+        var userId = ((CustomUser) auth.getPrincipal()).getUser().getId();
+        addressRequest.setUserId(userId);
+        addressService.createAddress(addressRequest);
+        return "redirect:/user/my-address";
+    }
+
+    @PostMapping("my-address/delete")
+    @PreAuthorize("isAuthenticated()")
+    public String deleteAddress(Authentication auth, Model m
+    ) {
+        addressService.deleteAddressByUserId(((CustomUser) auth.getPrincipal()).getUser().getId());
+        return "redirect:/user/my-address";
+    }
+
+    @PostMapping("my-address/update")
+    @PreAuthorize("isAuthenticated()")
+    public String updateAddress(Authentication auth, Model m,
+                                @ModelAttribute @Valid AddressRequest addressRequest, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return "address";
+        }
+        var userId = ((CustomUser) auth.getPrincipal()).getUser().getId();
+        addressRequest.setUserId(userId);
+        var address = addressService.updateAddress(addressRequest.toEntity());
+        if (address == null) {
+            return "redirect:/user/my-address";
+        }
+        return "redirect:/user/my-address";
+    }
 }
