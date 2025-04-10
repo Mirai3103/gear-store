@@ -33,7 +33,7 @@ public class Product {
 
     @Column(name = "price") // cột DB = price (varchar)
     private Float price;
-    
+
 
     /**
      * DB cột: discount (int)
@@ -70,4 +70,8 @@ public class Product {
     @Lob
     @Column(columnDefinition = "TEXT") // cột DB = description (TEXT)
     private String description;
+
+    public Double getFinalPrice() {
+        return  (price - (price * (discount*1.0) / 100));
+    }
 }

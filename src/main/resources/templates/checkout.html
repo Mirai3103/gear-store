@@ -4,121 +4,142 @@
 </head>
 <body class="checkout-body">
 
-	<div class="checkout-container">
-		<div class="payment-section">
-			<h2 class="payment-title">Payment Method</h2>
-			<div class="payment-box">
-				<div class="payment-content">
-					<h2 class="express-title">Express Checkout</h2>
-                    <button class="paypal-button">
-                        <span class="paypal-text">
-                            Pay<span class="paypal-highlight">Pal</span>
-                        </span>
-                    </button>
-				</div>
+<form class="checkout-container" th:action="@{/cart/order}" th:object="${createOrderRequest}" method="post">
+    <div class="payment-section">
+        <h2 class="payment-title">Payment Method</h2>
+        <div class="payment-box" x-data="{ selected: '' }">
+            <div class="payment-content">
+                <h2 class="express-title text-xl font-bold mb-4">Express Checkout
+                    <span x-text="selected ? ' - ' + selected : ''"></span>
+                </h2>
+                <input type="hidden" name="paymentMethod" x-bind:value="selected" th:field="*{paymentType}"/>
+                <!-- ZaloPay Button -->
+                <button
+                        type="button"
+                        class="w-full py-3 rounded-md font-semibold focus:outline-none flex items-center justify-center mb-2 transition-all duration-300
+                   hover:bg-gray-200 hover:shadow-lg hover:-translate-y-0.5
+                   bg-gray-100 text-blue-600"
+                        :class="{ 'opacity-50 ': selected && selected !== 'zalopay' }"
+                        @click="selected = 'zalopay'"
+                >
+                    <img src="https://upload.wikimedia.org/wikipedia/vi/7/77/ZaloPay_Logo.png"
+                         alt="ZaloPay"
+                         class="h-6 mr-2"/>
+                    <span class="group-hover:scale-105 transition-transform">ZaloPay</span>
+                </button>
 
-				<!-- Payment Form Section -->
-				<div class="payment-divider">
-					<div class="payment-form">
-						<!-- Logo Section -->
-						<div class="mastercard">
-							<div class="mastercard-logo">
-								<div class="mastercard-circle"></div>
-							</div>
-							<div class="mastercard-text">Mastercard</div>
-						</div>
+                <!-- MoMo Button -->
+                <button
+                        type="button"
+                        class="w-full py-3 rounded-md font-semibold focus:outline-none flex items-center justify-center mb-2 transition-all duration-300
+                   hover:bg-[#8a0055] hover:shadow-lg hover:-translate-y-0.5
+                   bg-[#A50064] text-white"
+                        :class="{ 'opacity-50 ': selected && selected !== 'momo' }"
+                        @click="selected = 'momo'"
+                >
+                    <img src="https://upload.wikimedia.org/wikipedia/vi/f/fe/MoMo_Logo.png"
+                         alt="MoMo"
+                         class="h-6 mr-2 transition-transform group-hover:scale-110"/>
+                    <span class="group-hover:scale-105 transition-transform">MoMo</span>
+                </button>
 
-						<!-- Form Section -->
-						<div class="payment-input-grid">
-							<div class="col-span-2">
-								<label class="payment-label" for="cardNumber">Card number</label>
-								<input class="payment-input" type="text" placeholder="0000 0000 0000 0000"> 
-							</div>
-							<div>
-								<label class="payment-label" for="expiryDate">Expiry Date</label>
-								<input class="payment-input" type="text" placeholder="MM/YY"> 
-							</div>
-							<div>
-								<label class="payment-label" for="cvv">CVC/CVV</label>
-								<input class="payment-input" type="password" placeholder="..."> 
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
+                <!-- Cash on Delivery Button -->
+                <button
+                        type="button"
+                        class="w-full py-3 rounded-md font-semibold focus:outline-none flex items-center justify-center transition-all duration-300
+                   hover:bg-green-600 hover:shadow-lg hover:-translate-y-0.5
+                   bg-green-500 text-white"
+                        :class="{ 'opacity-50 ': selected && selected !== 'cod' }"
+                        @click="selected = 'cod'"
+                >
+                    <svg class="h-6 w-6 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+                         xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M17 9V7a4 4 0 00-8 0v2M5 12h14M7 12v6m10-6v6M5 18h14a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2z"/>
+                    </svg>
+                    <span class="group-hover:scale-105 transition-transform">Cash on Delivery</span>
+                </button>
+            </div>
+        </div>
 
-			<!-- Delivery Information -->
-			<h2 class="delivery-title">Delivery Information</h2>
-			<div class="delivery-box">
-				<div class="delivery-grid">
-					<div class="col-span-2">
-						<label class="payment-label" for="fullName">Full Name</label>
-						<input class="payment-input" type="text" placeholder="John Doe">
-					</div>
-					<div class="col-span-2">
-						<label class="payment-label" for="address">Address</label>
-						<input class="payment-input" type="text" placeholder="1234 Main St">
-					</div>
-					<div>
-						<label class="payment-label" for="city">City</label>
-						<input class="payment-input" type="text" placeholder="New York">
-					</div>
-					<div>
-						<label class="payment-label" for="zipCode">Zip Code</label>
-						<input class="payment-input" type="text" placeholder="10001">
-					</div>
-					<div>
-						<label class="payment-label" for="region">Region/Country</label>
-						<input class="payment-input" type="text" placeholder="United States">
-					</div>
-					<div>
-						<label class="payment-label" for="state">State</label>
-						<input class="payment-input" type="text" placeholder="New York">
-					</div>
-					<div class="col-span-2">
-						<label class="payment-label" for="phone">Phone</label>
-						<input class="payment-input" type="text" placeholder="(123) 456-7890">
-					</div>
-				</div>
-			</div>
-		</div>
+        <!-- Delivery Information -->
+        <h2 class="delivery-title">Delivery Information</h2>
+        <div class="delivery-box">
+            <div class="delivery-grid">
+                <div class="col-span-2">
+                    <label class="payment-label" for="fullName">Full Name</label>
+                    <input required class="payment-input " id="fullName" type="text" th:field="*{fullName}"
+                           placeholder="John Doe">
+                </div>
+                <div class="col-span-2">
+                    <label class="payment-label" for="address">Address</label>
+                    <input required class=" payment-input" id="address" type="text" th:field="*{address}"
+                           placeholder="1234 Main St">
+                </div>
+                <div>
+                    <label class="payment-label" for="city">City</label>
+                    <input required class=" payment-input" id="city" type="text" th:field="*{city}"
+                           placeholder="New York">
+                </div>
+                <div>
+                    <label class="payment-label" for="zip">Zip Code</label>
+                    <input required class=" payment-input" id="zip" type="text" th:field="*{zip}"
+                           placeholder="10001">
+                </div>
+                <div>
+                    <label class="payment-label" for="country">Region/Country</label>
+                    <input required class=" payment-input" id="country" type="text" th:field="*{country}"
+                           placeholder="United States">
+                </div>
+                <div>
+                    <label class="payment-label" for="state">State</label>
+                    <input required class=" payment-input" id="state" type="text" th:field="*{state}"
+                           placeholder="New York">
+                </div>
+                <div class="col-span-2">
+                    <label class="payment-label" for="phone">Phone</label>
+                    <input required class=" payment-input" id="phone" type="text" th:field="*{phone}"
+                           placeholder="(123) 456-7890">
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Order Summary -->
+    <div>
+        <h2 class="order-summary-title">Order Summary</h2>
+        <div class="order-summary-box">
+            <div class="order-summary-content">
+                <!-- Cart Items Section -->
+                <div class="cart-items">
+                    <p class="cart-items-title">Cart Items</p>
+                    <p class="cart-items-note">Scroll for more items</p>
+                </div>
 
-		<!-- Order Summary -->
-		<div>
-			<h2 class="order-summary-title">Order Summary</h2>
-			<div class="order-summary-box">
-				<div class="order-summary-content">
-					<!-- Cart Items Section -->
-					<div class="cart-items">
-						<p class="cart-items-title">Cart Items</p>
-						<p class="cart-items-note">Scroll for more items</p>
-					</div>
+                <!-- Coupon Section -->
+                <div class="coupon-section">
+                    <label class="payment-label">Discount Code</label>
+                    <div class="coupon-input-container">
+                        <input class="coupon-input" type="text" th:field="*{discountCode}" placeholder="Enter code">
+                        <button class="coupon-button" type="button">Apply</button>
+                    </div>
+                </div>
 
-                    <!-- Coupon Section -->
-                    <div class="coupon-section">
-						<label class="payment-label">Discount Code</label>
-						<div class="coupon-input-container">
-							<input class="coupon-input" type="text" placeholder="Enter code">
-							<button class="coupon-button">Apply</button>
-						</div>
-					</div>
+                <!-- Pricing Section -->
+                <div class="price-row">
+                    <span class="price-label">Subtotal</span>
+                    <span class="price-value" th:text="${totalPrice}">$0.00</span>
+                </div>
+                <div class="total-row">
+                    <span class="price-label">Total</span>
+                    <span class="total-value" th:text="${totalPrice}">$0.00</span>
+                </div>
 
-					<!-- Pricing Section -->
-					<div class="price-row">
-						<span class="price-label">Subtotal</span>
-						<span class="price-value" th:text="${subtotal}">$0.00</span>
-					</div>
-					<div class="total-row">
-						<span class="price-label">Total</span>
-						<span class="total-value" th:text="${total}">$0.00</span>
-					</div>
-
-                    <div class="checkout-button-container">
-						<button class="checkout-button">Checkout</button>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+                <div class="checkout-button-container">
+                    <button class="checkout-button">Checkout</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
 </body>
 </html>

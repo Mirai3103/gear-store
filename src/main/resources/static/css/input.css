@@ -502,7 +502,7 @@ body {
 }
 
 .payment-input {
-  @apply flex items-center h-10 border mt-1 rounded px-4 w-full text-sm;
+  @apply flex items-center h-10 border mt-1 rounded px-4 w-full text-sm placeholder-gray-400;
 }
 
 /* Delivery Information */

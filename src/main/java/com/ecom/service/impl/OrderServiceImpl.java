@@ -1,5 +1,8 @@
 package com.ecom.service.impl;
 
+import com.ecom.dtos.requests.CreateOrderRequest;
+import com.ecom.dtos.responses.CreatePaymentResponse;
+import com.ecom.exceptions.NotFoundException;
 import com.ecom.model.Cart;
 import com.ecom.model.Orders;
 import com.ecom.model.OrderDetails;
@@ -8,7 +11,9 @@ import com.ecom.model.User;
 import com.ecom.repository.CartRepository;
 import com.ecom.repository.OrderDetailsRepository;
 import com.ecom.repository.OrdersRepository;
+import com.ecom.service.IPaymentStrategy;
 import com.ecom.service.OrderService;
+import com.ecom.service.PaymentFactory;
 import com.ecom.util.CommonUtil;
 import com.ecom.util.OrderStatus;
 
@@ -35,6 +40,8 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private CommonUtil commonUtil; // Nếu bạn có gửi mail
+    @Autowired
+    private PaymentFactory paymentFactory;
 
     @Override
     public void saveOrder(Integer userId, OrderRequest orderRequest) throws Exception {
@@ -131,7 +138,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     /**
-     * Giữ nguyên hàm này, nhưng parse String -> Integer 
+     * Giữ nguyên hàm này, nhưng parse String -> Integer
      * vì ta đang dùng id (int) là PK cho Orders.
      */
     @Override
@@ -144,8 +151,57 @@ public class OrderServiceImpl implements OrderService {
         } catch (NumberFormatException e) {
             // orderId không phải là số
             System.err.println("orderId không hợp lệ: " + orderId);
-            return null; 
+            return null;
             // hoặc throw new IllegalArgumentException("orderId must be numeric");
         }
+    }
+
+    @Override
+    public CreatePaymentResponse createOrder(CreateOrderRequest request) {
+        IPaymentStrategy paymentStrategy = paymentFactory.getPayment(request.getPaymentType());
+        if (paymentStrategy == null) {
+            throw new NotFoundException("Payment type not found: " + request.getPaymentType());
+        }
+        List<Cart> cart = cartRepository.findByUserId(request.getUserId());
+        if (cart.isEmpty()) {
+            throw new NotFoundException("Cart is empty");
+        }
+        Double totalMoney = cart.stream()
+                .mapToDouble(cartItem -> {
+                    return cartItem.getProduct().getFinalPrice() * cartItem.getQuantity();
+                })
+                .sum();
+
+        Orders orders = Orders.builder()
+                .orderDate(LocalDate.now())
+                .email(request.getEmail())
+                .note(request.getNote())
+                .paymentType(request.getPaymentType())
+                .address(request.getAddress())
+                .phoneNumber(request.getPhone())
+                .user(cart.getFirst().getUser())
+                .status(OrderStatus.IN_PROGRESS.getName())
+                .totalMoney(totalMoney)
+                .build();
+        Orders savedOrder = ordersRepository.save(orders);
+        List<OrderDetails> orderDetails = cart.stream()
+                .map(cartItem -> {
+                    return OrderDetails.builder()
+                            .order(savedOrder)
+                            .product(cartItem.getProduct())
+                            .quantity(cartItem.getQuantity())
+                            .totalMoney(cartItem.getProduct().getFinalPrice() * cartItem.getQuantity())
+                            .build();
+                })
+                .toList();
+        orderDetailsRepository.saveAll(orderDetails);
+        cartRepository.deleteAll(cart);
+        return paymentStrategy.createPayment(
+                savedOrder.getId().toString(),
+                savedOrder.getTotalMoney(),
+                request.getPaymentType(),
+                "VND"
+        );
+
     }
 }

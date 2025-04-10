@@ -100,8 +100,8 @@ public class UserController {
     @PostMapping("/cart/delete/{pid}")
     @PreAuthorize("isAuthenticated()")
     public String deleteCart(
-                             Authentication p,
-                             HttpSession session, @PathVariable Integer pid) {
+            Authentication p,
+            HttpSession session, @PathVariable Integer pid) {
         CustomUser user = (CustomUser) p.getPrincipal();
         cartService.deleteCart(pid, user.getUser().getId());
         session.setAttribute("succMsg", "Product removed from cart");
@@ -235,6 +235,20 @@ public class UserController {
     private User getLoggedInUser(Principal p) {
         String email = p.getName();
         return userService.getUserByEmail(email);
+    }
+
+    @GetMapping("my-profile")
+    @PreAuthorize("isAuthenticated()")
+    public String profilePage(Authentication auth, Model m) {
+
+        return "profile";
+    }
+
+    @GetMapping("my-address")
+    @PreAuthorize("isAuthenticated()")
+    public String addressPage(Authentication auth, Model m) {
+
+        return "address";
     }
 
 }

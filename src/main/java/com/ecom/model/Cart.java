@@ -16,12 +16,12 @@ public class Cart {
     private Integer id;
 
     // user_id -> User
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
     // product_id -> Product
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "product_id")
     private Product product;
 
@@ -33,4 +33,8 @@ public class Cart {
      */
     @Transient
     private Double totalPrice;
+
+    public  Double getFinalPrice() {
+        return product.getFinalPrice() * quantity;
+    }
 }

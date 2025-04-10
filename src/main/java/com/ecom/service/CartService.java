@@ -31,4 +31,6 @@ public interface CartService {
     void updateQuantity(String sy, Integer cid);
 
     void deleteCart(Integer pid, Integer uid);
+
+    Double getTotalPrice(Integer userId);
 }

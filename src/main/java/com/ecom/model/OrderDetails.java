@@ -9,6 +9,7 @@ import lombok.*;
 @NoArgsConstructor
 @Entity
 @Table(name = "Order_Details") // Diagram
+@Builder
 public class OrderDetails {
 
     @Id

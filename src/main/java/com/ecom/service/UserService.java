@@ -33,4 +33,5 @@ public interface UserService {
     User saveAdmin(User user);
 
     Boolean existsEmail(String email);
+
 }

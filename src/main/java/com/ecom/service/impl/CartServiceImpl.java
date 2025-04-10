@@ -127,4 +127,13 @@ public class CartServiceImpl implements CartService {
     public void deleteCart(Integer pid, Integer uid) {
         cartRepository.deleteByProductIdAndUserId(pid, uid);
     }
+
+    @Override
+    public Double getTotalPrice(Integer userId) {
+        List<Cart> carts = cartRepository.findByUserId(userId);
+        Double totalPrice = carts.stream()
+                .mapToDouble(Cart::getFinalPrice)
+                .sum();
+        return totalPrice;
+    }
 }
