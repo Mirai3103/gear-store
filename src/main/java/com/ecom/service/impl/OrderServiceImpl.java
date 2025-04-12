@@ -5,7 +5,6 @@ import com.ecom.exceptions.NotFoundException;
 import com.ecom.model.Cart;
 import com.ecom.model.Orders;
 import com.ecom.model.OrderDetails;
-import com.ecom.model.OrderRequest;
 import com.ecom.repository.CartRepository;
 import com.ecom.repository.OrderDetailsRepository;
 import com.ecom.repository.OrdersRepository;
@@ -38,11 +37,11 @@ public class OrderServiceImpl implements OrderService {
     private CommonUtil commonUtil; // Nếu bạn có gửi mail
 
     @Override
-    public void saveOrder(Integer userId, OrderRequest orderRequest) throws Exception {
+    public boolean saveOrder(Integer userId, CreateOrderRequest orderRequest) throws Exception {
         List<Cart> carts = cartRepository.findByUserId(userId);
         if (carts.isEmpty()) {
             // Không có gì để đặt
-            return;
+            return false;
         }
 
         // 1) Tính tổng tiền từ giỏ
@@ -59,14 +58,9 @@ public class OrderServiceImpl implements OrderService {
         }
 
         // 2) Tạo Orders
-        Orders orders = new Orders();
-        orders.setUser(carts.get(0).getUser());
-        orders.setEmail(orderRequest.getEmail());
-        orders.setPhoneNumber(orderRequest.getMobileNo());
-        orders.setAddress(orderRequest.getAddress());
-        orders.setNote(orderRequest.getFirstName() + " " + orderRequest.getLastName());
+        Orders orders = orderRequest.toEntity();
         orders.setTotalMoney(totalMoney);
-
+        orders.setUser(carts.get(0).getUser());
         // Nếu DB có cột orderDate, paymentType, status
         orders.setOrderDate(LocalDate.now());
         orders.setPaymentType(orderRequest.getPaymentType());
@@ -97,11 +91,13 @@ public class OrderServiceImpl implements OrderService {
         cartRepository.deleteAll(carts);
 
         // 5) Nếu bạn có logic gửi mail
-        try {
-            // commonUtil.sendMailForOrders(savedOrders, "success");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+//        try {
+//            // commonUtil.sendMailForOrders(savedOrders, "success");
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return false;
+//        }
+        return true;
     }
 
     @Override

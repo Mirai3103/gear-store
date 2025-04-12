@@ -1,6 +1,8 @@
 package com.ecom.model;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -29,6 +31,9 @@ public class Orders {
     private String phoneNumber;  // đổi phone_number -> phoneNumber
     private String address;
     private String note;
+
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    private List<OrderDetails> orderDetails = new ArrayList<>();
 
     @Column(name = "total_money")
     private Double totalMoney;

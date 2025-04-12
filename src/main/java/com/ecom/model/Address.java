@@ -15,6 +15,8 @@ public class Address {
     private String address;
     private String postalCode;
     private String country;
+    private String city;
+    private String state;
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;

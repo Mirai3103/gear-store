@@ -22,7 +22,7 @@ public class OrderDetails {
     private Orders order;
 
     // Khóa ngoại product_id => map sang Product
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "product_id")
     private Product product;
 

@@ -5,12 +5,11 @@ import java.util.List;
 import com.ecom.dtos.requests.CreateOrderRequest;
 import org.springframework.data.domain.Page;
 
-import com.ecom.model.OrderRequest;
 // Đổi ProductOrder -> Orders
 import com.ecom.model.Orders;
 
 public interface OrderService {
-    void saveOrder(Integer userId, OrderRequest orderRequest) throws Exception;
+    boolean saveOrder(Integer userId, CreateOrderRequest orderRequest) throws Exception;
 
     List<Orders> getOrdersByUser(Integer userId);
 

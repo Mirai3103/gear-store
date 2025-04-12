@@ -1,7 +1,9 @@
 package com.ecom.dtos.requests;
 
+import com.ecom.model.Orders;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
+import org.springframework.core.annotation.Order;
 
 @Data
 public class CreateOrderRequest {
@@ -32,5 +34,21 @@ public class CreateOrderRequest {
     private String cardExpiryDate;
     private String cardCvv;
 
+
+    public Orders toEntity() {
+        Orders order = new Orders();
+        order.setOrderDate(java.time.LocalDate.now());
+        order.setEmail(this.email);
+        order.setPhoneNumber(this.phone);
+        order.setAddress(this.address);
+        order.setNote(this.note);
+        order.setPaymentType(this.paymentType);
+        order.setTotalMoney(0.0); // Set default value, you can change it later
+        order.setStatus("IN_PROGRESS"); // Set default status
+        order.setCardNumber(this.cardNumber);
+        order.setCardExpiryDate(this.cardExpiryDate);
+        order.setCardCvv(this.cardCvv);
+        return order;
+    }
 
 }

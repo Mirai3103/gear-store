@@ -139,15 +139,15 @@ public class UserController {
         return "/user/order";
     }
 
-    @PostMapping("/save-order")
-    public String saveOrder(@ModelAttribute OrderRequest request,
-                            Principal p) throws Exception {
-        // Tạo đơn hàng (Approach B: Orders + OrderDetails)
-        User user = getLoggedInUser(p);
-        orderService.saveOrder(user.getId(), request);
-
-        return "redirect:/user/success";
-    }
+//    @PostMapping("/save-order")
+//    public String saveOrder(@ModelAttribute OrderRequest request,
+//                            Principal p) throws Exception {
+//        // Tạo đơn hàng (Approach B: Orders + OrderDetails)
+//        User user = getLoggedInUser(p);
+//        orderService.saveOrder(user.getId(), request);
+//
+//        return "redirect:/user/success";
+//    }
 
     @GetMapping("/success")
     public String loadSuccess() {
@@ -239,7 +239,11 @@ public class UserController {
     @GetMapping("my-profile")
     @PreAuthorize("isAuthenticated()")
     public String profilePage(Authentication auth, Model m) {
-
+        var userId = ((CustomUser) auth.getPrincipal()).getUser().getId();
+        var address = addressService.getAddressByUserId(userId);
+        m.addAttribute("address", address);
+        var orders = orderService.getOrdersByUser(userId);
+        m.addAttribute("orders", orders);
         return "profile";
     }
 
@@ -250,6 +254,7 @@ public class UserController {
         Address address = addressService.getAddressByUserId(userId);
         m.addAttribute("address", address);
         m.addAttribute("addressRequest", new AddressRequest());
+
         return "address";
     }
 

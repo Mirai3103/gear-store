@@ -31,6 +31,11 @@ public class AddressRequest {
     @NotBlank(message = "Country is required")
     private String country;
 
+    @NotBlank(message = "City is required")
+    private String city;
+    @NotBlank(message = "State is required")
+    private String state;
+
     @NotBlank(message = "Phone number is required")
     @Size(max = 15, min = 3, message = "Mobile number must be at most 15 characters and at least 3 characters")
     private String phone;

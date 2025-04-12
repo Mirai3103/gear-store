@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head th:replace="~{base :: page_head(pageTitle='Profile')}"></head>
 <body class="font-sans antialiased">
 
@@ -7,7 +7,7 @@
 <header th:replace="~{base :: searchbar}"></header>
 <div th:replace="~{base :: searchOverlay}"></div>
 
-<div class="container mx-auto px-4 py-10">
+<div class="container mx-auto px-4 py-10 min-h-[80vh]">
     <div class="items-center mb-8">
         <h1 class="text-4xl font-bold text-gray-900">Account</h1>
         <a href="/logout" class="text-gray-600 hover:text-gray-800 flex items-center mt-4">
@@ -18,24 +18,72 @@
     <div class="grid grid-cols-1 md:grid-cols-3 gap-16">
         <!-- Order history (Left side) -->
         <div class="md:col-span-2">
-            <h2 class="text-xl font-semibold text-gray-900 mb-4">Order history</h2>
+            <h2 class="text-3xl font-bold mb-6">My Orders</h2>
 
-            <div th:if="${orders != null and !orders.isEmpty()}">
-                <div th:each="order : ${orders}" class="border-b pb-4 mb-4">
-                    <h3 class="text-lg font-semibold text-gray-900">
-                        Order #<span th:text="${order.id}"></span>
-                    </h3>
-                    <p class="text-gray-600">
-                        <span th:text="${#temporals.format(order.orderDate, 'dd MMM yyyy')}"></span>
-                        at <span th:text="${#temporals.format(order.orderDate, 'hh:mm a')}"></span>
-                    </p>
+            <div th:if="${orders != null and !orders.isEmpty()}" class="space-y-6">
+                <div th:each="order : ${orders}" x-data="{ open: false }"
+                     class="bg-white shadow rounded-lg p-6 border border-gray-200">
+                    <!-- Header -->
+                    <div class="flex items-center justify-between cursor-pointer" @click="open = !open">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900">
+                                Order #<span th:text="${order.id}"></span>
+                            </h3>
+                            <p class="text-gray-600 text-sm">
+                                <span th:text="${#temporals.format(order.orderDate, 'dd MMM yyyy')}"></span>
+                                at <span th:text="${#temporals.format(order.orderDate, 'hh:mm a')}"></span>
+                            </p>
+                        </div>
+                        <svg :class="{'rotate-180': open}" class="w-5 h-5 text-gray-500 transition-transform"
+                             fill="none" stroke="currentColor"
+                             stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </div>
+
+                    <!-- Order Details -->
+                    <div x-show="open" x-collapse class="mt-4 text-sm text-gray-700 space-y-3">
+                        <div><strong>Payment:</strong> <span th:text="${order.paymentType}"></span></div>
+                        <div><strong>Status:</strong> <span th:text="${order.status}"></span></div>
+                        <div><strong>Address:</strong> <span th:text="${order.address}"></span></div>
+                        <div><strong>Phone:</strong> <span th:text="${order.phoneNumber}"></span></div>
+                        <div><strong>Total:</strong> $<span th:text="${order.totalMoney}"></span></div>
+
+                        <!-- Product List -->
+                        <div class="mt-4">
+                            <h4 class="font-semibold mb-2">Items:</h4>
+                            <ul class="divide-y divide-gray-200">
+                                <li th:each="item : ${order.orderDetails}" class="flex items-center gap-4 py-3">
+                                    <img th:src="@{${item.product.image}}" alt="Product image"
+                                         class="w-16 h-16 object-cover rounded border border-gray-300"/>
+
+                                    <div class="flex-1">
+                                        <div class="text-base font-medium text-gray-800"
+                                             th:text="${item.product.name}"></div>
+                                        <div class="text-sm text-gray-600">
+                                            Quantity: <span th:text="${item.quantity}"></span>
+                                        </div>
+                                        <div class="text-sm text-gray-700">
+                                            Unit Price:
+                                            <span th:text="${#numbers.formatDecimal(item.product.finalPrice, 1, 'COMMA', 2, 'POINT')}"></span>
+                                            $
+                                        </div>
+                                    </div>
+
+                                    <div class="text-right font-semibold text-gray-800">
+                                        $<span th:text="${item.totalMoney}"></span>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <div th:unless="${orders != null and !orders.isEmpty()}">
                 <p class="text-gray-700">You haven't placed any orders yet.</p>
             </div>
-            <div class="min-h-screen   mt-10">
+            <div class="  mt-10" sec:authorize="hasRole('ADMIN')">
                 <h1 class="text-2xl font-bold mb-8">Manager Dashboard</h1>
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
 
@@ -112,35 +160,55 @@
         </div>
 
         <!-- Account details (Far right) -->
-        <div class="md:col-start-3">
-            <h2 class="text-xl font-semibold text-gray-900 mb-4">Account details</h2>
-            <div>
-                <!-- Dynamic name based on address -->
-                <p class="text-gray-800 font-medium"
-                   th:text="${address != null} ? (address.firstName + ' ' + address.lastName) : 'Your Name'"></p>
+     <div>
+         <div class="md:col-start-3 bg-white shadow rounded-lg p-6 border border-gray-200">
+             <h2 class="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                 <i class="ri-user-line text-gray-700 text-2xl"></i>
+                 Account Details
+             </h2>
 
-                <!-- Address details if exists -->
-                <div th:if="${address != null}">
-                    <p class="text-gray-600 mt-2" th:if="${address.company != null and !address.company.isEmpty()}"
-                       th:text="${address.company}"></p>
-                    <p class="text-gray-600" th:text="${address.address1}"></p>
-                    <p class="text-gray-600" th:if="${address.address2 != null and !address.address2.isEmpty()}"
-                       th:text="${address.address2}"></p>
-                    <p class="text-gray-600" th:text="${address.postalCode}"></p>
-                    <p class="text-gray-600" th:text="${address.country}"></p>
-                </div>
+             <div>
+                 <!-- Nếu có address -->
+                 <div th:if="${address != null}">
+                     <!-- Tên người dùng -->
+                     <p class="text-gray-800 font-medium text-lg mb-2 flex items-center gap-2">
+                         <i class="ri-user-3-line text-gray-600"></i>
+                         <span th:text="${address.firstName + ' ' + address.lastName}"></span>
+                     </p>
 
-                <!-- Placeholder if no address -->
-                <div th:if="${address == null}">
-                    <p class="text-gray-600 mt-2">No address saved.</p>
-                </div>
+                     <!-- Thông tin địa chỉ -->
+                     <div class="space-y-2 text-sm text-gray-600 pl-6 border-l-2 border-gray-200">
+                         <p th:if="${address.state != null}" class="flex items-center gap-2">
+                             <i class="ri-map-pin-line text-lg"></i>
+                             <span th:text="${address.state}"></span>
+                         </p>
+                         <p class="flex items-center gap-2">
+                             <i class="ri-home-2-line text-lg"></i>
+                             <span th:text="${address.address}"></span>
+                         </p>
+                         <p class="flex items-center gap-2">
+                             <i class="ri-mail-line text-lg"></i>
+                             <span th:text="${address.postalCode} + ', ' + ${address.country}"></span>
+                         </p>
+                     </div>
+                 </div>
 
-                <a href="/user/my-address"
-                   class="mt-4 block text-sm text-primary-500 hover:text-primary-700 hover:underline transition duration-200 ease-in-out">
-                    View addresses
-                </a>
-            </div>
-        </div>
+                 <!-- Nếu không có address -->
+                 <div th:if="${address == null}" class="text-sm text-gray-600 flex items-center gap-2">
+                     <i class="ri-information-line text-lg text-yellow-500"></i>
+                     <span>No address saved.</span>
+                 </div>
+
+                 <!-- Link xem địa chỉ -->
+                 <a href="/user/my-address"
+                    class="mt-4 inline-flex items-center gap-2 text-sm font-medium text-blue-600 hover:underline transition duration-200">
+                     <i class="ri-arrow-right-s-line"></i>
+                     View Addresses
+                 </a>
+             </div>
+         </div>
+
+     </div>
     </div>
 </div>
 
