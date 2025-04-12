@@ -1,29 +1,188 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{base :: page_head()}"></head>
+<head th:replace="~{base :: page_head(pageTitle='Checkout')}"></head>
 <body>
 
-    <div th:fragment="productModal" id="product" class="modal-container hidden">
-        
-        <!-- Modal Content -->
-        <div class="modal-content">
-            <!-- Close Button -->
-            <button id="close-modal" class="modal-close-btn">&times;</button>
+<div th:fragment="productModal" id="product" class="modal-container hidden">
 
-            <!-- Title Section -->
-            <div class="modal-title">
-                <h2>Products</h2>
+    <!-- Modal Content -->
+    <div class="modal-content !max-w-5xl">
+        <!-- Close Button -->
+        <button id="close-modal" class="modal-close-btn">&times;</button>
+
+        <!-- Title Section -->
+        <div class="modal-title">
+            <h2>Products</h2>
+        </div>
+
+        <div x-data="productTable" x-init="fetchProducts()" class="pt-4">
+
+            <!-- Search -->
+            <div class="flex justify-between mb-4">
+                <input
+                        type="text"
+                        placeholder="Search..."
+                        x-model="query.keyword"
+                        @input.debounce.500ms="fetchProducts"
+                        class="px-4 py-2 border border-gray-300 focus:outline-none focus:ring-orange-600"
+                />
             </div>
 
-            <div th:replace="~{base :: table-search-bar}"></div>                      
+            <!-- Table -->
+            <div class="relative overflow-x-auto max-h-96 overflow-y-auto sm:rounded-lg">
+                <table class="shadow-md w-full">
+                    <thead class="font-semibold text-gray-700 bg-gray-100">
+                    <tr>
+                        <th class="px-4 py-2 text-left">#</th>
+                        <th class="px-4 py-2 text-left">Name</th>
+                        <th class="px-4 py-2 text-left">Price</th>
+                        <th class="px-4 py-2 text-left">Stock</th>
+                        <th class="px-4 py-2 text-left">Category</th>
+                        <th class="px-4 py-2 text-center">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <template x-for="(product, index) in products" :key="product.id">
+                        <tr class="text-gray-700 even:bg-gray-50 hover:text-orange-500">
+                            <td class="px-4 py-2 border-b" x-text="(page - 1) * size + index + 1"></td>
+                            <td class="px-4 py-2 border-b" x-text="product.name"></td>
+                            <td class="px-4 py-2 border-b" x-text="`$${product.price}`"></td>
+                            <td class="px-4 py-2 border-b" x-text="product.stock"></td>
+                            <td class="px-4 py-2 border-b" x-text="product.category.name"></td>
+                            <td class="px-4 py-2 border-b text-center">
+                                <!-- Action icons -->
+                                <button class="mr-2 text-blue-500 hover:text-blue-700">
+                                    <i class="ri-edit-2-line"></i>
+                                </button>
+                                <button
+                                        class="text-red-500 hover:text-red-700"
+                                        @click="confirmDelete(product)"
+                                >
+                                    <i class="ri-delete-bin-line"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </template>
+                    </tbody>
+                </table>
+            </div>
 
-            <div class="pt-4">
-                <div th:replace="~{base :: table(rows=${rows}, headers=${headers})}"></div>
+            <!-- Pagination -->
+            <div class="flex justify-between items-center mt-4">
+                <div>
+                    <span x-text="`Showing ${((page - 1) * size + 1)} - ${Math.min(page * size, total)} of ${total}`"></span>
+                </div>
+                <div class="space-x-2">
+                    <button @click="prevPage" :disabled="page === 1"
+                            class="px-2 py-1 border rounded hover:bg-gray-200" :class="{ 'opacity-50': page === 1 }">
+                        Prev
+                    </button>
+                    <button @click="nextPage" :disabled="page * size >= total"
+                            class="px-2 py-1 border rounded hover:bg-gray-200"
+                            :class="{ 'opacity-50': page * size >= total }">Next
+                    </button>
                 </div>
             </div>
-            
+            <template x-teleport="body">
+                <div x-show="deleteModalOpen" x-cloak
+                     class="fixed inset-0 z-[999] flex items-center justify-center bg-black/40">
+                    <div
+                            @click.outside="deleteModalOpen = false"
+                            class="bg-white w-full max-w-md mx-auto p-6 rounded-lg shadow-lg"
+                    >
+                        <h3 class="text-lg font-semibold mb-4">Are you sure to delete product <b x-text="deleteTarget?.name"></b>?</h3>
+                        <p class="text-sm text-gray-600 mb-6">This will permanently delete this product. This action
+                            cannot
+                            be undone.</p>
+                        <div class="flex justify-end space-x-2">
+                            <button @click="deleteModalOpen = false"
+                                    class="px-4 py-2 text-sm border rounded hover:bg-gray-100">Cancel
+                            </button>
+                            <button @click="deleteProduct"
+                                    class="px-4 py-2 text-sm text-white bg-red-600 rounded hover:bg-red-700">Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </template>
         </div>
+
+
+        <script>
+            document.addEventListener('alpine:init', () => {
+                Alpine.data('productTable', () => ({
+                    products: [],
+                    total: 0,
+                    page: 1,
+                    size: 20,
+                    query: {
+                        keyword: ''
+                    },
+                    deleteModalOpen: false,
+                    deleteTarget: null,
+                    confirmDelete(product) {
+                        this.deleteTarget = product;
+                        this.deleteModalOpen = true;
+                    },
+                    async deleteProduct() {
+                        if (!this.deleteTarget) return;
+
+                        try {
+                            const res = await fetch(`/api/product/${this.deleteTarget.id}`, {
+                                method: 'DELETE'
+                            });
+
+                            if (!res.ok) throw new Error('Failed to delete');
+
+                            this.products = this.products.filter(p => p.id !== this.deleteTarget.id);
+                            this.deleteTarget = null;
+                            this.deleteModalOpen = false;
+                            setTimeout(()=>{
+                                alert('Product deleted successfully');
+                            },50);
+                        } catch (err) {
+                            alert('Delete failed');
+                            console.error(err);
+                        }
+                    },
+
+                    async fetchProducts() {
+                        const params = new URLSearchParams({
+                            page: this.page,
+                            pageSize: this.size,
+                            search: this.query.keyword || ''
+                        });
+
+                        const res = await fetch(`/api/product?${params.toString()}`);
+                        if (!res.ok) {
+                            alert('Failed to load products.');
+                            return;
+                        }
+
+                        this.products = await res.json();
+                        this.total = parseInt(res.headers.get("X-Total-Count"));
+                    },
+
+                    nextPage() {
+                        if (this.page * this.size < this.total) {
+                            this.page++;
+                            this.fetchProducts();
+                        }
+                    },
+
+                    prevPage() {
+                        if (this.page > 1) {
+                            this.page--;
+                            this.fetchProducts();
+                        }
+                    }
+                }));
+            });
+        </script>
+
     </div>
+
+</div>
 
 </body>
 </html>

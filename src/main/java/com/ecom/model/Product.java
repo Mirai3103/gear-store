@@ -54,7 +54,7 @@ public class Product {
      * DB cột: created_at (datetime)
      */
     @Column(name = "created_at")
-    private LocalDateTime createdAt;
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     /**
      * DB cột: updated_at (datetime)

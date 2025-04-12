@@ -1,41 +1,41 @@
 package com.ecom.service.impl;
 
 import com.ecom.dtos.requests.ProductQuery;
+import com.ecom.model.Category;
 import com.ecom.model.Gallery;
 import com.ecom.model.Product;
+import com.ecom.repository.CategoryRepository;
 import com.ecom.repository.GalleryRepository;
 import com.ecom.repository.ProductRepository;
 import com.ecom.service.ProductService;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
-import lombok.Data;
 import lombok.extern.log4j.Log4j2;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.ooxml.POIXMLDocumentPart;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 @Service
 @Log4j2
@@ -47,6 +47,9 @@ public class ProductServiceImpl implements ProductService {
     private ProductRepository productRepository;
     @Autowired
     private EntityManager entityManager;
+    @Autowired
+    private CategoryRepository categoryRepository;
+
 
     @Override
     public Product saveProduct(Product product) {
@@ -187,6 +190,7 @@ public class ProductServiceImpl implements ProductService {
 
     }
 
+
     @Override
     public List<Product> getAllProductsByQuery(ProductQuery query) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
@@ -234,7 +238,7 @@ public class ProductServiceImpl implements ProductService {
 
         TypedQuery<Product> typedQuery = entityManager.createQuery(cq);
         int pageSize = query.getPageSize();
-        int pageNumber = query.getPage()-1; // Assuming page starts from 1
+        int pageNumber = query.getPage() - 1; // Assuming page starts from 1
         typedQuery.setFirstResult(pageNumber * pageSize);
         typedQuery.setMaxResults(pageSize);
 
@@ -268,7 +272,7 @@ public class ProductServiceImpl implements ProductService {
             }
         }
 
-        if (query.getCategoryId() != null  &&!CollectionUtils.isEmpty(query.getCategoryId())) {
+        if (query.getCategoryId() != null && !CollectionUtils.isEmpty(query.getCategoryId())) {
             predicates.add(cb.and(productRoot.get("category").get("id").in(query.getCategoryId())));
         }
 
@@ -281,5 +285,103 @@ public class ProductServiceImpl implements ProductService {
         }
 
         return predicates.toArray(new Predicate[0]);
+    }
+
+    String staticDir = "src/main/resources/static/imgs";
+
+    @Override
+    public List<Product> uploadProductsFromExcel(MultipartFile file) {
+        List<Product> products = new ArrayList<>();
+        try (InputStream is = file.getInputStream();
+             Workbook workbook = new XSSFWorkbook(is)) {
+
+            XSSFSheet sheet = (XSSFSheet) workbook.getSheetAt(0);
+            boolean isFirstRow = true;
+            Map<String, String> imageMap = new HashMap<>(); // Key = row_col
+            File outputDir = new File(staticDir);
+            if (!outputDir.exists()) outputDir.mkdirs();
+
+            for (POIXMLDocumentPart dr : sheet.getRelations()) {
+                if (dr instanceof XSSFDrawing drawing) {
+                    for (XSSFShape shape : drawing.getShapes()) {
+                        if (shape instanceof XSSFPicture pic) {
+                            XSSFClientAnchor anchor = pic.getPreferredSize();
+                            int row = anchor.getRow1();
+                            int col = anchor.getCol1();
+
+                            byte[] data = pic.getPictureData().getData();
+                            String ext = pic.getPictureData().suggestFileExtension(); // "png", "jpeg", etc.
+
+                            // tạo file name duy nhất
+                            String filename = "image-" + UUID.randomUUID() + "." + ext;
+                            Path outputPath = Paths.get(staticDir, filename);
+
+                            // lưu ảnh ra disk
+                            Files.write(outputPath, data);
+
+                            // lưu path public cho FE
+                            String urlPath = "/imgs/" + filename;
+                            imageMap.put(row + "_" + col, urlPath);
+                        }
+                    }
+                }
+            }
+            for (Row row : sheet) {
+                if (isFirstRow) {
+                    isFirstRow = false; // skip header
+                    continue;
+                }
+
+                Product product = new Product();
+                product.setName(getCellString(row.getCell(0)));
+                var categoryName = getCellString(row.getCell(1));
+                if (StringUtils.isBlank(categoryName)) {
+                    continue;
+                }
+                var category = categoryRepository.findByNameIgnoreCase(categoryName.trim());
+                if (category == null) {
+                    category = new Category();
+                    category.setName(categoryName);
+                    category = categoryRepository.save(category);
+                }
+                product.setCategory(category);
+                product.setPrice(getCellDouble(row.getCell(2)));
+                product.setDiscount((int) getCellDouble(row.getCell(3)));
+                int imageCol = 4;
+                int rowIndex = row.getRowNum();
+                String imageKey = rowIndex + "_" + imageCol;
+
+                String imagePath = imageMap.getOrDefault(imageKey, getCellString(row.getCell(imageCol)));
+                product.setImage(imagePath);
+                product.setStock((int) getCellDouble(row.getCell(5)));
+                product.setDescription(getCellString(row.getCell(6)));
+                products.add(product);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if (products.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        return productRepository.saveAll(products);
+    }
+
+    private String getCellString(Cell cell) {
+        return (cell != null) ? cell.toString().trim() : "";
+    }
+
+    private float getCellDouble(Cell cell) {
+        if (cell == null) return 0;
+        if (cell.getCellType() == CellType.NUMERIC) {
+            return (float) cell.getNumericCellValue();
+        } else {
+            try {
+                return (float) Double.parseDouble(cell.toString().trim());
+            } catch (Exception e) {
+                return 0;
+            }
+        }
     }
 }

@@ -71,4 +71,6 @@ public interface ProductService {
      */
     Page<Product> getAllProductsPagination(Integer pageNo, Integer pageSize);
     List<Gallery> getAllProductsGallery(Integer id);
+
+    List<Product> uploadProductsFromExcel(MultipartFile file);
 }

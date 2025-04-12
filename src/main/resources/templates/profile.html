@@ -83,79 +83,79 @@
             <div th:unless="${orders != null and !orders.isEmpty()}">
                 <p class="text-gray-700">You haven't placed any orders yet.</p>
             </div>
-            <div class="  mt-10" sec:authorize="hasRole('ADMIN')">
-                <h1 class="text-2xl font-bold mb-8">Manager Dashboard</h1>
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+<!--            <div class="  mt-10" sec:authorize="hasRole('ADMIN')">-->
+<!--                <h1 class="text-2xl font-bold mb-8">Manager Dashboard</h1>-->
+<!--                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">-->
 
-                    <!-- Card Item -->
-                    <div class="bg-white rounded-xl shadow p-6 flex flex-col items-center hover:shadow-md cursor-pointer transition">
-                        <div class="text-3xl mb-4">
-                            <!-- Icon placeholder -->
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24"
-                                 stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                      d="M12 4v16m8-8H4"/>
-                            </svg>
-                        </div>
-                        <p class="text-center font-medium">Add Product</p>
-                    </div>
+<!--                    &lt;!&ndash; Card Item &ndash;&gt;-->
+<!--                    <div class="bg-white rounded-xl shadow p-6 flex flex-col items-center hover:shadow-md cursor-pointer transition">-->
+<!--                        <div class="text-3xl mb-4">-->
+<!--                            &lt;!&ndash; Icon placeholder &ndash;&gt;-->
+<!--                            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24"-->
+<!--                                 stroke="currentColor">-->
+<!--                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"-->
+<!--                                      d="M12 4v16m8-8H4"/>-->
+<!--                            </svg>-->
+<!--                        </div>-->
+<!--                        <p class="text-center font-medium">Add Product</p>-->
+<!--                    </div>-->
 
-                    <!-- Repeat for other cards -->
-                    <div class="bg-white rounded-xl shadow p-6 flex flex-col items-center hover:shadow-md cursor-pointer transition">
-                        <div class="text-3xl mb-4">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24"
-                                 stroke="currentColor">
-                                <path d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
-                            </svg>
-                        </div>
-                        <p class="text-center font-medium">Storage</p>
-                    </div>
+<!--                    &lt;!&ndash; Repeat for other cards &ndash;&gt;-->
+<!--                    <div class="bg-white rounded-xl shadow p-6 flex flex-col items-center hover:shadow-md cursor-pointer transition">-->
+<!--                        <div class="text-3xl mb-4">-->
+<!--                            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24"-->
+<!--                                 stroke="currentColor">-->
+<!--                                <path d="M4 6h16M4 10h16M4 14h16M4 18h16"/>-->
+<!--                            </svg>-->
+<!--                        </div>-->
+<!--                        <p class="text-center font-medium">Storage</p>-->
+<!--                    </div>-->
 
-                    <!-- Product -->
-                    <div class="bg-white rounded-xl shadow p-6 flex flex-col items-center hover:shadow-md cursor-pointer transition">
-                        <div class="text-3xl mb-4">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24"
-                                 stroke="currentColor">
-                                <path d="M12 6v6h4M4 6h16v12H4z"/>
-                            </svg>
-                        </div>
-                        <p class="text-center font-medium">Product</p>
-                    </div>
+<!--                    &lt;!&ndash; Product &ndash;&gt;-->
+<!--                    <div class="bg-white rounded-xl shadow p-6 flex flex-col items-center hover:shadow-md cursor-pointer transition">-->
+<!--                        <div class="text-3xl mb-4">-->
+<!--                            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24"-->
+<!--                                 stroke="currentColor">-->
+<!--                                <path d="M12 6v6h4M4 6h16v12H4z"/>-->
+<!--                            </svg>-->
+<!--                        </div>-->
+<!--                        <p class="text-center font-medium">Product</p>-->
+<!--                    </div>-->
 
-                    <!-- Orders -->
-                    <div class="bg-white rounded-xl shadow p-6 flex flex-col items-center hover:shadow-md cursor-pointer transition">
-                        <div class="text-3xl mb-4">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24"
-                                 stroke="currentColor">
-                                <path d="M5 13l4 4L19 7"/>
-                            </svg>
-                        </div>
-                        <p class="text-center font-medium">Orders</p>
-                    </div>
+<!--                    &lt;!&ndash; Orders &ndash;&gt;-->
+<!--                    <div class="bg-white rounded-xl shadow p-6 flex flex-col items-center hover:shadow-md cursor-pointer transition">-->
+<!--                        <div class="text-3xl mb-4">-->
+<!--                            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24"-->
+<!--                                 stroke="currentColor">-->
+<!--                                <path d="M5 13l4 4L19 7"/>-->
+<!--                            </svg>-->
+<!--                        </div>-->
+<!--                        <p class="text-center font-medium">Orders</p>-->
+<!--                    </div>-->
 
-                    <!-- Customer -->
-                    <div class="bg-white rounded-xl shadow p-6 flex flex-col items-center hover:shadow-md cursor-pointer transition">
-                        <div class="text-3xl mb-4">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24"
-                                 stroke="currentColor">
-                                <path d="M12 14c4 0 8 2 8 4v2H4v-2c0-2 4-4 8-4zm0-4a4 4 0 110-8 4 4 0 010 8z"/>
-                            </svg>
-                        </div>
-                        <p class="text-center font-medium">Customer</p>
-                    </div>
+<!--                    &lt;!&ndash; Customer &ndash;&gt;-->
+<!--                    <div class="bg-white rounded-xl shadow p-6 flex flex-col items-center hover:shadow-md cursor-pointer transition">-->
+<!--                        <div class="text-3xl mb-4">-->
+<!--                            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24"-->
+<!--                                 stroke="currentColor">-->
+<!--                                <path d="M12 14c4 0 8 2 8 4v2H4v-2c0-2 4-4 8-4zm0-4a4 4 0 110-8 4 4 0 010 8z"/>-->
+<!--                            </svg>-->
+<!--                        </div>-->
+<!--                        <p class="text-center font-medium">Customer</p>-->
+<!--                    </div>-->
 
-                    <!-- Report -->
-                    <div class="bg-white rounded-xl shadow p-6 flex flex-col items-center hover:shadow-md cursor-pointer transition">
-                        <div class="text-3xl mb-4">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24"
-                                 stroke="currentColor">
-                                <path d="M4 6h16M4 10h16M4 14h10"/>
-                            </svg>
-                        </div>
-                        <p class="text-center font-medium">Report</p>
-                    </div>
-                </div>
-            </div>
+<!--                    &lt;!&ndash; Report &ndash;&gt;-->
+<!--                    <div class="bg-white rounded-xl shadow p-6 flex flex-col items-center hover:shadow-md cursor-pointer transition">-->
+<!--                        <div class="text-3xl mb-4">-->
+<!--                            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24"-->
+<!--                                 stroke="currentColor">-->
+<!--                                <path d="M4 6h16M4 10h16M4 14h10"/>-->
+<!--                            </svg>-->
+<!--                        </div>-->
+<!--                        <p class="text-center font-medium">Report</p>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
 
         </div>
 

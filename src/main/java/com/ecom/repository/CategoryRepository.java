@@ -13,5 +13,6 @@ public interface CategoryRepository extends JpaRepository<Category, Integer> {
 
 	public @NotNull List<Category> findAll();
 	public Category findByName(String name);
+	public Category findByNameIgnoreCase(String name);
 
 }

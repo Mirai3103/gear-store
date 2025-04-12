@@ -28,5 +28,11 @@ public class AdminController {
         
         return "admin/adminProfile";
     }
+
+    @GetMapping("/admin/products")
+    public String adminProducts(Model model) {
+        // Add your logic to fetch product data and add it to the model
+        return "admin/products";
+    }
 }
 

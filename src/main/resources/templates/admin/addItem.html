@@ -3,52 +3,105 @@
 <head th:replace="~{base :: page_head()}"></head>
 <body>
 
-    <div th:fragment="uploadModal" id="add-product" class="modal-container hidden">
-        
-        <!-- Modal Content -->
-        <div class="modal-content">
-            <!-- Close Button -->
-            <button id="close-modal" class="modal-close-btn">&times;</button>
+<div th:fragment="uploadModal" id="add-product" class="modal-container hidden">
 
-            <!-- Title Section -->
-            <div class="modal-title">
-                <h2>Excel File Upload</h2>
+    <!-- Modal Content -->
+    <div class="modal-content">
+        <!-- Close Button -->
+        <button id="close-modal" class="modal-close-btn">&times;</button>
+
+        <!-- Title Section -->
+        <div class="modal-title">
+            <h2>Excel File Upload</h2>
+        </div>
+
+        <!-- Upload Form -->
+        <form
+                class="upload-form"
+                @submit.prevent="uploadExcel"
+                enctype="multipart/form-data"
+                x-data="excelUploader"
+        >
+            <div>
+                <label class="upload-label">Attach Excel Document</label>
+
+                <label id="drop-zone" class="drop-zone" for="file-input">
+                    <img class="upload-image"
+                         src="https://img.freepik.com/free-vector/image-upload-concept-landing-page_52683-27130.jpg?size=338&ext=jpg"
+                         alt="Upload illustration">
+                    <p class="upload-text">Drag and drop files here</p>
+                    <p class="upload-text">
+                        or <span class="upload-link">select a file</span> from your computer
+                    </p>
+                </label>
+
+                <input
+                        id="file-input"
+                        type="file"
+                        class="hidden"
+                        name="files"
+                        accept=".xlsx"
+                        @change="setFile($event)"
+                >
             </div>
 
-            <!-- Upload Form -->
-            <form class="upload-form" th:action="@{/upload}" method="POST" enctype="multipart/form-data">
-                <div>
-                    <label class="upload-label">Attach Excel Document</label>
-                    
-                    <!-- Drag & Drop Area (Clickable) -->
-                    <label id="drop-zone" class="drop-zone" for="file-input">
-                        <img class="upload-image" 
-                            src="https://img.freepik.com/free-vector/image-upload-concept-landing-page_52683-27130.jpg?size=338&ext=jpg" 
-                            alt="Upload illustration">
+            <label class="preview-container" x-text="fileName || 'No file selected'"></label>
 
-                        <p class="upload-text">Drag and drop files here</p>
-                        <p class="upload-text">
-                            or <span class="upload-link">select a file</span> from your computer
-                        </p>
-                    </label>
+            <div class="flex justify-center col-span-2 mt-4">
+                <button type="submit" class="contact-btn">
+                    <span class="contact-btn-text">Upload</span>
+                </button>
+            </div>
+        </form>
+        <script>
+            document.addEventListener('alpine:init', () => {
+                Alpine.data('excelUploader', () => ({
+                    file: null,
+                    fileName: '',
 
-                    <!-- Hidden File Input -->
+                    setFile(event) {
+                        const selected = event.target.files[0];
+                        if (selected) {
+                            this.file = selected;
+                            this.fileName = selected.name;
+                        }
+                    },
 
-                    <input id="file-input" type="file" class="hidden" name="files" accept=".xls,.xlsx" multiple>
+                    async uploadExcel() {
+                        if (!this.file) {
+                            alert("Please select a file first!");
+                            return;
+                        }
 
-                </div>
+                        const formData = new FormData();
+                        formData.append('file', this.file); // "file" là @RequestParam name ở backend
 
-                <label id="file-name-label" class="preview-container">No file selected</label>
+                        try {
+                            const response = await fetch('/api/product/xlsx', {
+                                method: 'POST',
+                                body: formData
+                            });
 
-                <!-- Upload Button -->
-                <div class="flex justify-center col-span-2 mt-4">    
-                    <button class="contact-btn">
-                        <span class="contact-btn-text">Upload</span>
-                    </button>
-                </div>
-            </form>
-        </div>
+                            if (!response.ok) throw new Error("Upload failed");
+
+                            const result = await response.json();
+                            console.log("Uploaded:", result);
+
+                            // 🟢 Đóng modal
+                            document.getElementById('close-modal')?.click();
+
+                            // Optional: hiển thị thông báo thành công
+                            alert("Upload thành công!");
+                        } catch (err) {
+                            console.error("Upload error:", err);
+                            alert("Upload thất bại. Kiểm tra file Excel.");
+                        }
+                    }
+                }))
+            });
+        </script>
     </div>
+</div>
 
 </body>
 </html>
