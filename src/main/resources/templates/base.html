@@ -107,12 +107,23 @@
                         sec:authorize="isAuthenticated()"
                 >
                     <a
+                            sec:authorize="hasRole('USER')">
                             href="/user/my-profile"
 
                             class="navbar-nav-item flex items-center gap-1"
                     >
                         <i class="ri-user-line"></i>
 <!--                        <span sec:authentication="name"></span>-->
+
+                    </a>
+                    <a
+                            sec:authorize="hasRole('ADMIN')">
+                        href="/Admin/Profile"
+
+                        class="navbar-nav-item flex items-center gap-1"
+                        >
+                        <i class="ri-user-line"></i>
+                        <!--                        <span sec:authentication="name"></span>-->
 
                     </a>
 
