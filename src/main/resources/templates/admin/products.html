@@ -165,6 +165,9 @@
                             console.error(err);
                         }
                     },
+                    init() {
+                        window.fetchProducts = this.fetchProducts;
+                    },
 
                     async fetchProducts() {
                         const params = new URLSearchParams({
@@ -215,7 +218,8 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block mb-1 font-semibold">Name</label>
-                            <input required x-model="form.name" type="text" class="w-full border px-3 py-2 rounded" minlength="3"/>
+                            <input required x-model="form.name" type="text" class="w-full border px-3 py-2 rounded"
+                                   minlength="3"/>
                         </div>
                         <div>
                             <label class="block mb-1 font-semibold">Category</label>
@@ -227,7 +231,8 @@
                         </div>
                         <div>
                             <label class="block mb-1 font-semibold">Price($)</label>
-                            <input required x-model="form.price"  step="0.01" min="0" type="number" class="w-full border px-3 py-2 rounded"/>
+                            <input required x-model="form.price" step="0.01" min="0" type="number"
+                                   class="w-full border px-3 py-2 rounded"/>
                         </div>
                         <div>
                             <label class="block mb-1 font-semibold">Discount (%)</label>
@@ -236,11 +241,12 @@
                         </div>
                         <div>
                             <label class="block mb-1 font-semibold">Stock</label>
-                            <input required x-model="form.stock" type="number"  min="0" class="w-full border px-3 py-2 rounded"/>
+                            <input required x-model="form.stock" type="number" min="0"
+                                   class="w-full border px-3 py-2 rounded"/>
                         </div>
                         <div>
                             <label class="block mb-1 font-semibold">Main Image</label>
-                            <input  @change="handleFile($event, 'image')" type="file" class="w-full"/>
+                            <input @change="handleFile($event, 'image')" type="file" class="w-full"/>
                         </div>
                         <div>
                             <label class="block mb-1 font-semibold">Gallery Images</label>
@@ -373,6 +379,7 @@
 
                     alert('Product updated successfully');
                     this.modalOpen = false;
+                    window.fetchProducts && window.fetchProducts();
                 } catch (err) {
                     alert('Failed to update product');
                 }
