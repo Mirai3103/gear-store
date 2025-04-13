@@ -11,10 +11,18 @@
         <button id="close-modal" class="modal-close-btn">&times;</button>
 
         <!-- Title Section -->
-        <div class="modal-title">
-            <h2>Excel File Upload</h2>
-        </div>
-
+       <div class="flex gap-2 justify-center w-full items-center">
+           <div class="modal-title">
+               <h2>Excel File Upload</h2>
+           </div>
+           <div class="flex justify-end">
+               <a href="/upload_product_example.xlsx" download
+                  class="inline-flex items-center gap-2 px-4 py-2 border border-black text-black text-sm rounded-md hover:bg-black hover:text-white transition">
+                   <i class="ri-download-line text-lg"></i>
+                   Download Template
+               </a>
+           </div>
+       </div>
         <!-- Upload Form -->
         <form
                 class="upload-form"

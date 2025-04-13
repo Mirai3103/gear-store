@@ -1,6 +1,9 @@
 package com.ecom.service;
 
+import java.io.IOException;
 import java.util.List;
+
+import com.ecom.dtos.requests.ProductRequestDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -73,4 +76,6 @@ public interface ProductService {
     List<Gallery> getAllProductsGallery(Integer id);
 
     List<Product> uploadProductsFromExcel(MultipartFile file);
+
+    Product updateProduct(ProductRequestDTO productRequestDTO) throws IOException;
 }

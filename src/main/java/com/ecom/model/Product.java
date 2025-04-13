@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -72,6 +73,9 @@ public class Product {
     private String description;
 
     public Double getFinalPrice() {
-        return  (price - (price * (discount*1.0) / 100));
+        return (price - (price * (discount * 1.0) / 100));
     }
+
+    @Transient
+    private List<Gallery> galleries;
 }

@@ -100,36 +100,27 @@
                 </a>
 
                 <!-- Authenticated - User Dropdown -->
-                <div
-                        x-data="{ open: false }"
-                        @click.outside="open = false"
-                        class="relative"
-                        sec:authorize="isAuthenticated()"
-                >
-                    <a
-                            sec:authorize="hasRole('USER')">
-                            href="/user/my-profile"
 
-                            class="navbar-nav-item flex items-center gap-1"
-                    >
-                        <i class="ri-user-line"></i>
-<!--                        <span sec:authentication="name"></span>-->
-
-                    </a>
-                    <a
-                            sec:authorize="hasRole('ADMIN')">
-                        href="/Admin/Profile"
+                <a
+                        sec:authorize="hasRole('USER')"
+                        href="/user/my-profile"
 
                         class="navbar-nav-item flex items-center gap-1"
-                        >
-                        <i class="ri-user-line"></i>
-                        <!--                        <span sec:authentication="name"></span>-->
+                >
+                    <i class="ri-user-line"></i>
 
-                    </a>
+                </a>
+                <a
+                        sec:authorize="hasRole('ADMIN')">
+                    href="/Admin/Profile"
 
-                    <!-- Dropdown Menu -->
+                    class="navbar-nav-item flex items-center gap-1"
+                    >
+                    <i class="ri-user-line"></i>
 
-                </div>
+                </a>
+
+
             </nav>
         </div>
     </div>

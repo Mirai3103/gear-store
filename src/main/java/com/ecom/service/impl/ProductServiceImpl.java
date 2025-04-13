@@ -1,6 +1,7 @@
 package com.ecom.service.impl;
 
 import com.ecom.dtos.requests.ProductQuery;
+import com.ecom.dtos.requests.ProductRequestDTO;
 import com.ecom.model.Category;
 import com.ecom.model.Gallery;
 import com.ecom.model.Product;
@@ -80,7 +81,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Product getProductById(Integer id) {
-        return productRepository.findById(id).orElse(null);
+        var product = productRepository.findById(id).orElse(null);
+        var galleries = galleryRepository.findByProductId(id);
+        return product;
     }
 
     @Override
@@ -367,6 +370,50 @@ public class ProductServiceImpl implements ProductService {
 
         return productRepository.saveAll(products);
     }
+
+    @Override
+    public Product updateProduct(ProductRequestDTO productRequestDTO) throws IOException {
+        MultipartFile image = productRequestDTO.getImage();
+        Product product = productRepository.findById(productRequestDTO.getId()).orElse(null);
+        var category = categoryRepository.findById(productRequestDTO.getCategoryId()).orElse(null);
+        if (product == null) {
+            return null;
+        }
+        if (category == null) {
+            return null;
+        }
+
+
+        if (image != null && !image.isEmpty()) {
+            try {
+                // Xóa ảnh cũ nếu có
+                String oldImagePath = product.getImage(); // "/imgs/abc.jpg"
+                if (oldImagePath != null && !oldImagePath.isEmpty()) {
+                    Path oldPath = Paths.get("src/main/resources/static" + oldImagePath);
+                    Files.deleteIfExists(oldPath);
+                }
+            } catch (Exception ignored) {
+            }
+            // Ghi ảnh mới
+            String fileName = UUID.randomUUID() + "_" + image.getOriginalFilename();
+            Path newImagePath = Paths.get("src/main/resources/static/imgs/" + fileName);
+            Files.createDirectories(newImagePath.getParent());
+            Files.write(newImagePath, image.getBytes());
+
+            product.setImage("/imgs/" + fileName);
+        }
+
+        // Update các trường khác
+        product.setName(productRequestDTO.getName());
+        product.setCategory(category);
+        product.setPrice(productRequestDTO.getPrice());
+        product.setDiscount(productRequestDTO.getDiscount());
+        product.setStock(productRequestDTO.getStock());
+        product.setDescription(productRequestDTO.getDescription());
+
+        return productRepository.save(product);
+    }
+
 
     private String getCellString(Cell cell) {
         return (cell != null) ? cell.toString().trim() : "";
