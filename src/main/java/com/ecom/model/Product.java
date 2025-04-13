@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
-@Setter
+@Setter()
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity

@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -19,6 +20,9 @@ public class Import {
 
     @Column(name = "import_date")
     private LocalDateTime importDate;
+
+    @OneToMany(mappedBy = "importRecord", fetch = FetchType.EAGER)
+    private List<ImportDetails> details;
 
     private String note; // Lý do nhập
     private Double total_money;

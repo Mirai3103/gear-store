@@ -1,29 +1,385 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{base :: page_head()}"></head>
+<head th:replace="~{base :: page_head()}"/>
 <body>
 
-    <div th:fragment="storageModal" id="storage" class="modal-container hidden">
-        
-        <!-- Modal Content -->
-        <div class="modal-content">
-            <!-- Close Button -->
-            <button id="close-modal" class="modal-close-btn">&times;</button>
+<div th:fragment="storageModal" id="storage" class="modal-container hidden" x-data="storageManager">
+    <div class="modal-content max-w-6xl min-h-[80vh]">
+        <button id="close-modal" class="modal-close-btn">&times;</button>
 
-            <!-- Title Section -->
-            <div class="modal-title">
-                <h2>Storage</h2>
+        <div class="modal-title mb-4 flex justify-between items-center">
+            <h2 class="text-2xl font-semibold">Storage Management</h2>
+            <button @click="createModalOpen = true"
+                    class="px-4 py-2 bg-black text-white rounded hover:bg-gray-800 border border-black transition duration-200 text-sm">
+                + New Import
+            </button>
+        </div>
+
+        <div>
+            <h3 class="text-lg font-bold mb-3">Import History</h3>
+            <div class="relative overflow-x-auto max-h-[60vh] overflow-y-auto sm:rounded-lg shadow-md">
+                <table class="w-full  text-left text-gray-700">
+                    <thead class="  font-semibold bg-gray-100">
+                    <tr>
+                        <th class="px-4 py-3">#</th>
+                        <th class="px-4 py-3">Date</th>
+                        <th class="px-4 py-3">Note</th>
+                        <th class="px-4 py-3">Total</th>
+                        <th class="px-4 py-3">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <template x-for="(imp, index) in imports" :key="imp.id">
+                        <tr class="border-b border-gray-200 hover:bg-gray-50 transition duration-150">
+                            <td class="px-4 py-3" x-text="(page - 1) * size + index + 1"></td>
+                            <td class="px-4 py-3" x-text="formatDate(imp.importDate)"></td>
+                            <td class="px-4 py-3" x-text="imp.note"></td>
+                            <td class="px-4 py-3 font-medium" x-text="`$${imp.total_money.toFixed(2)}`"></td>
+                            <td class="px-4 py-3">
+                                <button @click="viewImportDetails(imp)"
+                                        class="text-orange-600 hover:text-orange-800 hover:underline transition duration-150">
+                                    View
+                                </button>
+                            </td>
+                        </tr>
+                    </template>
+                    </tbody>
+                </table>
+            </div>
+            <div class="flex justify-end mt-4 space-x-1 text-sm text-gray-700">
+                <button @click="if (page > 1) { page--; fetchImports() }"
+                        class="px-3 py-1 border rounded hover:bg-gray-100"
+                        :disabled="page === 1">Prev
+                </button>
+
+                <template x-for="p in totalPages" :key="p">
+                    <button @click="page = p; fetchImports()"
+                            :class="{'bg-black text-white': p === page, 'bg-white': p !== page}"
+                            class="px-3 py-1 border rounded hover:bg-gray-100">
+                        <span x-text="p"></span>
+                    </button>
+                </template>
+
+                <button @click="if (page < totalPages) { page++; fetchImports() }"
+                        class="px-3 py-1 border rounded hover:bg-gray-100"
+                        :disabled="page === totalPages">Next
+                </button>
             </div>
 
-            <div th:replace="~{base :: table-search-bar}"></div>                      
+        </div>
 
-            <div class="pt-4">
-                <div th:replace="~{base :: table(rows=${rows}, headers=${headers})}"></div>
+        <template x-teleport="body">
+            <div x-show="createModalOpen" x-cloak
+                 class="fixed inset-0 z-[999] flex items-center justify-center bg-black/40 backdrop-blur-sm">
+                <div @click.outside="createModalOpen = false"
+                     class="bg-white w-full max-w-3xl mx-auto p-6 rounded-lg shadow-lg overflow-y-auto max-h-[90vh]">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-semibold">Create New Import</h3>
+                        <button @click="createModalOpen = false" class="text-gray-500 hover:text-black text-xl">
+                            &times;
+                        </button>
+                    </div>
+                    <form @submit.prevent="submitImport">
+                        <div class="mb-4">
+                            <label class="block font-semibold text-sm text-gray-700 mb-1">Note</label>
+                            <input x-model="importForm.note" type="text"
+                                   class="w-full border border-gray-300 px-3 py-2 rounded focus:border-orange-600 focus:outline-none"
+                                   placeholder="Enter note about this import" required>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="flex justify-between items-center mb-2">
+                                <h4 class="font-semibold text-sm text-gray-700">Products</h4>
+                                <button type="button" @click="addProduct"
+                                        class="px-3 py-1 bg-green-500 text-white text-xs rounded hover:bg-green-600 transition duration-150">
+                                    + Add Product
+                                </button>
+                            </div>
+
+                            <div class="bg-gray-50 rounded-md p-3 mb-2">
+                                <div class="grid grid-cols-12 gap-2 mb-2 items-center text-xs font-medium text-gray-700">
+                                    <div class="col-span-5">Product</div>
+                                    <div class="col-span-2">Cost ($)</div>
+                                    <div class="col-span-2">Quantity</div>
+                                    <div class="col-span-2">Subtotal</div>
+                                    <div class="col-span-1"></div>
+                                </div>
+                            </div>
+
+                            <template x-for="(item, index) in importForm.details" :key="index">
+                                <div class="grid grid-cols-12 gap-2 mb-2 items-center border-b pb-2">
+                                    <div class="col-span-5">
+                                        <div class="col-span-5 relative" x-data="{ query: '', showDropdown: false }"
+                                             @click.away="showDropdown = false">
+                                            <input
+                                                    type="text"
+                                                    x-model="query"
+                                                    @input="showDropdown = true"
+                                                    placeholder="Search product..."
+                                                    class="w-full border border-gray-300 px-2 py-2 rounded focus:border-orange-600 focus:outline-none"
+                                            />
+                                            <ul x-show="showDropdown"
+                                                class="absolute z-10 bg-white border border-gray-300 w-full mt-1 rounded shadow max-h-60 overflow-y-auto text-sm">
+                                                <template
+                                                        x-for="p in products.filter(p => p.name.toLowerCase().includes(query.toLowerCase()))"
+                                                        :key="p.id">
+                                                    <li @click="
+                    item.productId = p.id;
+                    query = p.name;
+                    showDropdown = false
+                "
+                                                        class="px-3 py-2 hover:bg-orange-100 cursor-pointer"
+                                                        x-text="p.name"
+                                                    ></li>
+                                                </template>
+                                                <li x-show="products.filter(p => p.name.toLowerCase().includes(query.toLowerCase())).length === 0"
+                                                    class="px-3 py-2 text-gray-500 italic">No matching product
+                                                </li>
+                                            </ul>
+                                        </div>
+
+                                    </div>
+                                    <div class="col-span-2">
+                                        <input required x-model.number="item.cost" type="number" placeholder="Cost"
+                                               min="0" step="0.01"
+                                               class="w-full border border-gray-300 px-2 py-2 rounded focus:border-orange-600 focus:outline-none">
+                                    </div>
+                                    <div class="col-span-2">
+                                        <input required x-model.number="item.quantity" type="number" placeholder="Qty"
+                                               min="1"
+                                               class="w-full border border-gray-300 px-2 py-2 rounded focus:border-orange-600 focus:outline-none">
+                                    </div>
+                                    <div class="col-span-2 font-medium">
+                                        $<span x-text="(item.cost * item.quantity).toFixed(2)"></span>
+                                    </div>
+                                    <div class="col-span-1 text-right">
+                                        <button type="button" @click="removeProduct(index)"
+                                                class="text-red-500 hover:text-red-700 transition duration-150">✕
+                                        </button>
+                                    </div>
+                                </div>
+                            </template>
+
+                            <div x-show="importForm.details.length === 0"
+                                 class="text-center py-4 text-gray-500 bg-gray-50 rounded">
+                                No products added yet. Click "Add Product" to begin.
+                            </div>
+
+                            <div x-show="importForm.details.length > 0"
+                                 class="flex justify-end text-right mt-3 font-medium">
+                                Total: $<span x-text="calculateTotal()"></span>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end space-x-2 mt-6 border-t pt-4">
+                            <button type="button" @click="createModalOpen = false"
+                                    class="px-4 py-2 border border-gray-300 rounded hover:bg-gray-50 transition duration-150">
+                                Cancel
+                            </button>
+                            <button type="submit"
+                                    class="px-4 py-2 bg-black text-white rounded hover:bg-gray-800 transition duration-150">
+                                Save Import
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
-            
-        </div>
+        </template>
+
+        <template x-teleport="body">
+            <div x-show="detailModalOpen" x-cloak
+                 class="fixed inset-0 z-[999] flex items-center justify-center bg-black/40 backdrop-blur-sm">
+                <div @click.outside="detailModalOpen = false"
+                     class="bg-white w-full max-w-3xl mx-auto p-6 rounded-lg shadow-lg overflow-y-auto max-h-[90vh]">
+                    <div class="flex justify-between items-center mb-4 border-b pb-3">
+                        <h3 class="text-xl font-semibold">Import Details</h3>
+                        <button @click="detailModalOpen = false" class="text-gray-500 hover:text-black text-xl">
+                            &times;
+                        </button>
+                    </div>
+
+                    <div class="mb-6">
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <span class="text-sm text-gray-500">Import ID:</span>
+                                <p class="font-medium" x-text="selectedImport?.id"></p>
+                            </div>
+                            <div>
+                                <span class="text-sm text-gray-500">Date:</span>
+                                <p class="font-medium" x-text="formatDate(selectedImport?.importDate)"></p>
+                            </div>
+                            <div class="col-span-2">
+                                <span class="text-sm text-gray-500">Note:</span>
+                                <p class="font-medium" x-text="selectedImport?.note || 'No note provided'"></p>
+                            </div>
+                        </div>
+
+                        <div class="border-t pt-4">
+                            <h4 class="font-semibold mb-3">Product Details</h4>
+                            <div class="bg-gray-50 rounded-md">
+                                <div class="grid grid-cols-12 gap-2 p-3 border-b items-center text-xs font-medium text-gray-700">
+                                    <div class="col-span-1">#</div>
+                                    <div class="col-span-5">Product</div>
+                                    <div class="col-span-2">Cost</div>
+                                    <div class="col-span-2">Quantity</div>
+                                    <div class="col-span-2 text-right">Subtotal</div>
+                                </div>
+
+                                <template x-for="(detail, index) in selectedImport?.details" :key="detail.id">
+                                    <div class="grid grid-cols-12 gap-2 p-3 border-b last:border-0 items-center">
+                                        <div class="col-span-1" x-text="index + 1"></div>
+                                        <div class="col-span-5">
+                                            <div class="flex items-center">
+                                                <div class="w-10 h-10 rounded overflow-hidden mr-2">
+                                                    <img :src="detail.product.image" alt="Product image"
+                                                         class="w-full h-full object-cover">
+                                                </div>
+                                                <div>
+                                                    <p class="font-medium text-sm" x-text="detail.product.name"></p>
+                                                    <p class="text-xs text-gray-500"
+                                                       x-text="`ID: ${detail.product.id}`"></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-span-2" x-text="`$${detail.cost.toFixed(2)}`"></div>
+                                        <div class="col-span-2" x-text="detail.quantity"></div>
+                                        <div class="col-span-2 font-medium text-right"
+                                             x-text="`$${detail.total_money.toFixed(2)}`"></div>
+                                    </div>
+                                </template>
+                            </div>
+
+                            <div class="flex justify-end mt-4 text-right">
+                                <div class="bg-gray-50 p-3 rounded-md">
+                                    <p class="text-sm text-gray-500">Total Amount</p>
+                                    <p class="text-xl font-bold"
+                                       x-text="`$${selectedImport?.total_money.toFixed(2)}`"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end border-t pt-4">
+                        <button @click="detailModalOpen = false"
+                                class="px-4 py-2 bg-black text-white rounded hover:bg-gray-800 transition duration-150">
+                            Close
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+        <script>
+            document.addEventListener('alpine:init', () => {
+                Alpine.data('storageManager', () => ({
+                    page: 1,
+                    size: 10,
+                    imports: [],
+                    products: [],
+                    createModalOpen: false,
+                    detailModalOpen: false,
+                    selectedImport: null,
+                    totalImports: 0,
+                    importForm: {
+                        note: '',
+                        details: []
+                    },
+                    get totalPages() {
+                        return Math.ceil(this.totalImports / this.size);
+                    },
+                    async fetchImports() {
+                        const params = new URLSearchParams({
+                            page: this.page,
+                            size: this.size,
+                            search: ''
+                        });
+                        const res = await fetch(`/api/import?${params}`);
+                        if (!res.ok) return alert('Failed to load imports');
+                        this.imports = await res.json();
+                        this.totalImports = parseInt(res.headers.get('X-Total-Count')) || 0;
+                    },
+
+                    async fetchProducts() {
+                        const res = await fetch('/api/product?page=1&pageSize=100');
+                        if (!res.ok) return alert('Failed to load products');
+                        this.products = await res.json();
+                    },
+
+                    addProduct() {
+                        this.importForm.details.push({productId: '', cost: 0, quantity: 1});
+                    },
+
+                    removeProduct(index) {
+                        this.importForm.details.splice(index, 1);
+                    },
+
+                    calculateTotal() {
+                        return this.importForm.details
+                            .reduce((sum, item) => sum + (item.cost * item.quantity), 0)
+                            .toFixed(2);
+                    },
+
+                    formatDate(dateString) {
+                        if (!dateString) return '';
+                        const date = new Date(dateString);
+                        return new Intl.DateTimeFormat('en-US', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        }).format(date);
+                    },
+
+                    viewImportDetails(importRecord) {
+                        this.selectedImport = importRecord;
+                        this.detailModalOpen = true;
+                    },
+
+                    async submitImport() {
+                        const res = await fetch('/api/import', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(this.importForm)
+                        });
+
+                        if (!res.ok) return alert('Failed to create import');
+
+                        // Show notification
+                        const notification = document.createElement('div');
+                        notification.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-4 py-3 rounded shadow-lg z-50';
+                        notification.innerHTML = `
+                            <div class="flex items-center">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                <span>Import created successfully</span>
+                            </div>
+                        `;
+                        document.body.appendChild(notification);
+
+                        setTimeout(() => {
+                            notification.remove();
+                        }, 3000);
+
+                        // Reset form and close modal
+                        this.importForm = {note: '', details: []};
+                        this.createModalOpen = false;
+                        this.page = 1;
+                        this.fetchImports();
+                    },
+
+                    init() {
+                        this.fetchImports();
+                        this.fetchProducts();
+                    }
+                }));
+            });
+        </script>
     </div>
+</div>
 
 </body>
 </html>
