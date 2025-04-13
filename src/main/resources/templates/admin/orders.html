@@ -3,27 +3,173 @@
 <head th:replace="~{base :: page_head()}"></head>
 <body>
 
-    <div th:fragment="orderModal" id="orders" class="modal-container hidden">
-        
-        <!-- Modal Content -->
-        <div class="modal-content">
-            <!-- Close Button -->
-            <button id="close-modal" class="modal-close-btn">&times;</button>
+<div th:fragment="orderModal" id="orders" class="modal-container hidden" x-data="orderTable">
+    <!-- Modal Content -->
+    <div class="modal-content max-w-6xl">
+        <button id="close-modal" class="modal-close-btn">&times;</button>
+        <div class="modal-title mb-4">
+            <h2 class="text-2xl font-semibold">Orders</h2>
+        </div>
 
-            <!-- Title Section -->
-            <div class="modal-title">
-                <h2>Orders</h2>
+        <div class="mb-4">
+            <input type="text" placeholder="Search by email or phone..." x-model="query.keyword"
+                   @input.debounce.500ms="fetchOrders"
+                   class="px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-orange-600"/>
+        </div>
+
+        <div class="relative overflow-x-auto max-h-[70vh] overflow-y-auto sm:rounded-lg">
+            <table class="w-full text-sm text-left text-gray-700">
+                <thead class="text-xs text-gray-700 uppercase bg-gray-100">
+                <tr>
+                    <th class="px-4 py-2">Id</th>
+                    <th class="px-4 py-2">Customer</th>
+                    <th class="px-4 py-2">Phone</th>
+                    <th class="px-4 py-2">Total</th>
+                    <th class="px-4 py-2">Date</th>
+                    <th class="px-4 py-2">Payment</th>
+                    <th class="px-4 py-2">Status</th>
+                </tr>
+                </thead>
+                <tbody>
+                <template x-for="(order, index) in orders" :key="order.id">
+                    <tr class="even:bg-gray-50 hover:text-orange-500 cursor-pointer"
+                        @click="showDetail(order)">
+                        <td class="px-4 py-2" x-text="order.id"></td>
+                        <td class="px-4 py-2" x-text="order.user.name"></td>
+                        <td class="px-4 py-2" x-text="order.phoneNumber"></td>
+                        <td class="px-4 py-2" x-text="`$${order.totalMoney}`"></td>
+                        <td class="px-4 py-2" x-text="order.orderDate"></td>
+                        <td class="px-4 py-2" x-text="order.paymentType"></td>
+                        <td class="px-4 py-2" x-text="order.status"></td>
+                    </tr>
+                </template>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="flex justify-between items-center mt-4">
+            <span x-text="`Showing ${((page - 1) * size + 1)} - ${Math.min(page * size, total)} of ${total}`"></span>
+            <div class="space-x-1">
+                <button @click="prevPage" :disabled="page === 1" class="px-2 py-1 border rounded"
+                        :class="{ 'opacity-50 cursor-not-allowed': page === 1 }">
+                    Prev
+                </button>
+                <template x-for="p in totalPages" :key="p">
+                    <button @click="page = p; fetchOrders()" class="px-3 py-1 border rounded"
+                            :class="{ 'bg-orange-500 text-white': page === p, 'bg-white text-gray-700': page !== p }">
+                        <span x-text="p"></span>
+                    </button>
+                </template>
+                <button @click="nextPage" :disabled="page === totalPages" class="px-2 py-1 border rounded"
+                        :class="{ 'opacity-50 cursor-not-allowed': page === totalPages }">
+                    Next
+                </button>
             </div>
+        </div>
 
-            <div th:replace="~{base :: table-search-bar}"></div>                      
+        <template x-teleport="body">
+            <div x-show="detailModal" x-cloak
+                 class="fixed inset-0 z-[999] flex items-center justify-center bg-black/40">
+                <div @click.outside="detailModal = false"
+                     class="bg-white w-full max-w-4xl mx-auto p-6 rounded-xl shadow-xl overflow-y-auto max-h-[90vh]">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-6 border-b pb-2">🧾 Order Details</h3>
 
-            <div class="pt-4">
-                <div th:replace="~{base :: table(rows=${rows}, headers=${headers})}"></div>
+                    <template x-if="selectedOrder">
+                        <div class="space-y-4 text-gray-700">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <p><strong>Email:</strong> <span
+                                        x-text="selectedOrder.email || selectedOrder.user.email"></span></p>
+                                <p><strong>Phone:</strong> <span x-text="selectedOrder.phoneNumber"></span></p>
+                                <p><strong>Address:</strong> <span x-text="selectedOrder.address"></span></p>
+                                <p><strong>Status:</strong> <span x-text="selectedOrder.status"></span></p>
+                                <p><strong>Payment:</strong> <span x-text="selectedOrder.paymentType"></span></p>
+                                <p><strong>Order Date:</strong> <span x-text="selectedOrder.orderDate"></span></p>
+                                <p class="sm:col-span-2"><strong>Total:</strong> $<span
+                                        x-text="selectedOrder.totalMoney.toFixed(2)"></span></p>
+                            </div>
+
+                            <div class="mt-6">
+                                <h4 class="text-xl font-semibold mb-3">🛒 Products</h4>
+                                <template x-for="detail in selectedOrder.orderDetails" :key="detail.id">
+                                    <div class="flex gap-4 border p-4 mb-4 rounded-lg shadow-sm">
+                                        <img :src="detail.product.image" alt=""
+                                             class="w-24 h-24 object-cover rounded-md border"/>
+                                        <div class="flex-1 space-y-1">
+                                            <h5 class="font-bold text-lg" x-text="detail.product.name"></h5>
+                                            <p><strong>Category:</strong> <span
+                                                    x-text="detail.product.category.name"></span></p>
+                                            <p><strong>Price:</strong> $<span
+                                                    x-text="detail.product.finalPrice.toFixed(2)"></span></p>
+                                            <p><strong>Quantity:</strong> <span x-text="detail.quantity"></span></p>
+                                            <p><strong>Subtotal:</strong> $<span
+                                                    x-text="detail.totalMoney.toFixed(2)"></span></p>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+
+                    <div class="mt-6 text-right">
+                        <button @click="detailModal = false" class="px-4 py-2 border rounded hover:bg-gray-100">Close
+                        </button>
+                    </div>
                 </div>
             </div>
-            
-        </div>
+        </template>
+        <script>
+            document.addEventListener('alpine:init', () => {
+                Alpine.data('orderTable', () => ({
+                    orders: [],
+                    total: 0,
+                    page: 1,
+                    size: 20,
+                    query: {
+                        keyword: ''
+                    },
+                    detailModal: false,
+                    selectedOrder: null,
+
+                    async fetchOrders() {
+                        const params = new URLSearchParams({
+                            page: this.page,
+                            size: this.size,
+                            search: this.query.keyword || ''
+                        });
+                        const res = await fetch(`/api/order?${params.toString()}`);
+                        if (!res.ok) return alert('Failed to fetch orders');
+                        this.orders = await res.json();
+                        this.total = parseInt(res.headers.get("X-Total-Count"));
+                    },
+
+                    showDetail(order) {
+                        this.selectedOrder = order;
+                        this.detailModal = true;
+                    },
+
+                    get totalPages() {
+                        return Math.ceil(this.total / this.size);
+                    },
+                    nextPage() {
+                        if (this.page < this.totalPages) {
+                            this.page++;
+                            this.fetchOrders();
+                        }
+                    },
+                    prevPage() {
+                        if (this.page > 1) {
+                            this.page--;
+                            this.fetchOrders();
+                        }
+                    },
+                    init() {
+                        this.fetchOrders();
+                    }
+                }));
+            });
+        </script>
     </div>
+</div>
 
 </body>
 </html>

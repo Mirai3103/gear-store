@@ -3,27 +3,118 @@
 <head th:replace="~{base :: page_head()}"></head>
 <body>
 
-    <div th:fragment="customerModal" id="customer" class="modal-container hidden">
-        
-        <!-- Modal Content -->
-        <div class="modal-content">
-            <!-- Close Button -->
-            <button id="close-modal" class="modal-close-btn">&times;</button>
+<div th:fragment="customerModal" id="customer" class="modal-container hidden" x-data="customerTable">
+    <!-- Modal Content -->
+    <div class="modal-content ">
+        <!-- Close Button -->
+        <button id="close-modal" class="modal-close-btn">&times;</button>
 
-            <!-- Title Section -->
-            <div class="modal-title">
-                <h2>Customer</h2>
-            </div>
-
-            <div th:replace="~{base :: table-search-bar}"></div>                      
-
-            <div class="pt-4">
-                <div th:replace="~{base :: table(rows=${rows}, headers=${headers})}"></div>
-                </div>
-            </div>
-            
+        <!-- Title Section -->
+        <div class="modal-title mb-4">
+            <h2 class="text-2xl font-semibold">Customer List</h2>
         </div>
+
+        <!-- Search -->
+        <div class="mb-4">
+            <input type="text" placeholder="Search by name or phone..." x-model="query.keyword"
+                   @input.debounce.500ms="fetchCustomers"
+                   class="px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-orange-600 w-full max-w-md"/>
+        </div>
+
+        <!-- Table -->
+        <div class="relative overflow-x-auto max-h-[70vh] overflow-y-auto sm:rounded-lg">
+            <table class="w-full text-sm text-left text-gray-700">
+                <thead class="text-xs text-gray-700 uppercase bg-gray-100">
+                <tr>
+                    <th class="px-4 py-2">Id</th>
+                    <th class="px-4 py-2">Name</th>
+                    <th class="px-4 py-2">Phone</th>
+                    <th class="px-4 py-2">Email</th>
+
+                </tr>
+                </thead>
+                <tbody>
+                <template x-for="(customer, index) in customers" :key="customer.id">
+                    <tr class="even:bg-gray-50 hover:text-orange-500">
+                        <td class="px-4 py-2" x-text="customer.id"></td>
+                        <td class="px-4 py-2" x-text="customer.name"></td>
+                        <td class="px-4 py-2" x-text="customer.phoneNumber"></td>
+                        <td class="px-4 py-2" x-text="customer.email"></td>
+
+                    </tr>
+                </template>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="flex justify-between items-center mt-4">
+            <span x-text="`Showing ${((page - 1) * size + 1)} - ${Math.min(page * size, total)} of ${total}`"></span>
+            <div class="space-x-1">
+                <button @click="prevPage" :disabled="page === 1" class="px-2 py-1 border rounded"
+                        :class="{ 'opacity-50 cursor-not-allowed': page === 1 }">
+                    Prev
+                </button>
+                <template x-for="p in totalPages" :key="p">
+                    <button @click="page = p; fetchCustomers()" class="px-3 py-1 border rounded"
+                            :class="{ 'bg-orange-500 text-white': page === p, 'bg-white text-gray-700': page !== p }">
+                        <span x-text="p"></span>
+                    </button>
+                </template>
+                <button @click="nextPage" :disabled="page === totalPages" class="px-2 py-1 border rounded"
+                        :class="{ 'opacity-50 cursor-not-allowed': page === totalPages }">
+                    Next
+                </button>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener('alpine:init', () => {
+                Alpine.data('customerTable', () => ({
+                    customers: [],
+                    total: 0,
+                    page: 1,
+                    size: 20,
+                    query: {
+                        keyword: ''
+                    },
+
+                    async fetchCustomers() {
+                        const params = new URLSearchParams({
+                            page: this.page,
+                            size: this.size,
+                            search: this.query.keyword || ''
+                        });
+
+                        const res = await fetch(`/api/customer?${params.toString()}`);
+                        if (!res.ok) return alert('Failed to fetch customers');
+                        this.customers = await res.json();
+                        this.total = parseInt(res.headers.get("X-Total-Count"));
+                    },
+
+                    get totalPages() {
+                        return Math.ceil(this.total / this.size);
+                    },
+                    nextPage() {
+                        if (this.page < this.totalPages) {
+                            this.page++;
+                            this.fetchCustomers();
+                        }
+                    },
+                    prevPage() {
+                        if (this.page > 1) {
+                            this.page--;
+                            this.fetchCustomers();
+                        }
+                    },
+                    init() {
+                        this.fetchCustomers();
+                    }
+                }));
+            });
+        </script>
     </div>
+</div>
 
 </body>
 </html>

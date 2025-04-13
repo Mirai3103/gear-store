@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -29,6 +30,7 @@ public class Orders {
 
     @Column(name = "phone_number")
     private String phoneNumber;  // đổi phone_number -> phoneNumber
+
     private String address;
     private String note;
 
@@ -48,7 +50,12 @@ public class Orders {
 
 
     //    === Thông tin thanh toán
+    @JsonIgnore
     private String cardNumber;
+    @JsonIgnore
+
     private String cardExpiryDate;
+    @JsonIgnore
+
     private String cardCvv;
 }

@@ -1,6 +1,8 @@
 package com.ecom.service;
 
 import java.util.List;
+
+import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 import com.ecom.model.User;
 
@@ -34,4 +36,6 @@ public interface UserService {
 
     Boolean existsEmail(String email);
 
+
+    Page<User> getCustomers(int pageNo, int pageSize, String search);
 }

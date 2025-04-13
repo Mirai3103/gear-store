@@ -1,5 +1,6 @@
 package com.ecom.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -21,7 +22,7 @@ public class User {
 
     @Column(name = "phone_number")
     private String phoneNumber;
-
+@JsonIgnore
     private String password;
 
     private String role="ROLE_USER"; // Mặc định là ROLE_USER, có thể thay đổi nếu cần

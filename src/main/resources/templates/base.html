@@ -104,14 +104,13 @@
                 <a
                         sec:authorize="hasRole('USER')"
                         href="/user/my-profile"
-
                         class="navbar-nav-item flex items-center gap-1"
                 >
                     <i class="ri-user-line"></i>
 
                 </a>
                 <a
-                        sec:authorize="hasRole('ADMIN')">
+                        sec:authorize="hasRole('ADMIN')"
                     href="/Admin/Profile"
 
                     class="navbar-nav-item flex items-center gap-1"

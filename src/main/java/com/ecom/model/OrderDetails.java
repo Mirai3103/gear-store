@@ -1,5 +1,6 @@
 package com.ecom.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -19,6 +20,7 @@ public class OrderDetails {
     // Khóa ngoại order_id => map sang Orders
     @ManyToOne
     @JoinColumn(name = "order_id")
+    @JsonIgnore
     private Orders order;
 
     // Khóa ngoại product_id => map sang Product

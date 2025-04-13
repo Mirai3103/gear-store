@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
@@ -48,7 +51,7 @@ public class UserServiceImpl implements UserService {
     public Boolean updateAccountStatus(Integer id, Boolean status) {
         // nếu DB có cột "isEnable" thì set isEnable = status
         Optional<User> opt = userRepository.findById(id);
-        if(opt.isPresent()) {
+        if (opt.isPresent()) {
             User user = opt.get();
             // user.setIsEnable(status); // nếu có cột isEnable
             userRepository.save(user);
@@ -88,7 +91,7 @@ public class UserServiceImpl implements UserService {
     public void updateUserResetToken(String email, String resetToken) {
         // nếu dùng chức năng forgot password
         User user = userRepository.findByEmail(email);
-        if(user != null) {
+        if (user != null) {
             // user.setResetToken(resetToken);
             userRepository.save(user);
         }
@@ -110,7 +113,7 @@ public class UserServiceImpl implements UserService {
     public User updateUserProfile(User user, MultipartFile img) {
         // ví dụ upload ảnh profile
         User dbUser = userRepository.findById(user.getId()).orElse(null);
-        if(dbUser != null) {
+        if (dbUser != null) {
             // dbUser.setName(user.getName()); ...
             userRepository.save(dbUser);
         }
@@ -129,5 +132,14 @@ public class UserServiceImpl implements UserService {
     public Boolean existsEmail(String email) {
         // tuỳ logic: userRepository.existsByEmail(email)
         return false;
+    }
+
+    @Override
+    public Page<User> getCustomers(int pageNo, int pageSize, String search) {
+        Pageable pageable = Pageable.ofSize(pageSize).withPage(pageNo);
+        var searchQuery = "%" + search + "%";
+        var list = userRepository.searchCustomer(searchQuery, pageable);
+        var count = userRepository.countSearchCustomer(searchQuery);
+        return new PageImpl<>(list, pageable, count);
     }
 }
