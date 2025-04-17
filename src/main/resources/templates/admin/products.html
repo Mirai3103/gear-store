@@ -7,7 +7,110 @@
     <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet">
     <!-- Modal Content -->
-    <div class="modal-content !max-w-5xl">
+    <div class="modal-content !max-w-5xl" x-data="addProductModal">
+        <template x-teleport="body">
+            <div x-show="addModalOpen" x-cloak
+                 class="fixed inset-0 z-[999] flex items-center justify-center bg-black/40">
+                <div @click.outside="addModalOpen = false"
+                     class="bg-white w-full max-w-2xl mx-auto p-6 rounded-lg shadow-lg overflow-y-auto max-h-[90vh]">
+                    <h3 class="text-xl font-bold mb-4">Add New Product</h3>
+                    <form @submit.prevent="submitAddForm">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block mb-1 font-semibold">Name</label>
+                                <input required x-model="addForm.name" type="text" class="w-full border px-3 py-2 rounded"
+                                       minlength="3"/>
+                            </div>
+                            <div>
+                                <label class="block mb-1 font-semibold">Category</label>
+                                <select required x-model="addForm.categoryId" class="w-full border px-3 py-2 rounded">
+                                    <option value="" disabled>Select a category</option>
+                                    <template x-for="c in categories" :key="c.id">
+                                        <option :value="c.id" x-text="c.name"></option>
+                                    </template>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block mb-1 font-semibold">Price($)</label>
+                                <input required x-model="addForm.price" step="0.01" min="0" type="number"
+                                       class="w-full border px-3 py-2 rounded"/>
+                            </div>
+                            <div>
+                                <label class="block mb-1 font-semibold">Discount (%)</label>
+                                <input required x-model="addForm.discount" type="number" min="0" max="100"
+                                       class="w-full border px-3 py-2 rounded"/>
+                            </div>
+                            <div>
+                                <label class="block mb-1 font-semibold">Stock</label>
+                                <input required x-model="addForm.stock" type="number" min="0"
+                                       class="w-full border px-3 py-2 rounded"/>
+                            </div>
+                            <div>
+                                <label class="block mb-1 font-semibold">Main Image</label>
+                                <div class="mb-2 flex items-center space-x-2">
+                                    <template x-if="addForm.imageUrl">
+                                        <div class="relative">
+                                            <img :src="addForm.imageUrl" class="h-16 w-16 object-cover border rounded">
+                                            <button type="button" @click="clearMainImage"
+                                                    class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full h-5 w-5 flex items-center justify-center shadow">
+                                                <span>×</span>
+                                            </button>
+                                        </div>
+                                    </template>
+                                    <div class="flex-grow">
+                                        <input @change="handleAddFile($event, 'image')" type="file" class="w-full"
+                                               required/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="sm:col-span-2">
+                                <label class="block mb-1 font-semibold">Gallery Images</label>
+                                <div class="flex flex-wrap gap-2 mb-2">
+                                    <template x-for="(img, index) in addForm.galleryUrls" :key="index">
+                                        <div class="relative group">
+                                            <img :src="img" class="h-16 w-16 object-cover border rounded">
+                                            <button type="button" @click="removeAddGalleryImage(index)"
+                                                    class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full h-5 w-5 flex items-center justify-center shadow">
+                                                <span>×</span>
+                                            </button>
+                                        </div>
+                                    </template>
+                                    <label class="flex items-center justify-center border-2 border-dashed rounded h-16 w-16 cursor-pointer hover:bg-gray-50">
+                                        <input @change="addNewGalleryImages" type="file" multiple class="hidden"/>
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400" fill="none"
+                                             viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                  d="M12 4v16m8-8H4"/>
+                                        </svg>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="sm:col-span-2"
+                                 x-init="
+                        addQuill = new Quill(document.getElementById('addQuillEditor'), {
+                                            theme: 'snow',
+                                        });
+                        addQuill.on('text-change', () => addForm.description = addQuill.root.innerHTML);
+                    "
+                            >
+                                <label class="block mb-1 font-semibold">Description</label>
+                                <div id="addQuillEditor" class="bg-white border rounded h-40 overflow-auto"
+                                     style="max-height: 200px;"></div>
+                            </div>
+                        </div>
+                        <div class="flex justify-end space-x-2 mt-20">
+                            <button @click="addModalOpen = false" type="button"
+                                    class="px-4 py-2 border rounded hover:bg-gray-100">Cancel
+                            </button>
+                            <button type="submit"
+                                    class="px-4 py-2 text-white bg-green-600 hover:bg-green-700 rounded">Create Product
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </template>
+
         <!-- Close Button -->
         <button id="close-modal" class="modal-close-btn">&times;</button>
 
@@ -27,6 +130,9 @@
                         @input.debounce.500ms="fetchProducts"
                         class="px-4 py-2 border border-gray-300 focus:outline-none focus:ring-orange-600"
                 />
+                <button @click="openAddModal()" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                    Add Product
+                </button>
             </div>
 
             <!-- Table -->
@@ -241,24 +347,52 @@
                         </div>
                         <div>
                             <label class="block mb-1 font-semibold">Stock</label>
-                            <input required x-model="form.stock" type="number" min="0"
-                                   class="w-full border px-3 py-2 rounded"/>
+                            <input disabled x-model="form.stock" type="number" min="0"
+                                   class="w-full border px-3 py-2 rounded bg-gray-100"/>
+                            <small class="text-gray-500">Stock cannot be edited</small>
                         </div>
                         <div>
                             <label class="block mb-1 font-semibold">Main Image</label>
-                            <input @change="handleFile($event, 'image')" type="file" class="w-full"/>
+                            <div class="mb-2 flex items-center space-x-2">
+                                <template x-if="form.imageUrl">
+                                    <div class="relative">
+                                        <img :src="form.imageUrl" class="h-16 w-16 object-cover border rounded">
+                                    </div>
+                                </template>
+                                <div class="flex-grow">
+                                    <input @change="handleFile($event, 'image')" type="file" class="w-full"/>
+                                </div>
+                            </div>
                         </div>
-                        <div>
+                        <div class="sm:col-span-2">
                             <label class="block mb-1 font-semibold">Gallery Images</label>
-                            <input @change="handleFile($event, 'galleries')" type="file" multiple class="w-full"/>
+                            <div class="flex flex-wrap gap-2 mb-2">
+                                <template x-for="(img, index) in form.galleryUrls" :key="index">
+                                    <div class="relative group">
+                                        <img :src="img" class="h-16 w-16 object-cover border rounded">
+                                        <button type="button" @click="removeGalleryImage(index)"
+                                                class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full h-5 w-5 flex items-center justify-center shadow">
+                                            <span>×</span>
+                                        </button>
+                                    </div>
+                                </template>
+                                <label class="flex items-center justify-center border-2 border-dashed rounded h-16 w-16 cursor-pointer hover:bg-gray-50">
+                                    <input @change="addGalleryImages" type="file" multiple class="hidden"/>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400" fill="none"
+                                         viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                              d="M12 4v16m8-8H4"/>
+                                    </svg>
+                                </label>
+                            </div>
                         </div>
                         <div class="sm:col-span-2"
                              x-init="
-                           quill = new Quill(document.getElementById('quillEditor'), {
-                                                theme: 'snow',
-                                            });
-                            quill.on('text-change', () => form.description = quill.root.innerHTML);
-                        "
+                       quill = new Quill(document.getElementById('quillEditor'), {
+                                            theme: 'snow',
+                                        });
+                        quill.on('text-change', () => form.description = quill.root.innerHTML);
+                    "
                         >
                             <label class="block mb-1 font-semibold">Description</label>
                             <!-- Hiển thị Editor -->
@@ -266,7 +400,7 @@
                                  style="max-height: 200px;"></div>
                         </div>
                     </div>
-                    <div class="mt-6 flex justify-end space-x-2">
+                    <div class=" flex justify-end space-x-2 mt-20">
                         <button @click="modalOpen = false" type="button"
                                 class="px-4 py-2 border rounded hover:bg-gray-100">Cancel
                         </button>
@@ -288,9 +422,12 @@
                 price: '',
                 discount: '',
                 image: null,
+                imageUrl: null,
                 stock: '',
                 description: '',
-                galleries: []
+                galleries: [],
+                galleryUrls: [],
+                removedGalleryIds: []
             },
             quill: null,
             categories: [],
@@ -302,7 +439,6 @@
                 this.fetchProduct(id);
             },
 
-
             resetForm() {
                 this.form = {
                     id: null,
@@ -311,17 +447,43 @@
                     price: '',
                     discount: '',
                     image: null,
+                    imageUrl: null,
                     stock: '',
                     description: '',
-                    galleries: []
+                    galleries: [],
+                    galleryUrls: [],
+                    removedGalleryIds: []
                 };
             },
 
             handleFile(event, type) {
                 if (type === 'image') {
-                    this.form.image = event.target.files[0];
-                } else if (type === 'galleries') {
-                    this.form.galleries = Array.from(event.target.files);
+                    const file = event.target.files[0];
+                    if (file) {
+                        this.form.image = file;
+                        // Create preview URL
+                        this.form.imageUrl = URL.createObjectURL(file);
+                    }
+                }
+            },
+
+            addGalleryImages(event) {
+                const files = Array.from(event.target.files);
+                files.forEach(file => {
+                    this.form.galleries.push(file);
+                    this.form.galleryUrls.push(URL.createObjectURL(file));
+                });
+                // Clear input to allow selecting the same files again
+                event.target.value = '';
+            },
+
+            removeGalleryImage(index) {
+
+                this.form.removedGalleryIds.push(this.form.galleryUrls[index]);
+                // Remove from arrays
+                this.form.galleryUrls.splice(index, 1);
+                if (index < this.form.galleries.length) {
+                    this.form.galleries.splice(index, 1);
                 }
             },
 
@@ -338,6 +500,8 @@
                 try {
                     const res = await fetch(`/api/product/${id}`);
                     const data = await res.json();
+
+                    // Set form data
                     this.form = {
                         ...this.form,
                         id: data.id,
@@ -347,9 +511,15 @@
                         discount: data.discount,
                         stock: data.stock,
                         description: data.description,
+                        imageUrl: data.image, // Assuming this is the URL
                     };
+
+                    // Set gallery URLs
+                    if (data.galleries && data.galleries.length) {
+                        this.form.galleryUrls = data.galleries.map(gallery => gallery.thumbnail);
+                    }
+
                     setTimeout(() => {
-                        console.log(this.quill, '2');
                         this.quill.root.innerHTML = data.description;
                     }, 500);
                 } catch (err) {
@@ -360,14 +530,31 @@
 
             async submitForm() {
                 const formData = new FormData();
-                for (const key in this.form) {
-                    if (key === 'galleries') {
-                        this.form.galleries.forEach(file => formData.append('galleries', file));
-                    } else if (key === 'image' && this.form.image) {
-                        formData.append('image', this.form.image);
-                    } else {
-                        formData.append(key, this.form[key]);
-                    }
+
+                // Add basic fields
+                formData.append('id', this.form.id);
+                formData.append('name', this.form.name);
+                formData.append('categoryId', this.form.categoryId);
+                formData.append('price', this.form.price);
+                formData.append('discount', this.form.discount);
+                formData.append('stock', this.form.stock);
+                formData.append('description', this.form.description);
+
+                // Add main image if changed
+                if (this.form.image) {
+                    formData.append('image', this.form.image);
+                }
+
+                // Add new gallery images
+                this.form.galleries.forEach(file => {
+                    formData.append('galleries', file);
+                });
+
+                // Add removed gallery image IDs
+                if (this.form.removedGalleryIds.length > 0) {
+                    this.form.removedGalleryIds.forEach(id => {
+                        formData.append('removedGalleryIds', id);
+                    });
                 }
 
                 try {
@@ -383,13 +570,145 @@
                 } catch (err) {
                     alert('Failed to update product');
                 }
-
             }
         });
+
         document.addEventListener('alpine:init', () => {
             Alpine.data('editProductModal', window.editProductModal);
         });
+    </script>
 
+     <script>
+        window.addProductModal = () => ({
+            addModalOpen: false,
+            addForm: {
+                name: '',
+                categoryId: '',
+                price: '',
+                discount: '0',
+                image: null,
+                imageUrl: null,
+                stock: '',
+                description: '',
+                galleries: [],
+                galleryUrls: []
+            },
+            addQuill: null,
+            categories: [],
+
+            openAddModal() {
+                this.resetAddForm();
+                this.addModalOpen = true;
+                this.fetchCategories();
+
+                // Wait for quill editor to initialize
+                setTimeout(() => {
+                    if (this.addQuill) {
+                        this.addQuill.root.innerHTML = '';
+                    }
+                }, 500);
+            },
+
+            resetAddForm() {
+                this.addForm = {
+                    name: '',
+                    categoryId: '',
+                    price: '',
+                    discount: '0',
+                    image: null,
+                    imageUrl: null,
+                    stock: '',
+                    description: '',
+                    galleries: [],
+                    galleryUrls: []
+                };
+            },
+
+            handleAddFile(event, type) {
+                if (type === 'image') {
+                    const file = event.target.files[0];
+                    if (file) {
+                        this.addForm.image = file;
+                        // Create preview URL
+                        this.addForm.imageUrl = URL.createObjectURL(file);
+                    }
+                }
+            },
+
+            clearMainImage() {
+                this.addForm.image = null;
+                this.addForm.imageUrl = null;
+            },
+
+            addNewGalleryImages(event) {
+                const files = Array.from(event.target.files);
+                files.forEach(file => {
+                    this.addForm.galleries.push(file);
+                    this.addForm.galleryUrls.push(URL.createObjectURL(file));
+                });
+                // Clear input to allow selecting the same files again
+                event.target.value = '';
+            },
+
+            removeAddGalleryImage(index) {
+                this.addForm.galleryUrls.splice(index, 1);
+                this.addForm.galleries.splice(index, 1);
+            },
+
+            async fetchCategories() {
+                try {
+                    const res = await fetch('/api/category');
+                    this.categories = await res.json();
+                } catch (err) {
+                    alert('Failed to load categories');
+                }
+            },
+
+            async submitAddForm() {
+                if (!this.addForm.image) {
+                    alert('Please select a main image for the product');
+                    return;
+                }
+
+                const formData = new FormData();
+
+                // Add basic fields
+                formData.append('name', this.addForm.name);
+                formData.append('categoryId', this.addForm.categoryId);
+                formData.append('price', this.addForm.price);
+                formData.append('discount', this.addForm.discount);
+                formData.append('stock', this.addForm.stock);
+                formData.append('description', this.addForm.description);
+
+                // Add main image
+                formData.append('image', this.addForm.image);
+
+                // Add gallery images
+                this.addForm.galleries.forEach(file => {
+                    formData.append('galleries', file);
+                });
+
+                try {
+                    const res = await axios.post('/api/product', formData, {
+                        headers: {
+                            'Content-Type': 'multipart/form-data'
+                        }
+                    });
+
+                    alert('Product created successfully');
+                    this.addModalOpen = false;
+                    this.resetAddForm();
+                    window.fetchProducts && window.fetchProducts();
+                } catch (err) {
+                    console.error(err);
+                    alert('Failed to create product');
+                }
+            }
+        });
+
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('addProductModal', window.addProductModal);
+        });
     </script>
 </div>
 

@@ -16,7 +16,7 @@ public interface ProductService {
     /**
      * Lưu (hoặc tạo) sản phẩm mới.
      */
-    Product saveProduct(Product product);
+    Product saveProduct(ProductRequestDTO product);
 
     /**
      * Lấy tất cả sản phẩm (không phân trang).

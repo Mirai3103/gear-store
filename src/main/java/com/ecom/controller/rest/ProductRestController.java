@@ -33,6 +33,18 @@ public class ProductRestController {
         }
     }
 
+    @PostMapping(consumes = "multipart/form-data")
+    public ResponseEntity<Product> createProduct(
+            @ModelAttribute ProductRequestDTO productRequestDTO,
+            @RequestParam(value = "image", required = false) MultipartFile image,
+            @RequestParam(value = "galleries", required = false) List<MultipartFile> galleries) throws IOException {
+
+        productRequestDTO.setImage(image);
+        productRequestDTO.setGalleries(galleries);
+        Product product = productService.saveProduct(productRequestDTO);
+        return ResponseEntity.ok(product);
+    }
+
     @GetMapping()
     public ResponseEntity<List<Product>> getAllProducts(ProductQuery query, HttpServletResponse response) {
         List<Product> products = productService.getAllProductsByQuery(query);
@@ -65,8 +77,8 @@ public class ProductRestController {
     @PostMapping("/{id}/update")
     public ResponseEntity<Product> upload(
             @ModelAttribute ProductRequestDTO productRequestDTO,
-            @RequestParam(value = "image",required = false) MultipartFile image,
-            @RequestParam(value = "galleries",required = false) List<MultipartFile> galleries,
+            @RequestParam(value = "image", required = false) MultipartFile image,
+            @RequestParam(value = "galleries", required = false) List<MultipartFile> galleries,
             @PathVariable Integer id) throws IOException {
 
         productRequestDTO.setId(id);

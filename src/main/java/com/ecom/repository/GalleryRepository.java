@@ -12,5 +12,7 @@ public interface GalleryRepository extends JpaRepository<Gallery, Integer> {
     // Custom query methods can be defined here if needed
     // For example, you can add methods to find galleries by user or other criteria
     List<Gallery> findByProductId(Integer productId);
+
+    void deleteAllByProductIdAndThumbnail(Integer productId, String thumbnail);
     
 }

@@ -2,12 +2,14 @@ package com.ecom.service.impl;
 
 import com.ecom.dtos.requests.ProductQuery;
 import com.ecom.dtos.requests.ProductRequestDTO;
+import com.ecom.exceptions.NotFoundException;
 import com.ecom.model.Category;
 import com.ecom.model.Gallery;
 import com.ecom.model.Product;
 import com.ecom.repository.CategoryRepository;
 import com.ecom.repository.GalleryRepository;
 import com.ecom.repository.ProductRepository;
+import com.ecom.service.FileService;
 import com.ecom.service.ProductService;
 
 import jakarta.persistence.EntityManager;
@@ -50,12 +52,43 @@ public class ProductServiceImpl implements ProductService {
     private EntityManager entityManager;
     @Autowired
     private CategoryRepository categoryRepository;
+    @Autowired
+    private FileService fileService;
 
 
     @Override
-    public Product saveProduct(Product product) {
-        // Lưu sản phẩm mới
-        return productRepository.save(product);
+    public Product saveProduct(ProductRequestDTO product) {
+        var category = categoryRepository.findById(product.getCategoryId()).orElse(null);
+        if (category == null) throw new NotFoundException("Category not found");
+
+        Product newProduct = new Product();
+        newProduct.setName(product.getName());
+        newProduct.setCategory(category);
+        newProduct.setPrice(product.getPrice());
+        newProduct.setDiscount(product.getDiscount());
+        newProduct.setStock(product.getStock());
+        newProduct.setDescription(product.getDescription());
+
+        if (product.getImage() != null) {
+            String fileName = UUID.randomUUID() + "_" + product.getImage().getOriginalFilename();
+            String fileUrl = fileService.saveFile(product.getImage(), fileName);
+            newProduct.setImage(fileUrl);
+        }
+
+        Product savedProduct = productRepository.save(newProduct);
+
+        if (!CollectionUtils.isEmpty(product.getGalleries())) {
+            for (MultipartFile file : product.getGalleries()) {
+                String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+                String fileUrl = fileService.saveFile(file, fileName);
+                Gallery gallery = new Gallery();
+                gallery.setThumbnail(fileUrl);
+                gallery.setProduct(savedProduct);
+                galleryRepository.save(gallery);
+            }
+        }
+
+        return savedProduct;
     }
 
     @Override
@@ -82,7 +115,11 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Product getProductById(Integer id) {
         var product = productRepository.findById(id).orElse(null);
-        var galleries = galleryRepository.findByProductId(id);
+        var galleries = galleryRepository.findByProductId(id).stream().peek(g -> {
+            g.setProduct(null);
+        }).toList();
+        if (product != null)
+            product.setGalleries(galleries);
         return product;
     }
 
@@ -314,18 +351,13 @@ public class ProductServiceImpl implements ProductService {
 
                             byte[] data = pic.getPictureData().getData();
                             String ext = pic.getPictureData().suggestFileExtension(); // "png", "jpeg", etc.
-
-                            // tạo file name duy nhất
                             String filename = "image-" + UUID.randomUUID() + "." + ext;
-                            Path outputPath = Paths.get(staticDir, filename);
 
-                            // lưu ảnh ra disk
-                            Files.write(outputPath, data);
+                            String urlPath = fileService.saveFile(data, filename);
 
-                            // lưu path public cho FE
-                            String urlPath = "/imgs/" + filename;
                             imageMap.put(row + "_" + col, urlPath);
                         }
+
                     }
                 }
             }
@@ -383,26 +415,28 @@ public class ProductServiceImpl implements ProductService {
             return null;
         }
 
-
         if (image != null && !image.isEmpty()) {
-            try {
-                // Xóa ảnh cũ nếu có
-                String oldImagePath = product.getImage(); // "/imgs/abc.jpg"
-                if (oldImagePath != null && !oldImagePath.isEmpty()) {
-                    Path oldPath = Paths.get("src/main/resources/static" + oldImagePath);
-                    Files.deleteIfExists(oldPath);
-                }
-            } catch (Exception ignored) {
+            fileService.deleteFile(product.getImage());
+            String newImageUrl = fileService.saveFile(image, UUID.randomUUID() + "_" + image.getOriginalFilename());
+            product.setImage(newImageUrl);
+        }
+        if (!CollectionUtils.isEmpty(productRequestDTO.getRemovedGalleryIds())) {
+            for (String path : productRequestDTO.getRemovedGalleryIds()) {
+                galleryRepository.deleteAllByProductIdAndThumbnail(product.getId(), path);
+                fileService.deleteFile(path);
             }
-            // Ghi ảnh mới
-            String fileName = UUID.randomUUID() + "_" + image.getOriginalFilename();
-            Path newImagePath = Paths.get("src/main/resources/static/imgs/" + fileName);
-            Files.createDirectories(newImagePath.getParent());
-            Files.write(newImagePath, image.getBytes());
-
-            product.setImage("/imgs/" + fileName);
         }
 
+        if (!CollectionUtils.isEmpty(productRequestDTO.getGalleries())) {
+            for (MultipartFile file : productRequestDTO.getGalleries()) {
+                if (file.isEmpty()) continue;
+                String fileUrl = fileService.saveFile(file, UUID.randomUUID() + "_" + file.getOriginalFilename());
+                Gallery gallery = new Gallery();
+                gallery.setThumbnail(fileUrl);
+                gallery.setProduct(product);
+                galleryRepository.save(gallery);
+            }
+        }
         // Update các trường khác
         product.setName(productRequestDTO.getName());
         product.setCategory(category);
