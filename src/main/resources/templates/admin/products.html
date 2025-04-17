@@ -476,7 +476,6 @@
                 // Clear input to allow selecting the same files again
                 event.target.value = '';
             },
-
             removeGalleryImage(index) {
 
                 this.form.removedGalleryIds.push(this.form.galleryUrls[index]);
@@ -570,6 +569,9 @@
                 } catch (err) {
                     alert('Failed to update product');
                 }
+            },
+            init() {
+                this.fetchCategories();
             }
         });
 
@@ -595,7 +597,9 @@
             },
             addQuill: null,
             categories: [],
-
+            init() {
+                this.fetchCategories();
+            },
             openAddModal() {
                 this.resetAddForm();
                 this.addModalOpen = true;

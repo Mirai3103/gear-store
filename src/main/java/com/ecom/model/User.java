@@ -29,7 +29,7 @@ public class User {
 
     // Nếu diagram có cột "enable" (hoặc "is_enable"):
     @Column(name = "enable")
-    private Boolean enable;
+    private Boolean enable = true; // Mặc định là true
 
     // Nếu diagram có cột "note" (string)
     private String note;
@@ -39,5 +39,5 @@ public class User {
     private String profileImage;   // cột profile_image
     private String resetToken;     // cột reset_token
     // + getters, setters
-    
+
 }

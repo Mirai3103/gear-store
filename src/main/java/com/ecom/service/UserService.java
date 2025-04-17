@@ -38,4 +38,10 @@ public interface UserService {
 
 
     Page<User> getCustomers(int pageNo, int pageSize, String search);
+
+    void deleteUser(Integer uid);
+
+    void toggleLockUser(Integer uid);
+
+    void updateUserPassword(Integer uid, String password);
 }

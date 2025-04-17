@@ -4,6 +4,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import jakarta.transaction.Transactional;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -105,8 +107,21 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User updateUser(User user) {
-        // tuỳ logic
-        return userRepository.save(user);
+        var existingUser = userRepository.findById(user.getId());
+        if (existingUser.isPresent()) {
+            User dbUser = existingUser.get();
+            dbUser.setName(user.getName());
+            dbUser.setEmail(user.getEmail());
+            dbUser.setPhoneNumber(user.getPhoneNumber());
+            dbUser.setNote(user.getNote());
+            if (!StringUtils.isBlank(user.getPassword())) {
+                dbUser.setPassword(user.getPassword());
+            }
+
+            userRepository.save(dbUser);
+            return dbUser;
+        }
+        return null;
     }
 
     @Override
@@ -141,5 +156,33 @@ public class UserServiceImpl implements UserService {
         var list = userRepository.searchCustomer(searchQuery, pageable);
         var count = userRepository.countSearchCustomer(searchQuery);
         return new PageImpl<>(list, pageable, count);
+    }
+
+    @Override
+    @Transactional
+    public void deleteUser(Integer uid) {
+        // tuỳ logic
+        Optional<User> user = userRepository.findById(uid);
+        user.ifPresent(value -> userRepository.delete(value));
+    }
+
+    @Override
+    public void toggleLockUser(Integer uid) {
+        Optional<User> user = userRepository.findById(uid);
+        if (user.isPresent()) {
+            User u = user.get();
+            u.setEnable(u.getEnable() == null || !u.getEnable());
+            userRepository.save(u);
+        }
+    }
+
+    @Override
+    public void updateUserPassword(Integer uid, String password) {
+        var user = userRepository.findById(uid);
+        if (user.isPresent()) {
+            User u = user.get();
+            u.setPassword(passwordEncoder.encode(password));
+            userRepository.save(u);
+        }
     }
 }

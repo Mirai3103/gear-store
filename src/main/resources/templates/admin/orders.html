@@ -81,7 +81,29 @@
                                         x-text="selectedOrder.email || selectedOrder.user.email"></span></p>
                                 <p><strong>Phone:</strong> <span x-text="selectedOrder.phoneNumber"></span></p>
                                 <p><strong>Address:</strong> <span x-text="selectedOrder.address"></span></p>
-                                <p><strong>Status:</strong> <span x-text="selectedOrder.status"></span></p>
+                                <div class="flex items-center">
+                                    <strong class="mr-2">Status:</strong>
+                                    <div class="flex items-center">
+
+                       
+                                        <span x-text="selectedOrder.status" class="mr-2"></span>
+                                        <select x-model="newStatus" class="border rounded p-1 text-sm">
+                                            <option value="">Change status</option>
+                                            <option value="Order Received">Pending</option>
+                                            <option value="In Progress">Processing</option>
+                                            <option value="Delivered">Delivered</option>
+                                            <option value="Cancelled">Cancelled</option>
+                                            <option value="Success">Success</option>
+                                        </select>
+                                        <button
+                                                @click="updateOrderStatus(selectedOrder.id)"
+                                                class="ml-2 px-2 py-1 text-xs bg-orange-500 text-white rounded hover:bg-orange-600"
+                                                :disabled="!newStatus"
+                                                :class="{'opacity-50 cursor-not-allowed': !newStatus}">
+                                            Update
+                                        </button>
+                                    </div>
+                                </div>
                                 <p><strong>Payment:</strong> <span x-text="selectedOrder.paymentType"></span></p>
                                 <p><strong>Order Date:</strong> <span x-text="selectedOrder.orderDate"></span></p>
                                 <p class="sm:col-span-2"><strong>Total:</strong> $<span
@@ -129,6 +151,7 @@
                     },
                     detailModal: false,
                     selectedOrder: null,
+                    newStatus: '',
 
                     async fetchOrders() {
                         const params = new URLSearchParams({
@@ -144,7 +167,42 @@
 
                     showDetail(order) {
                         this.selectedOrder = order;
+                        this.newStatus = ''; // Reset the status dropdown
                         this.detailModal = true;
+                    },
+
+                    async updateOrderStatus(orderId) {
+                        if (!this.newStatus) return;
+
+                        try {
+                            const response = await fetch(`/api/order/${orderId}/status?status=${this.newStatus}`, {
+                                method: 'PATCH',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                }
+                            });
+
+                            if (!response.ok) {
+                                throw new Error('Failed to update order status');
+                            }
+
+                            const updatedOrder = await response.json();
+
+                            // Update the order in the orders list
+                            const index = this.orders.findIndex(o => o.id === orderId);
+                            if (index !== -1) {
+                                this.orders[index].status = updatedOrder.status;
+                            }
+
+                            // Update the selected order
+                            this.selectedOrder.status = updatedOrder.status;
+                            this.newStatus = ''; // Reset the dropdown
+
+                            // Show success notification
+                            alert('Order status updated successfully');
+                        } catch (error) {
+                            alert(error.message);
+                        }
                     },
 
                     get totalPages() {

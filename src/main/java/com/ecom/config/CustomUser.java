@@ -38,7 +38,7 @@ public class CustomUser implements UserDetails {
     }
 
     @Override
-    public boolean isAccountNonExpired() {
-        return true;
+    public boolean isEnabled() {
+        return user.getEnable();
     }
 }

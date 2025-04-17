@@ -1,90 +1,172 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{base :: page_head()}"></head>
+<head th:replace="~{base :: page_head()}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://unpkg.com/alpinejs" defer></script>
+</head>
 <body>
 
-    <div th:fragment="reportModal" id="report" class="modal-container hidden">
-        <div class=" modal-content h-150 overflow-y-auto">
-            <!-- Close Button -->
-            <button id="close-modal" class="modal-close-btn">&times;</button>
+<!-- Modal Report -->
+<div th:fragment="reportModal"
+     id="report"
+     class="modal-container hidden"
+     x-data="reportModal()"
+     x-init="fetchReportData()">
 
-            <!-- Title Section -->
-            <div class="modal-title mb-4">
-                <h2 class="text-xl font-semibold">Report</h2>
-            </div>
+    <div class="modal-content h-150 overflow-y-auto">
+        <!-- Close Button -->
+        <button id="close-modal" class="modal-close-btn">&times;</button>
 
-            <div class="section-header">
-                <dl>
-                    <dt class="dt">Profit</dt>
-                    <dd class="dd">$5,405</dd>
-                </dl>
-                <div>
-                    <span class="profit-rate-up">
-                        <svg class="profit-rate-content" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 14">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13V1m0 0L1 5m4-4 4 4"/>
-                        </svg>
-                        Profit rate 23.5%
-                    </span>
-                </div>
-            </div>
+        <!-- Title Section -->
+        <div class="modal-title mb-4">
+            <h2 class="text-xl font-semibold">Report</h2>
+        </div>
 
-            <div class="profit-grid">
-                <dl>
-                    <dt class="dt">Income</dt>
-                    <dd class="dt-profit">$23,635</dd>
-                </dl>
-                <dl>
-                    <dt class="dt">Expense</dt>
-                    <dd class="dt-expense">-$18,230</dd>
-                </dl>
+        <!-- Header Profit -->
+        <div class="section-header">
+            <dl>
+                <dt class="dt">Profit</dt>
+                <dd class="dd" x-text="formatCurrency(profit)">$0</dd>
+            </dl>
+            <div>
+                <span class="profit-rate-up">
+                    <svg class="profit-rate-content" xmlns="http://www.w3.org/2000/svg"
+                         fill="none" viewBox="0 0 10 14">
+                        <path stroke="currentColor" stroke-linecap="round"
+                              stroke-linejoin="round" stroke-width="2"
+                              d="M5 13V1m0 0L1 5m4-4 4 4"/>
+                    </svg>
+                    Profit rate <span x-text="profitRate + '%'">0%</span>
+                </span>
             </div>
+        </div>
 
-            <div class="chart">
-                <canvas id="bar-chart"></canvas>
-            </div>
+        <!-- Income / Expense Summary -->
+        <div class="profit-grid">
+            <dl>
+                <dt class="dt">Income</dt>
+                <dd class="dt-profit" x-text="formatCurrency(totalIncome)">$0</dd>
+            </dl>
+            <dl>
+                <dt class="dt">Expense</dt>
+                <dd class="dt-expense" x-text="'-' + formatCurrency(totalExpense)">$0</dd>
+            </dl>
+        </div>
 
-            <div class="mt-6 section-header">
-                <h2 class="dt">Sales Share</h2>
-            </div>
-            
-            <div class="chart">
-                <canvas id="pie-chart"></canvas>
-            </div>
-
-            <div class="mt-6 section-header">
-                <h2 class="dt">Sale ShareShare</h2>
-            </div>
-
-            <div class="pt-4">
-                <div th:replace="~{base :: table(rows=${rows}, headers=${headers})}"></div>
-            </div>
-
-            <div class="utils-grid">
-                <div class="utils-content">
-                    <!-- Dropdown Button -->
-                    <div class="product-list-select">
-                        <select class="product-sort-select">
-                            <option>Yesterday</option>
-                            <option>This Month</option>
-                            <option>Previous Month</option>
-                            <option>Current Quarter</option>
-                            <option>Last Quarter</option>
-                            <option>Last Year</option>
-                        </select>
-                    </div>
-  
-                    <!-- Revenue Report Button (Aligned to Right) -->
-                    <button
-                        type="submit"
-                        class="contact-btn ml-auto"
-                    >
-                        <span class="contact-btn-text">Export</span>
-                    </button>
-                </div>
-            </div>
-            <!-- End of Financial Summary Card -->
+        <!-- Chart Section -->
+        <div class="chart">
+            <canvas id="bar-chart" class="w-full h-96"></canvas>
         </div>
     </div>
+    <script>
+        function reportModal() {
+            return {
+                profit: 0,
+                totalIncome: 0,
+                totalExpense: 0,
+                profitRate: 0,
+                chart: null,
+                barData: {
+                    labels: [],
+                    income: [],
+                    expense: []
+                },
+
+                fetchReportData() {
+                    axios.get('/api/report/monthly', {
+                        params: {year: new Date().getFullYear()}
+                    })
+                        .then(response => {
+                            const data = response.data;
+                            this.totalIncome = data.totalIncome;
+                            this.totalExpense = data.totalExpense;
+                            this.profit = data.profit;
+                            this.profitRate = data.profitRate;
+
+                            this.barData.labels = data.monthlyData.map(m => m.month);
+                            this.barData.income = data.monthlyData.map(m => m.income);
+                            this.barData.expense = data.monthlyData.map(m => m.expense);
+
+                            this.renderChart();
+                        })
+                        .catch(err => {
+                            console.error("Report API error:", err);
+                        });
+                },
+
+                formatCurrency(amount) {
+                    return '$' + amount.toLocaleString();
+                },
+
+                renderChart() {
+                    const ctx = document.getElementById("bar-chart").getContext("2d");
+
+                    if (this.chart) {
+                        this.chart.destroy();
+                    }
+
+                    this.chart = new Chart(ctx, {
+                        type: "bar",
+                        data: {
+                            labels: this.barData.labels,
+                            datasets: [
+                                {
+                                    label: "Income",
+                                    data: this.barData.income,
+                                    backgroundColor: "rgba(46, 204, 113, 0.8)", // Green
+                                    borderColor: "rgba(46, 204, 113, 1)",
+                                    borderWidth: 1
+                                },
+                                {
+                                    label: "Expense",
+                                    data: this.barData.expense,
+                                    backgroundColor: "rgba(231, 76, 60, 0.8)", // Red
+                                    borderColor: "rgba(231, 76, 60, 1)",
+                                    borderWidth: 1
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            indexAxis: 'y',
+                            plugins: {
+                                legend: {
+                                    position: "bottom",
+                                    labels: {
+                                        color: "#A0A0A0",
+                                        font: {size: 14}
+                                    }
+                                }
+                            },
+                            scales: {
+                                x: {beginAtZero: true, stacked: true},
+                                y: {stacked: true}
+                            }
+                        }
+                    });
+                }
+            };
+        }
+
+        // Optional: Fetch again when modal shows
+        document.addEventListener("DOMContentLoaded", function () {
+            const modal = document.getElementById("report");
+
+            const observer = new MutationObserver(() => {
+                if (!modal.classList.contains("hidden")) {
+                    modal._x_dataStack[0].fetchReportData(); // trigger again if modal opened
+                }
+            });
+
+            observer.observe(modal, {attributes: true});
+        });
+    </script>
+
+</div>
+
+<!-- AlpineJS Component -->
 
 </body>
 </html>
