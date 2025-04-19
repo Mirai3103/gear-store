@@ -6,7 +6,7 @@
 <!-- Product Card Fragment -->
 <!-- Parameters: imageUrl, name, price, id -->
 <a th:href="@{'/product-view/' + ${id}}"
-   th:fragment="productCard(image, name, price, id, discount)"
+   th:fragment="productCard(image, name, price, id, discount,finalPrice)"
    class="group block overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-300 bg-white relative">
     <!-- Discount Badge -->
     <div th:if="${discount > 0}"
@@ -23,9 +23,9 @@
         <h3 class="text-gray-900 font-medium line-clamp-2 mb-2" th:text="${name}"></h3>
 
         <div class="flex items-center gap-2">
-            <span class="text-lg font-bold text-red-600"
-                  th:text="${discount > 0} ? ${price - discount} + '$' : ${price} + '$'">
-            </span>
+           <span class="text-lg font-bold text-red-600"
+                 th:text="${discount > 0 ? finalPrice : price} + '$'">
+</span>
 
             <span th:if="${discount > 0}"
                   class="text-sm text-gray-400 line-through"

@@ -84,6 +84,15 @@ public class Product {
         return Math.round(finalPrice * 100.0) / 100.0;
     }
 
+    @Column(name = "final_price", columnDefinition = "DOUBLE DEFAULT 0")
+    private Double finalPrice;
+
+    @PrePersist
+    @PreUpdate
+    public void calculateFinalPrice() {
+        finalPrice = getFinalPrice();
+    }
+
 
     @Transient
     private List<Gallery> galleries;

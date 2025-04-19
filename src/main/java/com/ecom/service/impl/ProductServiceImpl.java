@@ -259,10 +259,10 @@ public class ProductServiceImpl implements ProductService {
                     cq.orderBy(cb.desc(productRoot.get("name")));
                     break;
                 case PRICE_LOW_TO_HIGH:
-                    cq.orderBy(cb.asc(productRoot.get("price")));
+                    cq.orderBy(cb.asc(productRoot.get("finalPrice")));
                     break;
                 case PRICE_HIGH_TO_LOW:
-                    cq.orderBy(cb.desc(productRoot.get("price")));
+                    cq.orderBy(cb.desc(productRoot.get("finalPrice")));
                     break;
                 case DATE_OLD_TO_NEW:
                     cq.orderBy(cb.asc(productRoot.get("createdAt")));
@@ -319,11 +319,11 @@ public class ProductServiceImpl implements ProductService {
         }
 
         if (query.getPriceFrom() != null) {
-            predicates.add(cb.greaterThanOrEqualTo(productRoot.get("price"), query.getPriceFrom()));
+            predicates.add(cb.greaterThanOrEqualTo(productRoot.get("finalPrice"), query.getPriceFrom()));
         }
 
         if (query.getPriceTo() != null) {
-            predicates.add(cb.lessThanOrEqualTo(productRoot.get("price"), query.getPriceTo()));
+            predicates.add(cb.lessThanOrEqualTo(productRoot.get("finalPrice"), query.getPriceTo()));
         }
 
         return predicates.toArray(new Predicate[0]);
