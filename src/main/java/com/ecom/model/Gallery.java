@@ -2,6 +2,8 @@ package com.ecom.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Getter
 @Setter
@@ -17,8 +19,10 @@ public class Gallery {
     private Integer id;
 
     // product_id -> Product
-    @ManyToOne
+    @ManyToOne()
     @JoinColumn(name = "product_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+
     private Product product;
 
     private String thumbnail; // cột thumbnail (varchar(255)) theo diagram

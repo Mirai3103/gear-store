@@ -106,6 +106,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Boolean deleteProduct(Integer id) {
         Product product = productRepository.findById(id).orElse(null);
+
         if (product != null) {
             productRepository.delete(product);
             return true;

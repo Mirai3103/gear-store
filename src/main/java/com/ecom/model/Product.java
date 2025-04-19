@@ -2,6 +2,10 @@ package com.ecom.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+import org.hibernate.annotations.SQLRestriction;
+import org.hibernate.annotations.Where;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -13,6 +17,7 @@ import java.util.List;
 @Entity
 @Builder
 @Table(name = "Product") // Tên bảng trong DB
+@SQLRestriction("is_deleted = false")
 public class Product {
 
     @Id
@@ -30,6 +35,8 @@ public class Product {
      */
     @ManyToOne(fetch = FetchType.EAGER) // Nhiều sản phẩm thuộc về 1 danh mục
     @JoinColumn(name = "category_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+
     private Category category;
 
     @Column(name = "price") // cột DB = price (varchar)
@@ -78,4 +85,7 @@ public class Product {
 
     @Transient
     private List<Gallery> galleries;
+    @Column(name = "is_deleted", columnDefinition = "BIT DEFAULT 0")
+
+    private boolean isDeleted = false; // Trạng thái sản phẩm đã xóa hay chưa
 }

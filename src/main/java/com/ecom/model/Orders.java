@@ -34,7 +34,7 @@ public class Orders {
     private String address;
     private String note;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "order", orphanRemoval = true, fetch = FetchType.EAGER)
     private List<OrderDetails> orderDetails = new ArrayList<>();
 
     @Column(name = "total_money")

@@ -43,7 +43,7 @@
                 Category: <span class="product-view-content-text" th:text="${product.category.name}"></span>
             </p>
             <div class="product-view-price">
-                <p class="product-view-discount" th:text="'$' + ${product.price}"></p>
+                <p class="product-view-discount" th:text="'$' + ${product.getFinalPrice()}"></p>
                 <p
                         th:if="${product.discount != null&& product.discount > 0}"
                         class="product-view-original-price" th:text="'$' + ${product.price}"></p>

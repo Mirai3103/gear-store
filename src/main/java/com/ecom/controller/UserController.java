@@ -86,7 +86,7 @@ public class UserController {
         m.addAttribute("carts", carts);
         double totalOrderPrice = 0.0;
         for (Cart c : carts) {
-            String priceStr = c.getProduct().getPrice().toString();
+            String priceStr = c.getProduct().getFinalPrice().toString();
             double numericPrice = Double.parseDouble(priceStr);
             double lineTotal = numericPrice * c.getQuantity();
             totalOrderPrice += lineTotal;

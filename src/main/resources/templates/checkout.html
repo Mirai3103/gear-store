@@ -12,7 +12,7 @@
                 <h2 class="express-title text-xl font-bold mb-4">Express Checkout
                     <span x-text="selected ? ' - ' + selected : ''"></span>
                 </h2>
-                <input type="hidden" name="paymentMethod" x-bind:value="selected" th:field="*{paymentType}"/>
+                <input type="hidden" name="paymentMethod" x-bind:value="selected" th:field="*{paymentType}" required/>
 
                 <!-- Cash on Delivery Button -->
                 <button
@@ -65,16 +65,25 @@
                                 <label class="payment-label" for="cardNumber">Card number</label>
                                 <input class="payment-input" id="cardNumber" type="text"
                                        placeholder="0000 0000 0000 0000"
+                                       pattern="[0-9]{13,19}"
+                                       maxlength="19"
+                                       x-bind:required="selected === 'card'"
                                        th:field="*{cardNumber}">
                             </div>
                             <div>
                                 <label class="payment-label" for="expiryDate">Expiry Date</label>
                                 <input class="payment-input" id="expiryDate" type="text" placeholder="MM/YY"
+                                       pattern="(0[1-9]|1[0-2])\/([0-9]{2})"
+                                       maxlength="5"
+                                       x-bind:required="selected === 'card'"
                                        th:field="*{cardExpiryDate}">
                             </div>
                             <div>
                                 <label class="payment-label" for="cvv">CVC/CVV</label>
                                 <input class="payment-input" id="cvv" type="password" placeholder="..."
+                                       pattern="[0-9]{3,4}"
+                                       maxlength="4"
+                                       x-bind:required="selected === 'card'"
                                        th:field="*{cardCvv}">
                             </div>
                         </div>
@@ -83,45 +92,46 @@
             </div>
         </div>
 
-
         <!-- Delivery Information -->
         <h2 class="delivery-title">Delivery Information</h2>
         <div class="delivery-box">
             <div class="delivery-grid">
                 <div class="col-span-2">
                     <label class="payment-label" for="fullName">Full Name</label>
-                    <input required class="payment-input " id="fullName" type="text" th:field="*{fullName}"
-                           placeholder="John Doe">
+                    <input required class="payment-input" id="fullName" type="text" th:field="*{fullName}"
+                           placeholder="John Doe" minlength="2" maxlength="100">
                 </div>
                 <div class="col-span-2">
                     <label class="payment-label" for="address">Address</label>
-                    <input required class=" payment-input" id="address" type="text" th:field="*{address}"
-                           placeholder="1234 Main St">
+                    <input required class="payment-input" id="address" type="text" th:field="*{address}"
+                           placeholder="1234 Main St" minlength="5" maxlength="200">
                 </div>
                 <div>
                     <label class="payment-label" for="city">City</label>
-                    <input required class=" payment-input" id="city" type="text" th:field="*{city}"
-                           placeholder="New York">
+                    <input required class="payment-input" id="city" type="text" th:field="*{city}"
+                           placeholder="New York" minlength="2" maxlength="50">
                 </div>
                 <div>
                     <label class="payment-label" for="zip">Zip Code</label>
-                    <input required class=" payment-input" id="zip" type="text" th:field="*{zip}"
-                           placeholder="10001">
+                    <input required class="payment-input" id="zip" type="text" th:field="*{zip}"
+                           placeholder="10001" pattern="[0-9]{5,10}" maxlength="10">
                 </div>
                 <div>
                     <label class="payment-label" for="country">Region/Country</label>
-                    <input required class=" payment-input" id="country" type="text" th:field="*{country}"
-                           placeholder="United States">
+                    <input required class="payment-input" id="country" type="text" th:field="*{country}"
+                           placeholder="United States" minlength="2" maxlength="50">
                 </div>
                 <div>
                     <label class="payment-label" for="state">State</label>
-                    <input required class=" payment-input" id="state" type="text" th:field="*{state}"
-                           placeholder="New York">
+                    <input required class="payment-input" id="state" type="text" th:field="*{state}"
+                           placeholder="New York" minlength="2" maxlength="50">
                 </div>
                 <div class="col-span-2">
                     <label class="payment-label" for="phone">Phone</label>
-                    <input required class=" payment-input" id="phone" type="text" th:field="*{phone}"
-                           placeholder="(123) 456-7890">
+                    <input required class="payment-input" id="phone" type="tel" th:field="*{phone}"
+                           placeholder="(123) 456-7890"
+                           pattern="[0-9+\-\s()]{7,20}"
+                           maxlength="20">
                 </div>
             </div>
         </div>
@@ -141,7 +151,8 @@
                 <div class="coupon-section">
                     <label class="payment-label">Discount Code</label>
                     <div class="coupon-input-container">
-                        <input class="coupon-input" type="text" th:field="*{discountCode}" placeholder="Enter code">
+                        <input class="coupon-input" type="text" th:field="*{discountCode}" placeholder="Enter code"
+                               maxlength="20">
                         <button class="coupon-button" type="button">Apply</button>
                     </div>
                 </div>

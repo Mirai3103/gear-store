@@ -32,10 +32,13 @@ public class ImportRestController {
     }
 
     private ImportDetails briefImportDetails(ImportDetails details) {
-        details.getProduct()
-                .setDescription(null);
-        details.getProduct()
-                .setGalleries(null);
+        if(details.getProduct() != null) {
+            details.getProduct()
+                    .setDescription(null);
+            details.getProduct()
+                    .setGalleries(null);
+        }
+
         details.setImportRecord(null);
         return details;
     }

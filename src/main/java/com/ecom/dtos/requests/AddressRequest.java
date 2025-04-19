@@ -41,7 +41,6 @@ public class AddressRequest {
     private String phone;
 
     @NotBlank(message = "ZIP code is required")
-    @Size(max = 10, message = "ZIP code must be at most 10 characters")
     private String zip;
     private int userId;
 

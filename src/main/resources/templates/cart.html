@@ -37,7 +37,7 @@
                         <div>
                             <h3 class="product-title" th:text="${cart.product.name}">Product Name</h3>
                             <p class="product-price"
-                               th:text="'$' + ${#numbers.formatDecimal(cart.product.price, 1, 2)}">Price</p>
+                               th:text="'$' + ${#numbers.formatDecimal(cart.product.getFinalPrice(), 1, 2)}">Price</p>
                             <!-- Add category if needed -->
                             <p class="product-edition" th:if="${cart.product.category != null}"
                                th:text="'Category: ' + ${cart.product.category.name}">Category</p>
@@ -74,7 +74,7 @@
                     </div>
                     <div class="text-right font-semibold text-gray-800 lg:text-left justify-self-end">
                         <!-- Calculate line total: price * quantity -->
-                        <span th:text="'$' + ${#numbers.formatDecimal(cart.product.price * cart.quantity, 1, 2)}">Line Total</span>
+                        <span th:text="'$' + ${#numbers.formatDecimal(cart.product.getFinalPrice() * cart.quantity, 1, 2)}">Line Total</span>
                     </div>
                 </div>
             </div>
