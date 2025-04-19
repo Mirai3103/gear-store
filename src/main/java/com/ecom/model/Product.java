@@ -80,8 +80,10 @@ public class Product {
     private String description;
 
     public Double getFinalPrice() {
-        return (price - (price * (discount * 1.0) / 100));
+        double finalPrice = price - (price * (discount * 1.0) / 100);
+        return Math.round(finalPrice * 100.0) / 100.0;
     }
+
 
     @Transient
     private List<Gallery> galleries;
