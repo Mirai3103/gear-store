@@ -6,6 +6,7 @@ import com.ecom.model.Cart;
 import com.ecom.model.User;
 import com.ecom.service.CartService;
 import com.ecom.service.UserService;
+import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -125,4 +126,38 @@ public class UserRestController {
         return ResponseEntity.ok(Map.of("status", "success",
                 "message", "Password updated successfully"));
     }
+
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<Map<String, Object>> resetPassword(@RequestBody Map<String, String> request) throws MessagingException {
+        String email = request.get("email");
+        userService.sendResetPassword(email);
+
+        return ResponseEntity.ok(Map.of("status", "success",
+                "message", "Reset password link sent successfully"));
+    }
+
+    @PatchMapping("/reset-password")
+    public ResponseEntity<Map<String, Object>> changePassword(@RequestBody Map<String, String> request) {
+        String token = request.get("token");
+        String newPassword = request.get("password");
+        User user = userService.getUserByToken(token);
+        if (user == null) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("status", "error",
+                            "message", "Invalid token"));
+        }
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userService.updateUser(user);
+        return ResponseEntity.ok(Map.of("status", "success",
+                "message", "Password reset successfully"));
+    }
+
+    @GetMapping("isEmailExist")
+    public ResponseEntity<Map<String, Object>> isEmailExist(@RequestParam String email) {
+        boolean exists = userService.existsEmail(email);
+        return ResponseEntity.ok(Map.of("status", "success",
+                "isExist", exists));
+    }
+
 }

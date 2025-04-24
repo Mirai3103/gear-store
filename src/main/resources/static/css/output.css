@@ -615,9 +615,6 @@
   .ml-3 {
     margin-left: calc(var(--spacing) * 3);
   }
-  .ml-auto {
-    margin-left: auto;
-  }
   .line-clamp-2 {
     overflow: hidden;
     display: -webkit-box;
@@ -677,6 +674,9 @@
   }
   .h-40 {
     height: calc(var(--spacing) * 40);
+  }
+  .h-96 {
+    height: calc(var(--spacing) * 96);
   }
   .h-150 {
     height: calc(var(--spacing) * 150);
@@ -1227,6 +1227,9 @@
   }
   .text-gray-900 {
     color: var(--color-gray-900);
+  }
+  .text-green-500 {
+    color: var(--color-green-500);
   }
   .text-green-600 {
     color: var(--color-green-600);

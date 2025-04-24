@@ -2,6 +2,7 @@ package com.ecom.service;
 
 import java.util.List;
 
+import jakarta.mail.MessagingException;
 import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 import com.ecom.model.User;
@@ -44,4 +45,6 @@ public interface UserService {
     void toggleLockUser(Integer uid);
 
     void updateUserPassword(Integer uid, String password);
+
+    void sendResetPassword(String email) throws MessagingException;
 }

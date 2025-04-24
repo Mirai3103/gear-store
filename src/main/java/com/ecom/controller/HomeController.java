@@ -259,16 +259,21 @@ public class HomeController {
     }
 
     @GetMapping("/reset-password")
-    public String showResetPassword(@RequestParam String token,
-                                    HttpSession session,
+    public String showResetPassword(@RequestParam(required = false) String token,
                                     Model m) {
-        User userByToken = userService.getUserByToken(token);
-        if (userByToken == null) {
-            m.addAttribute("msg", "Your link is invalid or expired !!");
-            return "message";
+        if (!org.apache.commons.lang3.StringUtils.isBlank(token)) {
+            User userByToken = userService.getUserByToken(token);
+            if (userByToken == null) {
+                m.addAttribute("error", "Your link is invalid or expired !!");
+                m.addAttribute("isTokenValid", false);
+
+                return "reset-password";
+            }
+            m.addAttribute("token", token);
+            m.addAttribute("email", userByToken.getEmail());
+            m.addAttribute("isTokenValid", true);
         }
-        m.addAttribute("token", token);
-        return "reset_password";
+        return "reset-password";
     }
 
     @PostMapping("/reset-password")
