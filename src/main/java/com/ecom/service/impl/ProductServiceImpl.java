@@ -430,25 +430,27 @@ public class ProductServiceImpl implements ProductService {
             }
         }
 
-        if (!CollectionUtils.isEmpty(productRequestDTO.getGalleries())) {
-            for (MultipartFile file : productRequestDTO.getGalleries()) {
-                if (file.isEmpty()) continue;
-                String fileUrl = fileService.saveFile(file, UUID.randomUUID() + "_" + file.getOriginalFilename());
-                Gallery gallery = new Gallery();
-                gallery.setThumbnail(fileUrl);
-                gallery.setProduct(product);
-                galleryRepository.save(gallery);
-            }
-        }
-        // Update các trường khác
+
         product.setName(productRequestDTO.getName());
         product.setCategory(category);
         product.setPrice(productRequestDTO.getPrice());
         product.setDiscount(productRequestDTO.getDiscount());
         product.setStock(productRequestDTO.getStock());
         product.setDescription(productRequestDTO.getDescription());
-
-        return productRepository.save(product);
+        product.setGalleries(null);
+        var res = productRepository.save(product);
+        if (!CollectionUtils.isEmpty(productRequestDTO.getGalleries())) {
+            for (MultipartFile file : productRequestDTO.getGalleries()) {
+                if (file.isEmpty()) continue;
+                String fileUrl = fileService.saveFile(file, UUID.randomUUID() + "_" + file.getOriginalFilename());
+                Gallery gallery = new Gallery();
+                gallery.setId(null);
+                gallery.setThumbnail(fileUrl);
+                gallery.setProduct(product);
+                galleryRepository.save(gallery);
+            }
+        }
+        return res;
     }
 
 

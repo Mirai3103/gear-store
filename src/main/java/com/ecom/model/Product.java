@@ -8,6 +8,7 @@ import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.annotations.Where;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -94,8 +95,9 @@ public class Product {
     }
 
 
-    @Transient
-    private List<Gallery> galleries;
+    @OneToMany(mappedBy = "product", fetch = FetchType.EAGER)
+    @org.hibernate.annotations.Immutable
+    private List<Gallery> galleries = new ArrayList<>();
     @Column(name = "is_deleted", columnDefinition = "BIT DEFAULT 0")
 
     private boolean isDeleted = false; // Trạng thái sản phẩm đã xóa hay chưa

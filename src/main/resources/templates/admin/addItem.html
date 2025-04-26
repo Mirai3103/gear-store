@@ -11,24 +11,27 @@
         <button id="close-modal" class="modal-close-btn">&times;</button>
 
         <!-- Title Section -->
-       <div class="flex gap-2 justify-center w-full items-center">
-           <div class="modal-title">
-               <h2>Excel File Upload</h2>
-           </div>
-           <div class="flex justify-end">
-               <a href="/upload_product_example.xlsx" download
-                  class="inline-flex items-center gap-2 px-4 py-2 border border-black text-black text-sm rounded-md hover:bg-black hover:text-white transition">
-                   <i class="ri-download-line text-lg"></i>
-                   Download Template
-               </a>
-           </div>
-       </div>
+        <div class="flex gap-2 justify-center w-full items-center">
+            <div class="modal-title">
+                <h2>Excel File Upload</h2>
+            </div>
+            <div class="flex justify-end">
+                <a href="/upload_product_example.xlsx" download
+                   class="inline-flex items-center gap-2 px-4 py-2 border border-black text-black text-sm rounded-md hover:bg-black hover:text-white transition">
+                    <i class="ri-download-line text-lg"></i>
+                    Download Template
+                </a>
+            </div>
+        </div>
         <!-- Upload Form -->
         <form
                 class="upload-form"
                 @submit.prevent="uploadExcel"
                 enctype="multipart/form-data"
                 x-data="excelUploader"
+                id="upload-xlsx-form"
+                method="post"
+                th:action="@{/form/product/xlsx}"
         >
             <div>
                 <label class="upload-label">Attach Excel Document</label>
@@ -47,7 +50,7 @@
                         id="file-input"
                         type="file"
                         class="hidden"
-                        name="files"
+                        name="file"
                         accept=".xlsx"
                         @change="setFile($event)"
                 >
@@ -80,30 +83,10 @@
                             alert("Please select a file first!");
                             return;
                         }
+                        const form = document.getElementById('upload-xlsx-form');
+                        form.submit();
 
-                        const formData = new FormData();
-                        formData.append('file', this.file); // "file" là @RequestParam name ở backend
 
-                        try {
-                            const response = await fetch('/api/product/xlsx', {
-                                method: 'POST',
-                                body: formData
-                            });
-
-                            if (!response.ok) throw new Error("Upload failed");
-
-                            const result = await response.json();
-                            console.log("Uploaded:", result);
-
-                            // 🟢 Đóng modal
-                            document.getElementById('close-modal')?.click();
-
-                            // Optional: hiển thị thông báo thành công
-                            alert("Upload thành công!");
-                        } catch (err) {
-                            console.error("Upload error:", err);
-                            alert("Upload thất bại. Kiểm tra file Excel.");
-                        }
                     }
                 }))
             });

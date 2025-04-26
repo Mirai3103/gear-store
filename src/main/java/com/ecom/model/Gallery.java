@@ -1,5 +1,6 @@
 package com.ecom.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
@@ -21,6 +22,7 @@ public class Gallery {
     // product_id -> Product
     @ManyToOne()
     @JoinColumn(name = "product_id")
+    @JsonIgnore
     @OnDelete(action = OnDeleteAction.CASCADE)
 
     private Product product;

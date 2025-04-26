@@ -33,6 +33,7 @@ public class AdminController {
     private final ImportService importService;
     private final ProductService productService;
     private final ReportService reportService;
+
     private ImportDetails briefImportDetails(ImportDetails details) {
         if (details.getProduct() != null) {
             details.getProduct()
@@ -60,7 +61,7 @@ public class AdminController {
         productQuery.setPage(1);
         productQuery.setPageSize(100000);
         productQuery.setSortBy(ProductQuery.SortBy.DATE_NEW_TO_OLD);
-        List<Product> products = productService.getAllProductsByQuery(productQuery);
+        List<Product> products = productService.getAllProducts();
         model.addAttribute("products", products);
         var ordersPaged = orderService.getAllOrdersPagination(0, 1000000);
         model.addAttribute("orders", ordersPaged.getContent());
