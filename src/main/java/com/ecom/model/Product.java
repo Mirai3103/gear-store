@@ -84,7 +84,7 @@ public class Product {
         return Math.round(finalPrice * 100.0) / 100.0;
     }
 
-    @Column(name = "final_price", columnDefinition = "DOUBLE DEFAULT 0")
+    @Column(name = "final_price", columnDefinition = "DECIMAL(10,2) dEFAULT 0.00")
     private Double finalPrice;
 
     @PrePersist

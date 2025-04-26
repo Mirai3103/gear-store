@@ -7,153 +7,402 @@
 <div th:replace="~{base :: searchOverlay}"></div>
 
 <div class="body">
-    <div class="wrapper !w-[850px]">
-        <span class="bg1"></span>
+    <div class="wrapper !w-[850px]" x-data="pageController">
+        <!-- LOGIN / REGISTER SECTION -->
+        <template x-if="currentView !== 'forgotPassword'">
+            <div>
+                <span class="bg1"></span>
 
-        <div class="form-wrapper login">
-            <h2 class="title">Login</h2>
-            <div th:if="${param.error}" class="text-red-500 text-sm mt-2">
-                <p>Error: Invalid email or password.</p>
-                <script>
-                    //clear the query string after displaying the error message
-                    window.history.replaceState(
-                        {},
-                        document.title,
-                        window.location.pathname
-                    );
-                </script>
+                <div class="form-wrapper login">
+                    <h2 class="title">Login</h2>
+                    <div th:if="${param.error}" class="text-red-500 text-sm mt-2">
+                        <p>Error: Invalid email or password.</p>
+                        <script>
+                            window.history.replaceState(
+                                {},
+                                document.title,
+                                window.location.pathname
+                            );
+                        </script>
+                    </div>
+
+                    <form action="/signin" method="post" th:action="@{/signin}">
+                        <div class="input-box">
+                            <input type="email" name="email" required/>
+                            <label>Email</label>
+                        </div>
+                        <div class="input-box">
+                            <input type="password" name="password" required/>
+                            <label>Password</label>
+                        </div>
+                        <div class="remember-me">
+                            <input type="checkbox" name="rememberMe" id="rememberMe"/>
+                            <label for="rememberMe">Remember me</label>
+                        </div>
+                        <!-- CSRF Token - Spring Security yêu cầu -->
+                        <input
+                                type="hidden"
+                                name="${_csrf.parameterName}"
+                                value="${_csrf.token}"
+                        />
+                        <div class="flex justify-center col-span-2 mt-4">
+                            <button type="submit" class="contact-btn">
+                                <span class="contact-btn-text">Login</span>
+                            </button>
+                        </div>
+                        <div class="link">
+                            <p>
+                                Don't have an account?
+                                <a href="#" class="signup-link" @click.prevent="switchToSignup">SignUp</a>
+                            </p>
+                        </div>
+                        <div class="link">
+                            <p>
+                                Forgot your password?
+                                <a href="#" class="signup-link" @click.prevent="switchView('forgotPassword')">Reset password</a>
+                            </p>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="info-wrapper login">
+                    <h2>Welcome Back</h2>
+                    <p>Login into your account to access our services</p>
+                </div>
+
+                <span class="bg2"></span>
+
+                <div class="form-wrapper register">
+                    <h2 class="title">Signup</h2>
+                    <form
+                            action="#"
+                            th:action="@{/register}"
+                            method="post"
+                            x-data="registerForm()"
+                            @submit.prevent="validateForm"
+                    >
+                        <div class="input-box">
+                            <input type="text" name="name" id="name" x-model="name"/>
+                            <label>Name</label>
+                        </div>
+                        <small
+                                class="text-red-500 text-sm -mt-4 block"
+                                x-show="errors.name"
+                                x-text="errors.name"
+                        ></small>
+
+                        <div class="input-box">
+                            <input type="text" name="email" id="email" x-model="email"/>
+                            <label>Email</label>
+                        </div>
+                        <small
+                                class="text-red-500 text-sm -mt-4 block"
+                                x-show="errors.email"
+                                x-text="errors.email"
+                        ></small>
+
+                        <div class="input-box">
+                            <input type="password" name="password" id="password" x-model="password"/>
+                            <label>Password</label>
+                        </div>
+                        <small
+                                class="text-red-500 text-sm -mt-4 block"
+                                x-show="errors.password"
+                                x-text="errors.password"
+                        ></small>
+
+                        <div class="input-box">
+                            <input type="password" name="confirmPassword" id="confirmPassword" x-model="confirmPassword"/>
+                            <label>Confirm Password</label>
+                        </div>
+                        <small
+                                class="text-red-500 text-sm -mt-4 block"
+                                x-show="errors.confirmPassword"
+                                x-text="errors.confirmPassword"
+                        ></small>
+
+                        <div class="flex justify-center col-span-2 mt-4">
+                            <button type="submit" class="contact-btn">
+                                <span class="contact-btn-text">Register</span>
+                            </button>
+                        </div>
+
+                        <div class="link">
+                            <p>
+                                Already have an account?
+                                <a href="#" class="login-link" @click.prevent="switchToLogin">Login</a>
+                            </p>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="info-wrapper register">
+                    <h2>Welcome!</h2>
+                    <p>Create your account to access our services</p>
+                </div>
             </div>
+        </template>
 
-            <form action="/signin" method="post" th:action="@{/signin}">
-                <div class="input-box">
-                    <input type="email" name="email" required/>
-                    <label for="">Email</label>
-                </div>
-                <div class="input-box">
-                    <input type="password" name="password" required/>
-                    <label for="">Password</label>
-                </div>
-                <div class="remember-me">
-                    <input type="checkbox" name="rememberMe" id="rememberMe"/>
-                    <label for="rememberMe">Remember me</label>
-                </div>
-                <!-- CSRF Token - Spring Security yêu cầu -->
-                <input
-                        type="hidden"
-                        name="${_csrf.parameterName}"
-                        value="${_csrf.token}"
-                />
-                <div class="flex justify-center col-span-2 mt-4">
-                    <button type="submit" class="contact-btn">
-                        <span class="contact-btn-text">Login</span>
-                    </button>
-                </div>
-                <div class="link">
-                    <p>
-                        Don't have an account?
-                        <a href="#" class="signup-link">SignUp</a>
-                    </p>
-                </div>
-                <div class="link">
-                    <p>
-                        Forgot your password?
-                        <a href="/reset-password" class="signup-link"
-                        >Reset password</a
-                        >
-                    </p>
-                </div>
-            </form>
-        </div>
+        <!-- FORGOT PASSWORD SECTION -->
+        <template x-if="currentView === 'forgotPassword'">
+            <div>
+                <span class="bg1"></span>
 
-        <div class="info-wrapper login">
-            <h2>Welcome Back</h2>
-            <p>Login into your account to access our services</p>
-        </div>
+                <!-- FORGOT PASSWORD FORM (REQUEST RESET LINK) -->
+                <div class="form-wrapper login" x-show="!hasToken">
+                    <h2 class="title">Reset Password</h2>
+                    <div x-show="resetMessages.error" class="text-red-500 text-sm mt-2">
+                        <p x-text="resetMessages.error"></p>
+                    </div>
+                    <div x-show="resetMessages.success" class="text-green-500 text-sm mt-2">
+                        <p x-text="resetMessages.success"></p>
+                    </div>
 
-        <span class="bg2"></span>
-
-        <div class="form-wrapper register">
-            <h2 class="title">Signup</h2>
-            <form
-                    action="#"
-                    th:action="@{/register}"
-                    method="post"
-                    x-data="registerForm()"
-                    @submit.prevent="validateForm"
-            >
-                <div class="input-box">
-                    <input type="text" name="name" id="name" x-model="name"/>
-                    <label>Name</label>
-                </div>
-                <small
-                        class="text-red-500 text-sm -mt-4 block"
-                        x-show="errors.name"
-                        x-text="errors.name"
-                ></small>
-
-                <div class="input-box">
-                    <input type="text" name="email" id="email" x-model="email"/>
-                    <label>Email</label>
-                </div>
-                <small
-                        class="text-red-500 text-sm -mt-4 block"
-                        x-show="errors.email"
-                        x-text="errors.email"
-                ></small>
-
-                <div class="input-box">
-                    <input type="password" name="password" id="password" x-model="password"/>
-                    <label>Password</label>
-                </div>
-                <small
-                        class="text-red-500 text-sm -mt-4 block"
-                        x-show="errors.password"
-                        x-text="errors.password"
-                ></small>
-
-                <div class="input-box">
-                    <input type="password" name="confirmPassword" id="confirmPassword" x-model="confirmPassword"/>
-                    <label>Confirm Password</label>
-                </div>
-                <small
-                        class="text-red-500 text-sm -mt-4 block"
-                        x-show="errors.confirmPassword"
-                        x-text="errors.confirmPassword"
-                ></small>
-
-                <div class="flex justify-center col-span-2 mt-4">
-                    <button type="submit" class="contact-btn">
-                        <span class="contact-btn-text">Register</span>
-                    </button>
+                    <form @submit.prevent="requestPasswordReset">
+                        <div class="input-box">
+                            <input type="email" x-model="forgotEmail" required/>
+                            <label>Email</label>
+                        </div>
+                        <!-- CSRF Token -->
+                        <input
+                                type="hidden"
+                                name="${_csrf.parameterName}"
+                                value="${_csrf.token}"
+                        />
+                        <div class="flex justify-center col-span-2 mt-4">
+                            <button type="submit" class="contact-btn" :disabled="isSubmitting">
+                                <span class="contact-btn-text" x-text="isSubmitting ? 'Sending...' : 'Send Reset Link'"></span>
+                            </button>
+                        </div>
+                        <div class="link">
+                            <p>
+                                Remember your password?
+                                <a href="#" class="signup-link" @click.prevent="switchView('login')">Back to Login</a>
+                            </p>
+                        </div>
+                    </form>
                 </div>
 
-                <div class="link">
-                    <p>
-                        Already have an account?
-                        <a href="#" class="login-link">Login</a>
-                    </p>
+                <div class="info-wrapper login" x-show="!hasToken">
+                    <h2>Password Recovery</h2>
+                    <p>Enter your email to receive a password reset link</p>
                 </div>
-            </form>
-        </div>
 
-        <div class="info-wrapper register">
-            <h2>Welcome!</h2>
-            <p>Create your account to access our services</p>
-        </div>
+                <!-- RESET PASSWORD WITH TOKEN FORM -->
+                <div class="form-wrapper login" x-show="hasToken">
+                    <h2 class="title">Set New Password</h2>
+                    <div x-show="!isTokenValid" class="text-red-500 text-sm mt-2">
+                        <p>Error: Invalid or expired token.</p>
+                    </div>
+                    <div x-show="resetMessages.error" class="text-red-500 text-sm mt-2">
+                        <p x-text="resetMessages.error"></p>
+                    </div>
+                    <div x-show="resetMessages.success" class="text-green-500 text-sm mt-2">
+                        <p x-text="resetMessages.success"></p>
+                    </div>
+
+                    <form @submit.prevent="resetPassword" x-show="isTokenValid">
+                        <input type="hidden" name="token" x-model="token"/>
+
+                        <div class="input-box">
+                            <input
+                                    x-model="newPassword"
+                                    required
+                                    pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}"
+                                    title="Password must be at least 8 characters long and contain at least one lowercase letter, one uppercase letter, one number, and one special character"
+                                    type="password"/>
+                            <label>New Password</label>
+                        </div>
+                        <small
+                                class="text-red-500 text-sm -mt-4 block mb-8"
+                                x-show="passwordError"
+                                x-text="passwordError"
+                        ></small>
+
+                        <div class="input-box mt-4">
+                            <input
+                                    x-model="confirmNewPassword"
+                                    type="password" required/>
+                            <label>Confirm Password</label>
+                        </div>
+                        <small
+                                class="text-red-500 text-sm -mt-4 block"
+                                x-show="confirmPasswordError"
+                                x-text="confirmPasswordError"
+                        ></small>
+
+                        <input
+                                type="hidden"
+                                name="${_csrf.parameterName}"
+                                value="${_csrf.token}"
+                        />
+
+                        <div class="flex justify-center col-span-2 mt-4">
+                            <button type="submit" class="contact-btn" :disabled="isSubmitting">
+                                <span class="contact-btn-text" x-text="isSubmitting ? 'Processing...' : 'Reset Password'"></span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="info-wrapper register" x-show="hasToken">
+                    <h2>Almost There!</h2>
+                    <p>Enter your new password to complete the reset process</p>
+                </div>
+
+                <span class="bg2"></span>
+            </div>
+        </template>
     </div>
 </div>
 
-<script>
-    var page = '[[${page}]]' || 'Login';
-    var isRegister = page === "Register";
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    const initialPage = [[${page}]] || 'login';
+    const isTokenValid = [[${isTokenValid}]];
+    const token = [[${token}]];
+    const email = [[${email}]];
+    const hasToken = !!(token && email);
+    /*]]>*/
 </script>
-<script src="js/switch.js"></script>
-
-<!-- Alpine.js -->
 
 <script>
-    function registerForm() {
-        return {
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('pageController', () => ({
+            
+            currentView: initialPage.toLowerCase(),
+            forgotEmail: '',
+            newPassword: '',
+            confirmNewPassword: '',
+            token: token || '',
+            hasToken: hasToken || false,
+            isTokenValid: isTokenValid || false,
+            isSubmitting: false,
+            passwordError: '',
+            confirmPasswordError: '',
+            resetMessages: {
+                error: '',
+                success: ''
+            },
+
+            init() {
+                // Handle query parameters for view selection
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.has('signup')) {
+                    this.currentView = 'register';
+                    document.querySelector(".wrapper").classList.add('active');
+                } else if (urlParams.has('reset')) {
+                    this.currentView = 'forgotPassword';
+                }
+                
+                // If we have a token, go directly to reset password view
+                if (this.hasToken) {
+                    this.currentView = 'forgotPassword';
+                }
+                
+                // Clean URL
+                window.history.replaceState({}, document.title, window.location.pathname);
+            },
+            
+            switchView(view) {
+                this.currentView = view;
+                this.resetMessages = { error: '', success: '' };
+                
+                // Return to login view by default when exiting forgotPassword
+                if (view === 'login') {
+                    document.querySelector(".wrapper").classList.remove('active');
+                }
+            },
+            
+            switchToSignup() {
+                if (this.currentView !== 'forgotPassword') {
+                    document.querySelector(".wrapper").classList.add('active');
+                }
+            },
+            
+            switchToLogin() {
+                if (this.currentView !== 'forgotPassword') {
+                    document.querySelector(".wrapper").classList.remove('active');
+                }
+            },
+            
+            async requestPasswordReset() {
+                if (!this.forgotEmail) return;
+                
+                this.isSubmitting = true;
+                this.resetMessages = { error: '', success: '' };
+                
+                try {
+                    const response = await fetch("/api/user/reset-password", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({email: this.forgotEmail}),
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.status === "success") {
+                        this.resetMessages.success = "Reset link sent. Please check your email.";
+                        this.forgotEmail = "";
+                    } else {
+                        this.resetMessages.error = data.message || "An error occurred. Please try again.";
+                    }
+                } catch (error) {
+                    this.resetMessages.error = "An error occurred. Please try again.";
+                } finally {
+                    this.isSubmitting = false;
+                }
+            },
+            
+            async resetPassword() {
+                this.passwordError = '';
+                this.confirmPasswordError = '';
+                this.resetMessages = { error: '', success: '' };
+                
+                // Validate passwords
+                if (this.newPassword !== this.confirmNewPassword) {
+                    this.confirmPasswordError = "Passwords do not match";
+                    return;
+                }
+                
+                this.isSubmitting = true;
+                
+                try {
+                    const response = await fetch("/api/user/reset-password", {
+                        method: "PATCH", 
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRF-TOKEN": document.querySelector("input[name='${_csrf.parameterName}']").value
+                        },
+                        body: JSON.stringify({
+                            token: this.token,
+                            password: this.newPassword
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.status === "success") {
+                        this.resetMessages.success = "Password reset successfully. Redirecting to login...";
+                        
+                        // Navigate to signin page after a brief delay
+                        setTimeout(() => {
+                            this.switchView('login');
+                        }, 1500);
+                    } else {
+                        this.resetMessages.error = data.message || "An error occurred. Please try again.";
+                    }
+                } catch (error) {
+                    this.resetMessages.error = "An error occurred. Please try again.";
+                } finally {
+                    this.isSubmitting = false;
+                }
+            }
+        }));
+
+        Alpine.data('registerForm', () => ({
             name: '',
             email: '',
             password: '',
@@ -185,13 +434,11 @@
                 this.errors = {};
                 let isValid = true;
 
-                // Validate Name
                 if (!this.name.trim()) {
                     this.errors.name = "Please enter your name";
                     isValid = false;
                 }
 
-                // Validate Email
                 if (!this.email.trim()) {
                     this.errors.email = "Please enter your email";
                     isValid = false;
@@ -199,7 +446,6 @@
                     this.errors.email = "Invalid email format";
                     isValid = false;
                 } else {
-                    // Check if email exists
                     const emailExists = await this.checkEmailExists(this.email);
                     if (emailExists) {
                         this.errors.email = "Email already exists";
@@ -207,7 +453,6 @@
                     }
                 }
 
-                // Validate Password
                 if (!this.password) {
                     this.errors.password = "Please enter your password";
                     isValid = false;
@@ -216,7 +461,6 @@
                     isValid = false;
                 }
 
-                // Validate Confirm Password
                 if (!this.confirmPassword) {
                     this.errors.confirmPassword = "Please confirm your password";
                     isValid = false;
@@ -224,14 +468,12 @@
                     this.errors.confirmPassword = "Passwords do not match";
                     isValid = false;
                 }
-
-                // Submit the form if valid
                 if (isValid) {
-                    document.querySelector('.form-wrapper.register form').submit();
+                    this.$el.submit();
                 }
             }
-        };
-    }
+        }));
+    });
 </script>
 
 <footer th:replace="~{base :: footer}"></footer>

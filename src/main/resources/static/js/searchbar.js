@@ -1,3 +1,5 @@
+// /js/searchbar.js
+
 document.addEventListener('DOMContentLoaded', function() {
     const searchBar = document.getElementById('searchbar');
     const searchBtn = document.getElementById('search-btn');
