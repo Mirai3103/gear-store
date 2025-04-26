@@ -81,6 +81,14 @@
     <div class="product-view-details-content prose-xl" th:utext="${product.description}">
     </div>
 </div>
+<form action="/form/user/addCart"
+      id="add-to-cart-form"
+      method="post">
+    <input type="hidden" name="pid" th:value="${product.id}"/>
+    <input type="hidden" name="uid"
+           th:value="${#authentication.principal instanceof T(java.lang.String) ? 0 : #authentication.principal.getUser().getId()}"/>
+    <input type="hidden" name="quantity" x-model="quantity"/>
+</form>
 <script th:inline="javascript">
     /*<![CDATA[*/
 
@@ -127,7 +135,7 @@
 
 
             addToCart() {
-                if(uid ===0) window.location.href = '/signin';
+                if (uid === 0) window.location.href = '/signin';
                 if (this.quantity <= 0) {
                     alert('Error: Quantity must be greater than 0');
                     return;
@@ -140,26 +148,11 @@
 
 
                 // Make the AJAX request
-                axios.get('/api/user/addCart', {
-                    params: {
-                        pid: pid,
-                        uid: uid,
-                        quantity: this.quantity
-                    },
-                    withCredentials: true // Tương đương `credentials: 'same-origin'`
-                })
-                    .then(response => {
-                        try {
-                            showNotification(); // Show success notification
-
-                        } catch (error) {
-                            console.error('Error showing notification:', error);
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error adding to cart:', error);
-                        alert('An error occurred while adding to cart');
-                    });
+               const addToCartForm = document.getElementById('add-to-cart-form');
+                addToCartForm.querySelector('input[name="pid"]').value = pid;
+                addToCartForm.querySelector('input[name="uid"]').value = uid;
+                addToCartForm.querySelector('input[name="quantity"]').value = this.quantity;
+                addToCartForm.submit();
 
             }
         }));

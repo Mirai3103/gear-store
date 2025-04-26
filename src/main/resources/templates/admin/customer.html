@@ -103,31 +103,33 @@
                 <h3 class="text-xl font-semibold" x-text="isEditing ? 'Edit User' : 'Create New User'"></h3>
                 <button @click="showUserFormModal = false" class="text-gray-500 hover:text-gray-700">&times;</button>
             </div>
-            <form @submit.prevent="saveUser">
+            <form @submit.prevent="saveUser" id="user-form-modal">
+                <input hidden="hidden" type="text" name="uid">
                 <div class="mb-4">
                     <label class="block text-gray-700 mb-2" for="name">Name</label>
-                    <input type="text" id="name" x-model="userForm.name" required
+                    <input type="text" id="name" name="name" x-model="userForm.name" required
                            class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-orange-500">
                 </div>
                 <div class="mb-4">
                     <label class="block text-gray-700 mb-2" for="email">Email</label>
-                    <input type="email" id="email" x-model="userForm.email" required
+                    <input type="email" id="email" name="email" x-model="userForm.email" required
                            :disabled="isEditing"
                            class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-orange-500">
                 </div>
                 <div class="mb-4">
                     <label class="block text-gray-700 mb-2" for="phone">Phone</label>
-                    <input type="text" id="phone" x-model="userForm.phone"
+                    <input type="text" id="phone" name="phone" x-model="userForm.phone"
                            class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-orange-500">
                 </div>
                 <div class="mb-4">
                     <label class="block text-gray-700 mb-2" for="note">Note</label>
-                    <textarea id="note" x-model="userForm.note" rows="3"
+                    <textarea id="note" x-model="userForm.note" name="note" rows="3"
                               class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-orange-500"></textarea>
                 </div>
                 <div class="mb-4" x-show="!isEditing">
                     <label class="block text-gray-700 mb-2" for="password">Password</label>
-                    <input type="password" id="password" x-model="userForm.password" :required="!isEditing"
+                    <input type="password" id="password" x-model="userForm.password" name="password"
+                           :required="!isEditing"
                            class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-orange-500">
                 </div>
                 <div class="flex justify-end space-x-2">
@@ -292,34 +294,16 @@
                 },
 
                 async saveUser() {
-                    try {
-                        let url = '/api/user';
-                        let method = 'POST';
 
-                        if (this.isEditing) {
-                            url = '/api/user' + `/${this.userForm.id}`;
-                            method = 'PATCH';
-                        }
-
-                        const response = await fetch(url, {
-                            method: method,
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify(this.userForm)
-                        });
-
-                        if (!response.ok) {
-                            const errorData = await response.json();
-                            throw new Error(errorData.message || 'Failed to save user');
-                        }
-
-                        this.showUserFormModal = false;
-                        this.fetchUsers();
-                        alert(this.isEditing ? 'User updated successfully' : 'User created successfully');
-                    } catch (error) {
-                        alert(error.message);
+                    const userFormModal = document.getElementById('user-form-modal');
+                    userFormModal.method = 'POST';
+                    if (this.isEditing) {
+                        userFormModal.action = '/form/user/edit'
+                        userFormModal.querySelector('input[name="uid"]').value = this.userForm.id;
+                    } else {
+                        userFormModal.action = '/form/user'
                     }
+                    userFormModal.submit();
                 },
 
                 openChangePasswordModal(user) {

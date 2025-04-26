@@ -120,6 +120,7 @@ public class HomeController {
     @GetMapping("/signin")
     public String getSignIn(Model m, Authentication auth) {
         m.addAttribute("registerRequest", new RegisterRequest());
+        m.addAttribute("requestPasswordRequest", new RequestPasswordRequest());
         log.info("getSignIn() called with auth: {}", auth);
         if (auth != null) {
             log.info("User is already authenticated: {}", auth.getName());

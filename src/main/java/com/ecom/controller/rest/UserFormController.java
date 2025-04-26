@@ -13,26 +13,27 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Controller;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
-@RestController
-@RequestMapping("/api/user")
+@Controller
+@RequestMapping("/form/user")
 @RequiredArgsConstructor
-public class UserRestController {
+public class UserFormController {
 
     private final CartService cartService;
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
 
-    @GetMapping("/addCart")
+    @PostMapping("/addCart")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<Map<String, Object>> addToCart(@RequestParam Integer pid,
-                                                         @RequestParam Integer uid,
-                                                         @RequestParam Integer quantity,
-                                                         HttpSession session) {
+    public String addToCart(@RequestParam Integer pid,
+                            @RequestParam Integer uid,
+                            @RequestParam Integer quantity,
+                            HttpSession session) {
         // Gọi service để thêm sản phẩm vào giỏ
         Cart saveCart = cartService.saveCart(pid, uid, quantity);
         if (ObjectUtils.isEmpty(saveCart)) {
@@ -42,20 +43,17 @@ public class UserRestController {
         }
         Integer countCart = cartService.getCountCart(uid);
         session.setAttribute("cartItemsLength", countCart);
-        return ResponseEntity.ok(Map.of("status", "success",
-                "message", "Product added to cart successfully",
-                "cartCount", countCart));
+        return "redirect:/user/cart";
+
     }
 
 
     @PostMapping
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<Map<String, Object>> addToCart(@RequestBody @Valid CustomerRequest registerRequest,
-                                                         HttpSession session) {
+    public String abc(@ModelAttribute @Valid CustomerRequest registerRequest,
+                      HttpSession session) {
         if (userService.existsEmail(registerRequest.getEmail())) {
-            return ResponseEntity.badRequest()
-                    .body(Map.of("status", "error",
-                            "message", "Email already exists"));
+            return "redirect:/Admin/Profile";
         }
 
 
@@ -68,31 +66,27 @@ public class UserRestController {
         user.setNote(registerRequest.getNote());
 
         userService.saveUser(user);
-        return ResponseEntity.ok(Map.of("status", "success",
-                "message", "User registered successfully"));
+        return "redirect:/Admin/Profile";
     }
 
-    @DeleteMapping
+    @PostMapping("/delete")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<Map<String, Object>> deleteUser(@RequestParam Integer uid) {
+    public String deleteUser(@RequestParam Integer uid) {
         // Gọi service để thêm sản phẩm vào giỏ
         userService.deleteUser(uid);
-        return ResponseEntity.ok(Map.of("status", "success",
-                "message", "User deleted successfully"));
+        return "redirect:/Admin/Profile";
     }
 
-    @PatchMapping("{uid}")
+    @PostMapping("edit")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<Map<String, Object>> updateUser(@RequestBody CustomerRequest registerRequest,
-                                                          @PathVariable Integer uid) {
+    public String updateUser(@RequestBody CustomerRequest registerRequest
+    ) {
         if (userService.existsEmail(registerRequest.getEmail())) {
-            return ResponseEntity.badRequest()
-                    .body(Map.of("status", "error",
-                            "message", "Email already exists"));
+            return "redirect:/Admin/Profile";
         }
 
         User user = new User();
-        user.setId(uid);
+        user.setId(Integer.valueOf(registerRequest.getUid()));
         user.setName(registerRequest.getName());
         user.setEmail(registerRequest.getEmail());
         user.setPhoneNumber(registerRequest.getPhone());
@@ -102,33 +96,25 @@ public class UserRestController {
         }
 
         userService.updateUser(user);
-        return ResponseEntity.ok(Map.of("status", "success",
-                "message", "User updated successfully"));
+        return "redirect:/Admin/Profile";
     }
 
-    @PatchMapping("/toggle-lock")
+    @PostMapping("/toggle-lock")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<Map<String, Object>> toggleLockUser(@RequestParam Integer uid) {
+    public String toggleLockUser(@RequestParam Integer uid) {
         // Gọi service để thêm sản phẩm vào giỏ
         userService.toggleLockUser(uid);
-        return ResponseEntity.ok(Map.of("status", "success",
-                "message", "User lock status updated successfully"));
+        return "redirect:/Admin/Profile";
     }
 
-    @PatchMapping("{uid}/update-password")
+    @PostMapping("/update-password")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<Map<String, Object>> updatePassword(@RequestBody Map<String, String> request,
-                                                              @PathVariable Integer uid) {
-        String newPassword = request.get("password");
-        userService.updateUserPassword(uid, newPassword);
+    public String updatePassword(@RequestParam String password,
+                                 @RequestParam Integer uid) {
+        userService.updateUserPassword(uid, password);
 
-        return ResponseEntity.ok(Map.of("status", "success",
-                "message", "Password updated successfully"));
+        return "redirect:/Admin/Profile";
     }
-
-
-
-
 
 
 }

@@ -79,7 +79,8 @@
                             &times;
                         </button>
                     </div>
-                    <form @submit.prevent="submitImport">
+                    <form x-on:submit="submitImport" th:action="@{/form/import}" method="post">
+                        <input type="hidden" name="rawJson" id="jsonFieldImport"/>
                         <div class="mb-4">
                             <label class="block font-semibold text-sm text-gray-700 mb-1">Note</label>
                             <input x-model="importForm.note" type="text"
@@ -337,38 +338,9 @@
                     },
 
                     async submitImport() {
-                        const res = await fetch('/api/import', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify(this.importForm)
-                        });
+                        const rawJson = JSON.stringify(this.importForm)
 
-                        if (!res.ok) return alert('Failed to create import');
-
-                        // Show notification
-                        const notification = document.createElement('div');
-                        notification.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-4 py-3 rounded shadow-lg z-50';
-                        notification.innerHTML = `
-                            <div class="flex items-center">
-                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                </svg>
-                                <span>Import created successfully</span>
-                            </div>
-                        `;
-                        document.body.appendChild(notification);
-
-                        setTimeout(() => {
-                            notification.remove();
-                        }, 3000);
-
-                        // Reset form and close modal
-                        this.importForm = {note: '', details: []};
-                        this.createModalOpen = false;
-                        this.page = 1;
-                        this.fetchImports();
+                        document.getElementById('jsonFieldImport').value = rawJson;
                     },
 
                     init() {

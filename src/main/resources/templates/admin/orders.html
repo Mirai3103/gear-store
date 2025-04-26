@@ -139,6 +139,10 @@
                 </div>
             </div>
         </template>
+        <form method="post" hidden="hidden" th:action="@{/form/order/status}" id="order-status-form">
+            <input type="text" name="status" hidden="hidden"/>
+            <input type="text" name="orderId" hidden="hidden"/>
+        </form>
         <script th:inline="javascript">
             /*<![CDATA[*/
 
@@ -183,35 +187,11 @@
                     async updateOrderStatus(orderId) {
                         if (!this.newStatus) return;
 
-                        try {
-                            const response = await fetch(`/api/order/${orderId}/status?status=${this.newStatus}`, {
-                                method: 'PATCH',
-                                headers: {
-                                    'Content-Type': 'application/json'
-                                }
-                            });
+                        const form = document.getElementById('order-status-form');
+                        form.querySelector('input[name="status"]').value = this.newStatus;
+                        form.querySelector('input[name="orderId"]').value = orderId;
+                        form.submit();
 
-                            if (!response.ok) {
-                                throw new Error('Failed to update order status');
-                            }
-
-                            const updatedOrder = await response.json();
-
-                            // Update the order in the orders list
-                            const index = this.orders.findIndex(o => o.id === orderId);
-                            if (index !== -1) {
-                                this.orders[index].status = updatedOrder.status;
-                            }
-
-                            // Update the selected order
-                            this.selectedOrder.status = updatedOrder.status;
-                            this.newStatus = ''; // Reset the dropdown
-
-                            // Show success notification
-                            alert('Order status updated successfully');
-                        } catch (error) {
-                            alert(error.message);
-                        }
                     },
 
                     get totalPages() {

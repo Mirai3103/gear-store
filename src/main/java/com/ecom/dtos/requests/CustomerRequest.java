@@ -9,4 +9,5 @@ public class CustomerRequest {
     private String phone;
     private String note;
     private  String password;
+    private  String uid;
 }
