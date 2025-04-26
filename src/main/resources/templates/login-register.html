@@ -225,8 +225,8 @@
                                     x-model="newPassword"
                                     required
                                     name="password"
-                                    pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}"
-                                    title="Password must be at least 8 characters long and contain at least one lowercase letter, one uppercase letter, one number, and one special character"
+                                    pattern="(?=.*[A-Za-z])(?=.*\d).{6,}"
+                                    title="Password must be at least 6 characters long and contain at least one letter and one number"
                                     type="password"/>
                             <label>New Password</label>
                         </div>
