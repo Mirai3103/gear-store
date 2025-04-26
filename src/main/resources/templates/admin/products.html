@@ -26,7 +26,7 @@
                                 <label class="block mb-1 font-semibold">Category</label>
                                 <select required x-model="addForm.categoryId" class="w-full border px-3 py-2 rounded">
                                     <option value="" disabled>Select a category</option>
-                                    <template x-for="c in categories" :key="c.id">
+                                    <template x-for="c in categories">
                                         <option :value="c.id" x-text="c.name"></option>
                                     </template>
                                 </select>
@@ -234,7 +234,13 @@
                 </div>
             </template>
         </div>
+        <script th:inline="javascript">
+            /*<![CDATA[*/
 
+            const products =/*[[${products}]]*/ [];
+
+            /*]]>*/
+        </script>
 
         <script>
             document.addEventListener('alpine:init', () => {
@@ -278,20 +284,47 @@
                     },
 
                     async fetchProducts() {
-                        const params = new URLSearchParams({
-                            page: this.page,
-                            pageSize: this.size,
-                            search: this.query.keyword || ''
-                        });
-
-                        const res = await fetch(`/api/product?${params.toString()}`);
-                        if (!res.ok) {
-                            alert('Failed to load products.');
-                            return;
+                        let filtered = [...products];
+                        if (this.query.keyword) {
+                            const keyword = this.query.keyword.toLowerCase();
+                            filtered = filtered.filter(p =>
+                                p.name.toLowerCase().includes(keyword) ||
+                                (p.description && p.description.toLowerCase().includes(keyword))
+                            );
+                        }
+                        // 2. Sort theo lựa chọn
+                        switch (this.query.sortBy) {
+                            case 'FEATURED':
+                            case 'BEST_SELLING':
+                                filtered.sort((a, b) => b.id - a.id);
+                                break;
+                            case 'ALPHABETICALLY_A_Z':
+                                filtered.sort((a, b) => a.name.localeCompare(b.name));
+                                break;
+                            case 'ALPHABETICALLY_Z_A':
+                                filtered.sort((a, b) => b.name.localeCompare(a.name));
+                                break;
+                            case 'PRICE_LOW_TO_HIGH':
+                                filtered.sort((a, b) => a.finalPrice - b.finalPrice);
+                                break;
+                            case 'PRICE_HIGH_TO_LOW':
+                                filtered.sort((a, b) => b.finalPrice - a.finalPrice);
+                                break;
+                            case 'DATE_OLD_TO_NEW':
+                                filtered.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+                                break;
+                            case 'DATE_NEW_TO_OLD':
+                                filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                                break;
+                            default:
+                                filtered.sort((a, b) => b.id - a.id); // default sort
+                                break;
                         }
 
-                        this.products = await res.json();
-                        this.total = parseInt(res.headers.get("X-Total-Count"));
+                        const start = (this.page - 1) * this.size;
+                        const end = start + this.size;
+                        this.products = filtered.slice(start, end);
+                        this.total = products.length;
                     },
                     get totalPages() {
                         return Math.ceil(this.total / this.size);
@@ -332,7 +365,7 @@
                         <div>
                             <label class="block mb-1 font-semibold">Category</label>
                             <select required x-model="form.categoryId" class="w-full border px-3 py-2 rounded">
-                                <template x-for="c in categories" :key="c.id">
+                                <template x-for="c in categories">
                                     <option :value="c.id" x-text="c.name"></option>
                                 </template>
                             </select>
@@ -490,8 +523,7 @@
 
             async fetchCategories() {
                 try {
-                    const res = await fetch('/api/category');
-                    this.categories = await res.json();
+                    this.categories =categories;
                 } catch (err) {
                     alert('Failed to load categories');
                 }
@@ -582,6 +614,13 @@
             Alpine.data('editProductModal', window.editProductModal);
         });
     </script>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+
+        const categories =/*[[${categories}]]*/ [];
+
+        /*]]>*/
+    </script>
 
     <script>
         window.addProductModal = () => ({
@@ -664,8 +703,7 @@
 
             async fetchCategories() {
                 try {
-                    const res = await fetch('/api/category');
-                    this.categories = await res.json();
+                    this.categories = categories;
                 } catch (err) {
                     alert('Failed to load categories');
                 }

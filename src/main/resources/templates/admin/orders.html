@@ -85,7 +85,7 @@
                                     <strong class="mr-2">Status:</strong>
                                     <div class="flex items-center">
 
-                       
+
                                         <span x-text="selectedOrder.status" class="mr-2"></span>
                                         <select x-model="newStatus" class="border rounded p-1 text-sm">
                                             <option value="">Change status</option>
@@ -139,6 +139,13 @@
                 </div>
             </div>
         </template>
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+
+            const orders =/*[[${orders}]]*/[];
+
+            /*]]>*/
+        </script>
         <script>
             document.addEventListener('alpine:init', () => {
                 Alpine.data('orderTable', () => ({
@@ -154,15 +161,17 @@
                     newStatus: '',
 
                     async fetchOrders() {
-                        const params = new URLSearchParams({
-                            page: this.page,
-                            size: this.size,
-                            search: this.query.keyword || ''
-                        });
-                        const res = await fetch(`/api/order?${params.toString()}`);
-                        if (!res.ok) return alert('Failed to fetch orders');
-                        this.orders = await res.json();
-                        this.total = parseInt(res.headers.get("X-Total-Count"));
+
+                        const keyword = this.query.keyword?.toLowerCase() || '';
+                        const page = this.page || 1;
+                        const size = this.size || 10;
+                        const filtered = orders.filter(order =>
+                            order.email?.toLowerCase().includes(keyword) ||
+                            order.phoneNumber?.toLowerCase().includes(keyword)
+                        );
+                        const start = (page - 1) * size;
+                        this.orders = filtered.slice(start, start + size)
+                        this.total = orders.length
                     },
 
                     showDetail(order) {

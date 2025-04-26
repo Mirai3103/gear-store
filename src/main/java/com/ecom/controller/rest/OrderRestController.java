@@ -24,15 +24,5 @@ public class OrderRestController {
         return ResponseEntity.ok(updatedOrder);
     }
 
-    @GetMapping
-    public ResponseEntity<List<Orders>> getAllOrders(@RequestParam(defaultValue = "1") int page,
-                                                     @RequestParam(defaultValue = "30") int size, HttpServletResponse response) {
-        var ordersPaged = orderService.getAllOrdersPagination(page - 1, size);
-        response.setHeader("X-Total-Count", String.valueOf(ordersPaged.getTotalElements()));
-        response.setContentType("application/json");
-
-        return ResponseEntity.ok(ordersPaged.getContent());
-    }
-
 
 }

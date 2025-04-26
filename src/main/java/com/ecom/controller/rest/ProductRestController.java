@@ -45,14 +45,6 @@ public class ProductRestController {
         return ResponseEntity.ok(product);
     }
 
-    @GetMapping()
-    public ResponseEntity<List<Product>> getAllProducts(ProductQuery query, HttpServletResponse response) {
-        List<Product> products = productService.getAllProductsByQuery(query);
-        var count = productService.countAllProductsByQuery(query);
-        response.setHeader("X-Total-Count", String.valueOf(count));
-        response.setContentType("application/json");
-        return ResponseEntity.ok(products);
-    }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProduct(@PathVariable Integer id) {

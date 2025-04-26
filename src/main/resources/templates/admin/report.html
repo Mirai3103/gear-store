@@ -57,6 +57,13 @@
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+
+        const reports =/*[[${reports}]]*/ [];
+
+        /*]]>*/
+    </script>
     <script>
         function reportModal() {
             return {
@@ -72,25 +79,19 @@
                 },
 
                 fetchReportData() {
-                    axios.get('/api/report/monthly', {
-                        params: {year: new Date().getFullYear()}
-                    })
-                        .then(response => {
-                            const data = response.data;
-                            this.totalIncome = data.totalIncome;
-                            this.totalExpense = data.totalExpense;
-                            this.profit = data.profit;
-                            this.profitRate = data.profitRate;
 
-                            this.barData.labels = data.monthlyData.map(m => m.month);
-                            this.barData.income = data.monthlyData.map(m => m.income);
-                            this.barData.expense = data.monthlyData.map(m => m.expense);
+                    const data = reports;
+                    this.totalIncome = data.totalIncome;
+                    this.totalExpense = data.totalExpense;
+                    this.profit = data.profit;
+                    this.profitRate = data.profitRate;
 
-                            this.renderChart();
-                        })
-                        .catch(err => {
-                            console.error("Report API error:", err);
-                        });
+                    this.barData.labels = data.monthlyData.map(m => m.month);
+                    this.barData.income = data.monthlyData.map(m => m.income);
+                    this.barData.expense = data.monthlyData.map(m => m.expense);
+
+                    this.renderChart();
+
                 },
 
                 formatCurrency(amount) {

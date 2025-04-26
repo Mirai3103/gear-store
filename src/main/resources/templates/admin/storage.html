@@ -268,7 +268,13 @@
                 </div>
             </div>
         </template>
+        <script th:inline="javascript">
+            /*<![CDATA[*/
 
+            const imports =/*[[${imports}]]*/ [];
+
+            /*]]>*/
+        </script>
         <script>
             document.addEventListener('alpine:init', () => {
                 Alpine.data('storageManager', () => ({
@@ -288,21 +294,15 @@
                         return Math.ceil(this.totalImports / this.size);
                     },
                     async fetchImports() {
-                        const params = new URLSearchParams({
-                            page: this.page,
-                            size: this.size,
-                            search: ''
-                        });
-                        const res = await fetch(`/api/import?${params}`);
-                        if (!res.ok) return alert('Failed to load imports');
-                        this.imports = await res.json();
-                        this.totalImports = parseInt(res.headers.get('X-Total-Count')) || 0;
+
+                        const skips = (this.page - 1) * this.size;
+                        const take = this.size;
+                        this.imports = imports.slice(skips, skips + take);
+                        this.totalImports = imports.length;
                     },
 
                     async fetchProducts() {
-                        const res = await fetch('/api/product?page=1&pageSize=100');
-                        if (!res.ok) return alert('Failed to load products');
-                        this.products = await res.json();
+                        this.products = products;
                     },
 
                     addProduct() {

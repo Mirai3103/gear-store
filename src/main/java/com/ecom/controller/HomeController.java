@@ -13,6 +13,7 @@ import java.util.UUID;
 
 import com.ecom.config.CustomUser;
 import com.ecom.dtos.RequestPasswordRequest;
+import com.ecom.repository.CategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.domain.Page;
@@ -74,6 +75,8 @@ public class HomeController {
     @Autowired
     private CartService cartService;
 
+
+
     @Autowired
     private AuthenticationManager authenticationManager;
 
@@ -117,7 +120,6 @@ public class HomeController {
     @GetMapping("/signin")
     public String getSignIn(Model m, Authentication auth) {
         m.addAttribute("registerRequest", new RegisterRequest());
-        m.addAttribute("requestPasswordRequest", new RequestPasswordRequest());
         log.info("getSignIn() called with auth: {}", auth);
         if (auth != null) {
             log.info("User is already authenticated: {}", auth.getName());
