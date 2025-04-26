@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.ecom.config.CustomUser;
+import com.ecom.dtos.RequestPasswordRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.domain.Page;
@@ -49,6 +50,7 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.Data;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @Log4j2
@@ -115,6 +117,7 @@ public class HomeController {
     @GetMapping("/signin")
     public String getSignIn(Model m, Authentication auth) {
         m.addAttribute("registerRequest", new RegisterRequest());
+        m.addAttribute("requestPasswordRequest", new RequestPasswordRequest());
         log.info("getSignIn() called with auth: {}", auth);
         if (auth != null) {
             log.info("User is already authenticated: {}", auth.getName());
@@ -132,12 +135,20 @@ public class HomeController {
     public String postRegister(@Valid @ModelAttribute RegisterRequest registerRequest,
                                BindingResult bindingResult,
                                HttpSession session,
-                               Model model) {
+                               Model model,RedirectAttributes redirectAttributes) {
 
         // Manual validation
+        model.addAttribute("requestPasswordRequest", new RequestPasswordRequest());
+        model.addAttribute("page","register");
+        model.addAttribute("registerRequest", registerRequest);
         if (userService.existsEmail(registerRequest.getEmail())) {
-            bindingResult.rejectValue("email", "email.exists", "Email already exists");
+            model.addAttribute("isEmailExists", true);
+            model.addAttribute("page", "Register");
+
+//            bindingResult.rejectValue("email", "email.exists", "Email already exists");
+            return "login-register";
         }
+        registerRequest.setName(registerRequest.getEmail());
 
         // Return to form if errors exist
         if (bindingResult.hasErrors()) {
@@ -154,6 +165,8 @@ public class HomeController {
 
         userService.saveUser(user);
         model.addAttribute("notification", "Registration successful! Please log in.");
+        model.addAttribute("msg", "Registration successful! Please log in.");
+        redirectAttributes.addFlashAttribute("msg", "Registration successful! Please log in.");
         return "redirect:/signin";
     }
 
@@ -188,6 +201,13 @@ public class HomeController {
         m.addAttribute("isLast", page.isLast());
 
         return "product";
+    }
+    @PostMapping("/request-reset-password")
+    public String resetPasswordRequest(RedirectAttributes redirectAttributes, @ModelAttribute RequestPasswordRequest requestPasswordRequest, HttpSession session, Model m, BindingResult bindingResult) throws MessagingException {
+        String email = requestPasswordRequest.getEmail();
+        boolean success= userService.sendResetPassword(email);
+        redirectAttributes.addFlashAttribute("page", "forgotPassword");
+        return "redirect:/signin?reset=true&error="+!success;
     }
 
     @GetMapping("/product/{id}")
@@ -261,36 +281,44 @@ public class HomeController {
     @GetMapping("/reset-password")
     public String showResetPassword(@RequestParam(required = false) String token,
                                     Model m) {
+        m.addAttribute("page","forgotPassword");
+        m.addAttribute("registerRequest", new RegisterRequest());
+        m.addAttribute("requestPasswordRequest", new RequestPasswordRequest());
         if (!org.apache.commons.lang3.StringUtils.isBlank(token)) {
             User userByToken = userService.getUserByToken(token);
             if (userByToken == null) {
+                m.addAttribute("token", token);
                 m.addAttribute("error", "Your link is invalid or expired !!");
                 m.addAttribute("isTokenValid", false);
 
-                return "reset-password";
+                return "login-register";
             }
             m.addAttribute("token", token);
             m.addAttribute("email", userByToken.getEmail());
             m.addAttribute("isTokenValid", true);
         }
-        return "reset-password";
+        return "login-register";
     }
 
     @PostMapping("/reset-password")
-    public String resetPassword(@RequestParam String token,
+        public String resetPassword(@RequestParam String token,
                                 @RequestParam String password,
                                 HttpSession session,
                                 Model m) {
         User userByToken = userService.getUserByToken(token);
+        m.addAttribute("registerRequest", new RegisterRequest());
+        m.addAttribute("requestPasswordRequest", new RequestPasswordRequest());
         if (userByToken == null) {
-            m.addAttribute("errorMsg", "Your link is invalid or expired !!");
-            return "message";
+            m.addAttribute("token", token);
+            m.addAttribute("error", "Your link is invalid or expired !!");
+            m.addAttribute("isTokenValid", false);
+            return "login-register";
         } else {
             userByToken.setPassword(passwordEncoder.encode(password));
             userByToken.setResetToken(null);
             userService.updateUser(userByToken);
             m.addAttribute("msg", "Password changed successfully");
-            return "message";
+            return "login-register";
         }
     }
 

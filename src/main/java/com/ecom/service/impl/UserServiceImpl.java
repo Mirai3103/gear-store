@@ -170,7 +170,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public Boolean existsEmail(String email) {
 
-        return  userRepository.existsByEmail(email);
+        return userRepository.existsByEmail(email);
     }
 
     @Override
@@ -211,7 +211,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void sendResetPassword(String email) throws MessagingException {
+    public boolean sendResetPassword(String email) throws MessagingException {
         var user = userRepository.findByEmail(email);
         if (user != null) {
             String jwtToken = generateResetToken(user.getId().toString());
@@ -228,8 +228,9 @@ public class UserServiceImpl implements UserService {
             helper.setText(htmlContent, true);
 
             mailSender.send(message);
-
+            return true;
         }
+        return false;
     }
 
     private final SecretKey RESET_SECRET = Keys.hmacShaKeyFor("cd620c9ffc4fb918e1ddfe73696a51c24f747f0ecffa69e3aa7793b002e76b317aaf500ad61fd4a61d5a1aab90b32ec3b41ffc3ecf3da2bff5f80c5a7f3db89604442318e962811d51a8b7b2cec41440299cc399c160d63ad67ffd84d64256f1a835e74abbfd61b22a36121152484b22b1e894f5463904f27d2dba8ba94d8d2f05866dd77f04349eb6b8f46feed6fa457b5730ee3c22a89ef24c0b54872caf9632d6741b85ef0b5c4d7332a4f74c405d020ba1f34a31077276f1e4e697674242ac059a83b3220a4a7c6894bd33ff2ef4b97244cbf677552402d594cb93871f2da23f4c6ffb817eb15fc6f2300147dcde3811b5d061dbbd0c7012d96ce0f05a50".getBytes());

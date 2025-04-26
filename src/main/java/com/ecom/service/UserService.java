@@ -46,5 +46,5 @@ public interface UserService {
 
     void updateUserPassword(Integer uid, String password);
 
-    void sendResetPassword(String email) throws MessagingException;
+    boolean sendResetPassword(String email) throws MessagingException;
 }

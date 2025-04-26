@@ -4,10 +4,14 @@ import java.security.Principal;
 import java.util.List;
 
 import com.ecom.config.CustomUser;
+import com.ecom.dtos.RequestPasswordRequest;
 import com.ecom.dtos.requests.AddressRequest;
 import com.ecom.model.*;
 import com.ecom.service.*;
+
+import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -23,6 +27,13 @@ import com.ecom.util.CommonUtil;
 import com.ecom.util.OrderStatus;
 
 import jakarta.servlet.http.HttpSession;
+
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
+import lombok.Data;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 
 @Controller
 @RequestMapping("/user")
@@ -295,4 +306,30 @@ public class UserController {
         }
         return "redirect:/user/my-address";
     }
+
+
+
+
+
+//    @Data
+//    public static class NewPasswordRequest {
+//
+//        private String  token;
+//        private String password;
+//
+//    }
+
+//    @PostMapping("/reset-password")
+//    public String resetPassword(@ModelAttribute NewPasswordRequest request, HttpSession session,Model m) {
+//        String token = request.getToken();
+//        String password = request.getPassword();
+//        User user = userService.getUserByToken(token);
+//        if (user == null) {
+//            return "redirect:/login?reset=true&error=true";
+//        }
+//        user.setPassword(passwordEncoder.encode(password));
+//        userService.updateUser(user);
+//        return "redirect:/login?reset=true&success=true";
+//    }
+
 }

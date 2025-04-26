@@ -91,7 +91,6 @@ public class UserRestController {
                             "message", "Email already exists"));
         }
 
-        // Process valid registration
         User user = new User();
         user.setId(uid);
         user.setName(registerRequest.getName());
@@ -128,36 +127,8 @@ public class UserRestController {
     }
 
 
-    @PostMapping("/reset-password")
-    public ResponseEntity<Map<String, Object>> resetPassword(@RequestBody Map<String, String> request) throws MessagingException {
-        String email = request.get("email");
-        userService.sendResetPassword(email);
 
-        return ResponseEntity.ok(Map.of("status", "success",
-                "message", "Reset password link sent successfully"));
-    }
 
-    @PatchMapping("/reset-password")
-    public ResponseEntity<Map<String, Object>> changePassword(@RequestBody Map<String, String> request) {
-        String token = request.get("token");
-        String newPassword = request.get("password");
-        User user = userService.getUserByToken(token);
-        if (user == null) {
-            return ResponseEntity.badRequest()
-                    .body(Map.of("status", "error",
-                            "message", "Invalid token"));
-        }
-        user.setPassword(passwordEncoder.encode(newPassword));
-        userService.updateUser(user);
-        return ResponseEntity.ok(Map.of("status", "success",
-                "message", "Password reset successfully"));
-    }
 
-    @GetMapping("isEmailExist")
-    public ResponseEntity<Map<String, Object>> isEmailExist(@RequestParam String email) {
-        boolean exists = userService.existsEmail(email);
-        return ResponseEntity.ok(Map.of("status", "success",
-                "isExist", exists));
-    }
 
 }
