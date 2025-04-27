@@ -16,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.Map;
 
@@ -51,8 +52,9 @@ public class UserFormController {
     @PostMapping
     @PreAuthorize("isAuthenticated()")
     public String abc(@ModelAttribute @Valid CustomerRequest registerRequest,
-                      HttpSession session) {
+                      HttpSession session, RedirectAttributes ra) {
         if (userService.existsEmail(registerRequest.getEmail())) {
+            ra.addFlashAttribute("alert", "Email already exists");
             return "redirect:/Admin/Profile";
         }
 
@@ -79,9 +81,10 @@ public class UserFormController {
 
     @PostMapping("edit")
     @PreAuthorize("isAuthenticated()")
-    public String updateUser(@RequestBody CustomerRequest registerRequest
+    public String updateUser(@RequestBody CustomerRequest registerRequest, RedirectAttributes ra
     ) {
         if (userService.existsEmail(registerRequest.getEmail())) {
+            ra.addFlashAttribute("alert", "Email already exists");
             return "redirect:/Admin/Profile";
         }
 

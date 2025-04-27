@@ -24,6 +24,23 @@
 
 <body>
 <header class="navbar" th:fragment="navbar">
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+
+        const alertMsg =/*[[${alert}]]*/ "";
+
+        /*]]>*/
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            setTimeout(() => {
+                if (alertMsg) {
+                    alert(alertMsg);
+                }
+            }, 100);
+        });
+    </script>
     <div class="navbar-container">
         <div class="navbar-flex-container">
             <div class="navbar-logo-container">
@@ -111,10 +128,10 @@
                 </a>
                 <a
                         sec:authorize="hasRole('ADMIN')"
-                    href="/Admin/Profile"
+                        href="/Admin/Profile"
 
-                    class="navbar-nav-item flex items-center gap-1"
-                    >
+                        class="navbar-nav-item flex items-center gap-1"
+                >
                     <i class="ri-user-line"></i>
 
                 </a>

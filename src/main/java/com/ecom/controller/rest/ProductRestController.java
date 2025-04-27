@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
 import java.util.List;
@@ -25,11 +26,13 @@ public class ProductRestController {
 
     @PostMapping(value = "/xlsx", consumes = "multipart/form-data")
     public String uploadFromXlsx(
+            RedirectAttributes ra,
             @RequestParam("file") MultipartFile file) {
         try {
             List<Product> products = productService.uploadProductsFromExcel(file);
             return "redirect:/Admin/Profile";
         } catch (Exception e) {
+            ra.addFlashAttribute("alert", "Error uploading file: " + e.getMessage());
             return "redirect:/Admin/Profile";
         }
     }
