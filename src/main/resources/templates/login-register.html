@@ -281,6 +281,8 @@
     const token = [[${token}]];
     const email = [[${email}]];
     const hasToken = !!(token);
+    const registerEmail =/*[[${registerEmail}]]*/ "";
+    window.registerEmail = registerEmail;
     const isEmailExists = [[${isEmailExists}]] || false;
     window.token = token;
     /*]]>*/
@@ -316,6 +318,11 @@
                     document.querySelector(".wrapper").classList.add('active');
                 } else if (urlParams.has('reset')) {
                     this.currentView = 'forgotPassword';
+                }
+                if (isEmailExists) {
+                    this.currentView = 'forgotPassword';
+                    this.forgotEmail = registerEmail;
+                    this.resetMessages.error = "Email already exists, please reset password";
                 }
 
                 // If we have a token, go directly to reset password view

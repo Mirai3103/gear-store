@@ -76,7 +76,6 @@ public class HomeController {
     private CartService cartService;
 
 
-
     @Autowired
     private AuthenticationManager authenticationManager;
 
@@ -138,12 +137,13 @@ public class HomeController {
     public String postRegister(@Valid @ModelAttribute RegisterRequest registerRequest,
                                BindingResult bindingResult,
                                HttpSession session,
-                               Model model,RedirectAttributes redirectAttributes) {
+                               Model model, RedirectAttributes redirectAttributes) {
 
         // Manual validation
         model.addAttribute("requestPasswordRequest", new RequestPasswordRequest());
-        model.addAttribute("page","register");
+        model.addAttribute("page", "register");
         model.addAttribute("registerRequest", registerRequest);
+        model.addAttribute("registerEmail", registerRequest.getEmail());
         if (userService.existsEmail(registerRequest.getEmail())) {
             model.addAttribute("isEmailExists", true);
             model.addAttribute("page", "Register");
@@ -205,12 +205,13 @@ public class HomeController {
 
         return "product";
     }
+
     @PostMapping("/request-reset-password")
     public String resetPasswordRequest(RedirectAttributes redirectAttributes, @ModelAttribute RequestPasswordRequest requestPasswordRequest, HttpSession session, Model m, BindingResult bindingResult) throws MessagingException {
         String email = requestPasswordRequest.getEmail();
-        boolean success= userService.sendResetPassword(email);
+        boolean success = userService.sendResetPassword(email);
         redirectAttributes.addFlashAttribute("page", "forgotPassword");
-        return "redirect:/signin?reset=true&error="+!success;
+        return "redirect:/signin?reset=true&error=" + !success;
     }
 
     @GetMapping("/product/{id}")
@@ -284,7 +285,7 @@ public class HomeController {
     @GetMapping("/reset-password")
     public String showResetPassword(@RequestParam(required = false) String token,
                                     Model m) {
-        m.addAttribute("page","forgotPassword");
+        m.addAttribute("page", "forgotPassword");
         m.addAttribute("registerRequest", new RegisterRequest());
         m.addAttribute("requestPasswordRequest", new RequestPasswordRequest());
         if (!org.apache.commons.lang3.StringUtils.isBlank(token)) {
@@ -304,7 +305,7 @@ public class HomeController {
     }
 
     @PostMapping("/reset-password")
-        public String resetPassword(@RequestParam String token,
+    public String resetPassword(@RequestParam String token,
                                 @RequestParam String password,
                                 HttpSession session,
                                 Model m) {
