@@ -57,14 +57,14 @@ public class FileService {
         }
     }
 
-    public boolean deleteFile(String fileUrl) {
+    public void deleteFile(String fileUrl) {
         // Ví dụ: "/static/view/abc.jpg" -> "abc.jpg"
         String filename = Paths.get(fileUrl).getFileName().toString();
         try {
             Path filePath = storagePath.resolve(filename);
-            return Files.deleteIfExists(filePath);
+            Files.deleteIfExists(filePath);
         } catch (IOException e) {
-            throw new RuntimeException("Failed to delete file: " + filename, e);
+            e.printStackTrace();
         }
     }
 

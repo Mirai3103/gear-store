@@ -104,10 +104,16 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional
     public Boolean deleteProduct(Integer id) {
         Product product = productRepository.findById(id).orElse(null);
 
         if (product != null) {
+            product.getGalleries().size();
+            for (Gallery gallery : product.getGalleries()) {
+                fileService.deleteFile(gallery.getThumbnail());
+            }
+            galleryRepository.deleteAll(product.getGalleries());
             productRepository.delete(product);
             return true;
         }
